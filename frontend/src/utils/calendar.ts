@@ -5,10 +5,12 @@ export type CalendarCell = {
   isToday: boolean;
 };
 
+// TODO: Move to utility function
 function dateKey(year: number, month: number, day: number): string {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+// TODO: Move to utility function
 export function buildMonthGrid(viewDate: Date, today: Date = new Date()): CalendarCell[] {
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -50,6 +52,7 @@ export function buildMonthGrid(viewDate: Date, today: Date = new Date()): Calend
   return cells;
 }
 
+// TODO: Move to utility function
 export function formatMonthYear(date: Date): string {
   return date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 }

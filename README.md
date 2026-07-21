@@ -22,6 +22,15 @@ Calender planner for daily task and event planning
 
 **Daily view** — A vertical timeline from 12am to 11:59pm with a current-time indicator, listing the day's tasks and events in chronological order.
 
+#### CRUD modal
+
+Dynamic add modal triggered by an Add button. Event/Task radio buttons switch the form fields:
+
+- **Event** — date, domain (career, fitness, finances, school), start time, end time
+- **Task** — domain, due date, time, optional linked event (filtered select list)
+
+![CRUD modal design](docs/crud-design.png)
+
 ## Tech Stack
 
 - SQLAlchemy (ORM)
