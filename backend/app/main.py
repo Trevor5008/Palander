@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 
+# App title
 app = FastAPI(title="Palander API")
 
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -13,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Health check endpoint
 @app.get("/health")
 def health():
     return {"status": "ok"}
