@@ -61,7 +61,7 @@ export function CalendarView() {
       </div>
       <EventModal
         showAddEventModal={showAddEventModal}
-        setShowAddEventModal={setShowAddEventModal}
+        onClose={() => setShowAddEventModal(false)}
       />
     </section>
   );
