@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+# Tracking version library
+from app.__version__ import __version__
 
-# App title
-app = FastAPI(title="Palander API")
+app = FastAPI(title="Palander API", version=__version__)
 
 # CORS middleware
 app.add_middleware(
@@ -18,4 +19,5 @@ app.add_middleware(
 # Health check endpoint
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    # Log the version
+    return {"status": "ok", "version": __version__}

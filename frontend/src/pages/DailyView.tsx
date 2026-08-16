@@ -138,6 +138,7 @@ export function DailyView() {
         </div>
       </div>
 
+      {/* Add event modal */}
       <EventModal
         showAddEventModal={showAddModal}
         onClose={() => setShowAddModal(false)}

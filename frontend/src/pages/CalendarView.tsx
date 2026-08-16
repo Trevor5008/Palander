@@ -59,6 +59,7 @@ export function CalendarView() {
           </div>
         ))}
       </div>
+      {/* Add event modal */}
       <EventModal
         showAddEventModal={showAddEventModal}
         onClose={() => setShowAddEventModal(false)}
