@@ -1,5 +1,32 @@
 # Palander
+
 Calendar planner for daily task and event planning
+
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-2.6+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![Alembic](https://img.shields.io/badge/Alembic-1.14+-000000)](https://alembic.sqlalchemy.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+
+## Table of contents
+
+- [Design](#design)
+  - [Database schema](#database-schema)
+  - [UI views](#ui-views)
+  - [CRUD modal](#crud-modal)
+- [Tech Stack](#tech-stack)
+- [Versioning](#versioning)
+- [Project structure](#project-structure)
+- [Getting started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
 
 ### Design
 
@@ -27,15 +54,22 @@ Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE 
 
 **Daily view** — A vertical timeline from 12am to 11:59pm with a current-time indicator, listing the day's tasks and events in chronological order.
 
+#### CRUD modal
+
+Dynamic add modal triggered by an Add button. Event/Task radio buttons switch the form fields:
+
+- **Event** — date, domain (career, fitness, finances, school), start time, end time
+- **Task** — domain, due date, time, optional linked event (filtered select list)
+
+![CRUD modal design](docs/crud-design.png)
+
 ## Tech Stack
 
-- SQLAlchemy (ORM)
-- Alembic (migrations)
-- PostgreSQL (DB)
-- FastAPI (Backend)
-- Pydantic (data validation)
-- Vite.js (Frontend)
-- Tailwind (Styling)
+See the badges above for the main technologies. Backend: FastAPI, SQLAlchemy, Alembic, PostgreSQL, Pydantic. Frontend: React, TypeScript, Vite, Tailwind CSS, Headless UI.
+
+## Versioning
+
+The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.1.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
 
 ## Project structure
 
