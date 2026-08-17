@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-17
+
+### Added
+
+- Event and Task Pydantic schemas and full CRUD REST API (`/events`, `/tasks`, `/domains`)
+- Alembic seed migration for dev user (`user_id=1`) and domain pillars
+- Frontend API client, TypeScript types, and form-to-API mappers
+- Calendar and daily views fetch and display persisted events and tasks; click to edit
+- EventModal wired for create, update, and delete with domain lookup and linked-event dropdown
+- Data flow architecture and sequence diagrams in README and [`docs/data-flow.md`](docs/data-flow.md)
+
 ## [0.1.0] - 2026-07-21
 
 ### Added
@@ -41,7 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calendar and daily view placeholders, CORS wiring, and development setup docs
 - Database schema design and README documentation
 
-[Unreleased]: https://github.com/Trevor5008/Palander/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Trevor5008/Palander/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Trevor5008/Palander/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Trevor5008/Palander/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/Trevor5008/Palander/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/Trevor5008/Palander/releases/tag/v0.0.1

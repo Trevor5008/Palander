@@ -2,7 +2,7 @@
 
 Calendar planner for daily task and event planning
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-2.6+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
@@ -20,6 +20,7 @@ Calendar planner for daily task and event planning
   - [Database schema](#database-schema)
   - [UI views](#ui-views)
   - [CRUD modal](#crud-modal)
+- [Data flow](#data-flow)
 - [Tech Stack](#tech-stack)
 - [Versioning](#versioning)
 - [Project structure](#project-structure)
@@ -63,13 +64,85 @@ Dynamic add modal triggered by an Add button. Event/Task radio buttons switch th
 
 ![CRUD modal design](docs/crud-design.png)
 
+## Data flow
+
+Events and tasks persist through the React UI → FastAPI → PostgreSQL stack. The frontend uses `user_id=1` (dev user) until auth is added.
+
+**Architecture (component flow):**
+
+```mermaid
+flowchart TB
+  subgraph frontend [Frontend — React / Vite]
+    CalendarView[CalendarView]
+    DailyView[DailyView]
+    EventModal[EventModal]
+    mappers[apiMappers.ts]
+    apiTs[api.ts]
+  end
+
+  subgraph backend [Backend — FastAPI]
+    domainsRouter["GET /domains"]
+    eventsRouter["/events CRUD"]
+    tasksRouter["/tasks CRUD"]
+    pydantic[Pydantic schemas]
+    sqlalchemy[SQLAlchemy models]
+  end
+
+  DB[(PostgreSQL)]
+
+  CalendarView --> apiTs
+  DailyView --> apiTs
+  EventModal --> mappers
+  EventModal --> apiTs
+  mappers --> apiTs
+  apiTs --> domainsRouter
+  apiTs --> eventsRouter
+  apiTs --> tasksRouter
+  domainsRouter --> pydantic
+  eventsRouter --> pydantic
+  tasksRouter --> pydantic
+  pydantic --> sqlalchemy
+  sqlalchemy --> DB
+```
+
+**CRUD sequence (list → modal → save → refetch):**
+
+```mermaid
+sequenceDiagram
+  participant View as CalendarView / DailyView
+  participant Modal as EventModal
+  participant API as api.ts
+  participant BE as FastAPI
+  participant DB as PostgreSQL
+
+  View->>API: GET /events and /tasks
+  API->>BE: list by user_id + date range
+  BE->>DB: SELECT
+  DB-->>View: render markers / blocks
+
+  View->>Modal: open create or edit
+  Modal->>API: GET /domains
+  alt Create or update
+    Modal->>API: POST or PATCH
+    API->>BE: write
+    BE->>DB: INSERT or UPDATE
+  else Delete
+    Modal->>API: DELETE
+    BE->>DB: DELETE
+  end
+  Modal->>View: onSaved / onDeleted
+  View->>API: refetch lists
+```
+
+Full detail (field mapping, file index, out-of-scope items): [`docs/data-flow.md`](docs/data-flow.md).
+
 ## Tech Stack
 
 See the badges above for the main technologies. Backend: FastAPI, SQLAlchemy, Alembic, PostgreSQL, Pydantic. Frontend: React, TypeScript, Vite, Tailwind CSS, Headless UI.
 
 ## Versioning
 
-The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.1.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
+The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.2.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
 
 ## Project structure
 
