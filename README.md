@@ -2,7 +2,7 @@
 
 Calendar planner for daily task and event planning
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-2.6+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
@@ -26,8 +26,10 @@ Calendar planner for daily task and event planning
 - [Project structure](#project-structure)
 - [Getting started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Backend](#backend)
+  - [Docker (recommended)](#docker-recommended)
+  - [Backend (native)](#backend-native)
   - [Frontend](#frontend)
+- [CI/CD](#cicd)
 
 ### Design
 
@@ -66,7 +68,7 @@ Dynamic add modal triggered by an Add button. Event/Task radio buttons switch th
 
 ## Data flow
 
-Events and tasks persist through the React UI → FastAPI → PostgreSQL stack. The frontend uses `user_id=1` (dev user) until auth is added.
+Events and tasks persist through the React UI → FastAPI → PostgreSQL stack. The frontend authenticates with JWT Bearer tokens (`POST /auth/login`); the dev user is `dev` / `dev`.
 
 **Architecture (component flow):**
 
@@ -142,13 +144,15 @@ See the badges above for the main technologies. Backend: FastAPI, SQLAlchemy, Al
 
 ## Versioning
 
-The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.2.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
+The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.3.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
 
 ## Project structure
 
-- `backend/` — FastAPI API, SQLAlchemy models, Alembic migrations
+- `backend/` — FastAPI API, SQLAlchemy models, Alembic migrations, Dockerfile
 - `frontend/` — Vite + Tailwind UI (calendar and daily views)
 - `docs/` — design artifacts
+- `docker-compose.yml` — PostgreSQL + API for local development
+- `.github/workflows/` — CI (pytest, frontend build, compose smoke test) and release (GHCR)
 
 ## Getting started
 
@@ -178,7 +182,21 @@ sudo -iu postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 sudo -iu postgres createdb palander
 ```
 
-### Backend
+### Docker (recommended)
+
+Requires [Docker](https://docs.docker.com/get-docker/) and Docker Compose v2.
+
+```bash
+docker compose up --build
+```
+
+This starts PostgreSQL and the API on http://localhost:8000. Migrations run automatically on startup. Optional overrides: copy [`docker-compose.env.example`](docker-compose.env.example) to `docker-compose.env` and pass `--env-file docker-compose.env`.
+
+Then run the frontend locally (see [Frontend](#frontend)). Sign in with **dev** / **dev**.
+
+### Backend (native)
+
+Alternative to Docker — run Postgres yourself (see below), then:
 
 ```bash
 cd backend
@@ -202,3 +220,23 @@ npm run dev
 ```
 
 The frontend dev server runs at http://localhost:5173 and calls the backend at `VITE_API_URL` (default http://localhost:8000).
+
+Sign in with the seeded dev account: **username** `dev`, **password** `dev`. The JWT is stored in `localStorage` and sent as `Authorization: Bearer …` on API requests.
+
+## CI/CD
+
+**CI** (`.github/workflows/ci.yml`) runs on every push to `main` and on pull requests:
+
+- Backend: `pytest` (44 tests)
+- Frontend: `npm ci` + `npm run build`
+- Docker: `docker compose up --build --wait`, then `curl /health`
+
+**Release** (`.github/workflows/release.yml`) runs when a version tag is pushed (e.g. `v0.3.0`):
+
+- Builds the backend image and publishes to GHCR:
+
+```bash
+docker pull ghcr.io/trevor5008/palander-api:0.3.0
+```
+
+For private repositories, authenticate with `docker login ghcr.io` using a GitHub personal access token with `read:packages`. Set `JWT_SECRET` to at least 32 bytes in production deployments.

@@ -16,9 +16,9 @@ export type EventRead = {
   objective_id: number | null;
 };
 
-export type EventCreate = Omit<EventRead, "id">;
+export type EventCreate = Omit<EventRead, "id" | "user_id">;
 
-export type EventUpdate = Partial<Omit<EventCreate, "user_id">>;
+export type EventUpdate = Partial<EventCreate>;
 
 export type TaskRead = {
   id: number;
@@ -32,6 +32,17 @@ export type TaskRead = {
   objective_id: number | null;
 };
 
-export type TaskCreate = Omit<TaskRead, "id">;
+export type TaskCreate = Omit<TaskRead, "id" | "user_id">;
 
-export type TaskUpdate = Partial<Omit<TaskCreate, "user_id">>;
+export type TaskUpdate = Partial<TaskCreate>;
+
+export type TokenResponse = {
+  access_token: string;
+  token_type: string;
+};
+
+export type UserRead = {
+  id: number;
+  username: string;
+  email: string;
+};

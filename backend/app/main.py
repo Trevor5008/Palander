@@ -3,12 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.__version__ import __version__
-from app.routers import domains, events, tasks
+from app.routers import auth, domains, events, objectives, tasks
 
 app = FastAPI(title="Palander API", version=__version__)
 
+app.include_router(auth.router)
 app.include_router(domains.router)
 app.include_router(events.router)
+app.include_router(objectives.router)
 app.include_router(tasks.router)
 
 # CORS middleware

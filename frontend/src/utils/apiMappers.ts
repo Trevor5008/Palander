@@ -1,5 +1,4 @@
 import type { Domain } from "../constants/domains";
-import { DEV_USER_ID } from "../constants/user";
 import type { DomainRead, EventCreate, EventRead, EventUpdate, TaskCreate, TaskRead, TaskUpdate } from "../types/api";
 import { formatDateForInput, formatTimeForInput, parseDateInput } from "./date";
 
@@ -25,11 +24,7 @@ function combineDateAndTime(date: string, time: string): string {
   return `${date}T${time}:00`;
 }
 
-export function eventFormToCreate(
-  form: EventFormState,
-  domainId: number,
-  userId = DEV_USER_ID,
-): EventCreate {
+export function eventFormToCreate(form: EventFormState, domainId: number): EventCreate {
   const { start_at, end_at } = form.allDay
     ? {
         start_at: combineDateAndTime(form.date, "00:00"),
@@ -47,44 +42,28 @@ export function eventFormToCreate(
     is_recurring: form.isRecurring,
     rrule: null,
     domain_id: domainId,
-    user_id: userId,
     objective_id: null,
   };
 }
 
-export function eventFormToUpdate(
-  form: EventFormState,
-  domainId: number,
-): EventUpdate {
-  const create = eventFormToCreate(form, domainId);
-  const { user_id: _, ...update } = create;
-  return update;
+export function eventFormToUpdate(form: EventFormState, domainId: number): EventUpdate {
+  return eventFormToCreate(form, domainId);
 }
 
-export function taskFormToCreate(
-  form: TaskFormState,
-  domainId: number,
-  userId = DEV_USER_ID,
-): TaskCreate {
+export function taskFormToCreate(form: TaskFormState, domainId: number): TaskCreate {
   return {
     name: form.title.trim(),
     due_date: combineDateAndTime(form.date, form.startTime),
     is_recurring: false,
     rrule: null,
-    user_id: userId,
     domain_id: domainId,
     event_id: form.linkedEventId ? Number(form.linkedEventId) : null,
     objective_id: null,
   };
 }
 
-export function taskFormToUpdate(
-  form: TaskFormState,
-  domainId: number,
-): TaskUpdate {
-  const create = taskFormToCreate(form, domainId);
-  const { user_id: _, ...update } = create;
-  return update;
+export function taskFormToUpdate(form: TaskFormState, domainId: number): TaskUpdate {
+  return taskFormToCreate(form, domainId);
 }
 
 export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventFormState {

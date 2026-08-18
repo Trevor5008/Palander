@@ -1,0 +1,7 @@
+frontend/
+docs/
+.git/
+.github/
+*.md
+docker-compose*.yml
+docker-compose*.env*

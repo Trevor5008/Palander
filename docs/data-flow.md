@@ -113,11 +113,10 @@ The modal collects human-friendly form fields; `apiMappers.ts` converts them to 
 | `domain` (slug) | `domain_id` via GET /domains | `domain_id` |
 | `isRecurring` | `is_recurring` | — |
 | `linkedEventId` | — | `event_id` |
-| — | `user_id: 1` | `user_id: 1` |
+| — | `Authorization: Bearer <token>` | `Authorization: Bearer <token>` |
 
 ## Not wired yet
 
-- Authentication (hardcoded dev user)
 - RRULE expansion / recurrence instances
 - Objective linking in the UI
 - Notes and reminders

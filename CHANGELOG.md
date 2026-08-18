@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-18
+
+### Added
+
+- JWT authentication (`POST /auth/login`, `GET /auth/me`); all resource routes require Bearer token
+- Full Domain and Objective CRUD APIs with validation and pytest coverage (44 tests)
+- Backend Dockerfile with automatic Alembic migrations on startup
+- Docker Compose stack (`db` + `api`) for local development
+- GitHub Actions CI: pytest, frontend build, and compose smoke test
+- GitHub Actions release workflow publishing backend image to `ghcr.io/trevor5008/palander-api`
+- Frontend login page, route guard, and JWT storage in `localStorage`
+
+### Changed
+
+- Resource APIs no longer accept `user_id` query params or create payloads; ownership is derived from the JWT
+- README documents Docker Compose workflow and CI/CD pipelines
+
 ## [0.2.0] - 2026-08-17
 
 ### Added
@@ -52,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calendar and daily view placeholders, CORS wiring, and development setup docs
 - Database schema design and README documentation
 
-[Unreleased]: https://github.com/Trevor5008/Palander/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Trevor5008/Palander/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Trevor5008/Palander/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Trevor5008/Palander/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Trevor5008/Palander/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/Trevor5008/Palander/compare/v0.0.1...v0.0.2
