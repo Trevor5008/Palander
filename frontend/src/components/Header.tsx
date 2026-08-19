@@ -19,6 +19,9 @@ export function Header() {
             <Link to="/" className="hover:text-blue-600">
               Calendar
             </Link>
+            <Link to="/weekly" className="hover:text-blue-600">
+              Weekly
+            </Link>
             <Link to="/daily" className="hover:text-blue-600">
               Daily
             </Link>

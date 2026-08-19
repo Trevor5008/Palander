@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CalendarView } from "./pages/CalendarView";
+import { WeeklyView } from "./pages/WeeklyView";
 import { DailyView } from "./pages/DailyView";
 import { LoginView } from "./pages/LoginView";
 
@@ -14,6 +15,7 @@ export function App() {
           <Route path="/login" element={<LoginView />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<CalendarView />} />
+            <Route path="/weekly" element={<WeeklyView />} />
             <Route path="/daily" element={<DailyView />} />
           </Route>
         </Routes>
