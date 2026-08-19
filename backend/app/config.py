@@ -6,6 +6,8 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql://postgres:postgres@localhost:5432/palander"
     cors_origins: str = "http://localhost:5173"
+    jwt_secret: str = "change-me-in-production"
+    jwt_expire_minutes: int = 60 * 24 * 7
 
     @property
     def cors_origins_list(self) -> list[str]:
