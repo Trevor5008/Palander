@@ -66,14 +66,37 @@ export function taskFormToUpdate(form: TaskFormState, domainId: number): TaskUpd
   return taskFormToCreate(form, domainId);
 }
 
-export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventFormState {
+export function isAllDayEvent(event: EventRead): boolean {
   const start = new Date(event.start_at);
   const end = new Date(event.end_at);
-  const allDay =
+  return (
     start.getHours() === 0 &&
     start.getMinutes() === 0 &&
     end.getHours() === 23 &&
-    end.getMinutes() >= 59;
+    end.getMinutes() >= 59
+  );
+}
+
+export function partitionEvents(events: EventRead[]): {
+  allDay: EventRead[];
+  timed: EventRead[];
+} {
+  const allDay: EventRead[] = [];
+  const timed: EventRead[] = [];
+  for (const event of events) {
+    if (isAllDayEvent(event)) {
+      allDay.push(event);
+    } else {
+      timed.push(event);
+    }
+  }
+  return { allDay, timed };
+}
+
+export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventFormState {
+  const start = new Date(event.start_at);
+  const end = new Date(event.end_at);
+  const allDay = isAllDayEvent(event);
 
   const domainName =
     domains.find((d) => d.id === event.domain_id)?.name ?? "career";

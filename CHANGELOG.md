@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-26
+
+### Added
+
+- Weekly view with week strip day picker and reused daily timeline for the selected date
+- Shared frontend hooks: `useEntriesRange`, `useEventTaskModal`, `useDomains`
+- Shared components: `DateNavBar`, `WeekStrip`, `AllDayRow`, `DayTimeline`
+- Domain color coding for events and tasks across calendar, daily, and weekly views
+- All-day event row on daily and weekly views
+- Calendar month navigation (prev/next/today) with refetch on range change
+
+### Changed
+
+- Refactored DailyView and CalendarView to use shared fetch/modal/timeline utilities
+
 ## [0.3.0] - 2026-08-18
 
 ### Added
@@ -69,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calendar and daily view placeholders, CORS wiring, and development setup docs
 - Database schema design and README documentation
 
-[Unreleased]: https://github.com/Trevor5008/Palander/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Trevor5008/Palander/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Trevor5008/Palander/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Trevor5008/Palander/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Trevor5008/Palander/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Trevor5008/Palander/compare/v0.0.2...v0.1.0

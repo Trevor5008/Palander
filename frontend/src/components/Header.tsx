@@ -1,7 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
+import { LAYOUT_WIDTH_DEFAULT } from "../constants/layout";
 import { useAuth } from "../context/AuthContext";
 
-export function Header() {
+type HeaderProps = {
+  widthClass?: string;
+};
+
+export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -12,7 +17,7 @@ export function Header() {
 
   return (
     <header className="border-b border-gray-200 bg-white px-6 py-4">
-      <div className="mx-auto flex max-w-5xl items-center justify-between">
+      <div className={`mx-auto flex w-full items-center justify-between ${widthClass}`}>
         <h1 className="text-xl font-semibold">Palander</h1>
         <div className="flex items-center gap-4 text-sm">
           <nav className="flex gap-4">
