@@ -10,6 +10,10 @@ export function formatDayName(date: Date): string {
   return date.toLocaleDateString(undefined, { weekday: "long" });
 }
 
+export function formatShortMonthDay(date: Date): string {
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&

@@ -2,8 +2,6 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { CurrentTimeIndicator } from "./CurrentTimeIndicator";
 import { getDomainClassesById } from "../constants/domainColors";
 import {
-  getAnchoredTimeScrollTop,
-  getTimeOffsetPx,
   HOUR_ROW_HEIGHT_CLASS,
   HOUR_SLOTS,
   TIMELINE_TOP_PADDING_PX,
@@ -13,35 +11,11 @@ import { useCurrentTime } from "../hooks/useCurrentTime";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
 import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
 import { formatDayName, isSameDay } from "../utils/date";
-
-function measureRowHeight(container: HTMLDivElement): number {
-  return container.querySelector<HTMLElement>("[data-hour]")?.offsetHeight ?? 40;
-}
-
-function scrollTimelineToTime(
-  container: HTMLDivElement,
-  hour: number,
-  minute: number,
-) {
-  const rowHeight = measureRowHeight(container);
-  const maxScrollTop = container.scrollHeight - container.clientHeight;
-  container.scrollTop = getAnchoredTimeScrollTop(
-    hour,
-    minute,
-    rowHeight,
-    container.clientHeight,
-    maxScrollTop,
-  );
-}
-
-function getEventBlockStyle(event: EventRead, rowHeight: number) {
-  const start = new Date(event.start_at);
-  const end = new Date(event.end_at);
-  const top = getTimeOffsetPx(start.getHours(), start.getMinutes(), rowHeight);
-  const durationMs = Math.max(end.getTime() - start.getTime(), 15 * 60 * 1000);
-  const height = (durationMs / (1000 * 60 * 60)) * rowHeight;
-  return { top, height: Math.max(height, rowHeight * 0.35) };
-}
+import {
+  getEventBlockStyle,
+  measureRowHeight,
+  scrollTimelineToTime,
+} from "../utils/timeline";
 
 type DayTimelineProps = {
   selectedDate: Date;
