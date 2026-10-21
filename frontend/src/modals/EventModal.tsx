@@ -1,6 +1,6 @@
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createEvent,
   createTask,
@@ -23,6 +23,7 @@ import {
   taskFormToUpdate,
   taskReadToForm,
   toApiDateTime,
+  validateEventFormRange,
 } from "../utils/apiMappers";
 import {
   addHours,
@@ -68,7 +69,9 @@ export function EventModal({
   const [entryType, setEntryType] = useState<EntryType>("event");
   const [title, setTitle] = useState("");
   const [domain, setDomain] = useState<Domain>("career");
-  const [date, setDate] = useState(() => formatDateForInput(defaultDate));
+  const [startDate, setStartDate] = useState(() => formatDateForInput(defaultDate));
+  const [endDate, setEndDate] = useState(() => formatDateForInput(defaultDate));
+  const [taskDate, setTaskDate] = useState(() => formatDateForInput(defaultDate));
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [allDay, setAllDay] = useState(false);
@@ -78,6 +81,7 @@ export function EventModal({
   const [linkedEvents, setLinkedEvents] = useState<EventRead[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const formSeedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!showAddEventModal) return;
@@ -86,24 +90,52 @@ export function EventModal({
     fetchDomains()
       .then(setDomains)
       .catch(() => setError("Failed to load domains"));
-
-    const rangeStart = toApiDateTime(startOfMonth(defaultDate));
-    const rangeEnd = toApiDateTime(endOfMonth(defaultDate));
-    // Fetch linked events
-    fetchEvents(rangeStart, rangeEnd)
-      .then(setLinkedEvents)
-      .catch(() => setLinkedEvents([]));
-  }, [showAddEventModal, defaultDate]);
+  }, [showAddEventModal]);
 
   useEffect(() => {
     if (!showAddEventModal) return;
 
-    if (editEvent && domains.length > 0) {
+    const anchorStart = parseDateInput(startDate);
+    const anchorEnd = parseDateInput(endDate);
+    const rangeFrom =
+      anchorStart.getTime() <= anchorEnd.getTime() ? anchorStart : anchorEnd;
+    const rangeTo =
+      anchorStart.getTime() <= anchorEnd.getTime() ? anchorEnd : anchorStart;
+    const rangeStart = toApiDateTime(startOfMonth(rangeFrom));
+    const rangeEnd = toApiDateTime(endOfMonth(rangeTo));
+    fetchEvents(rangeStart, rangeEnd)
+      .then(setLinkedEvents)
+      .catch(() => setLinkedEvents([]));
+  }, [showAddEventModal, startDate, endDate]);
+
+  useEffect(() => {
+    if (!showAddEventModal) {
+      formSeedRef.current = null;
+      return;
+    }
+
+    const seedKey = editEvent
+      ? `event-${editEvent.id}`
+      : editTask
+        ? `task-${editTask.id}`
+        : `create-${formatDateForInput(defaultDate)}`;
+
+    if ((editEvent || editTask) && domains.length === 0) {
+      return;
+    }
+
+    if (formSeedRef.current === seedKey) {
+      return;
+    }
+    formSeedRef.current = seedKey;
+
+    if (editEvent) {
       const form = eventReadToForm(editEvent, domains);
       setEntryType("event");
       setTitle(form.title);
       setDomain(form.domain);
-      setDate(form.date);
+      setStartDate(form.startDate);
+      setEndDate(form.endDate);
       setStartTime(form.startTime);
       setEndTime(form.endTime);
       setAllDay(form.allDay);
@@ -112,12 +144,12 @@ export function EventModal({
       return;
     }
 
-    if (editTask && domains.length > 0) {
+    if (editTask) {
       const form = taskReadToForm(editTask, domains);
       setEntryType("task");
       setTitle(form.title);
       setDomain(form.domain);
-      setDate(form.date);
+      setTaskDate(form.date);
       setStartTime(form.startTime);
       setEndTime("10:00");
       setAllDay(false);
@@ -126,18 +158,19 @@ export function EventModal({
       return;
     }
 
-    if (!editEvent && !editTask) {
-      const times = getDefaultTimes(defaultDate, new Date());
-      setEntryType("event");
-      setTitle("");
-      setDomain("career");
-      setDate(formatDateForInput(defaultDate));
-      setStartTime(times.startTime);
-      setEndTime(times.endTime);
-      setAllDay(false);
-      setIsRecurring(false);
-      setLinkedEventId("");
-    }
+    const times = getDefaultTimes(defaultDate, new Date());
+    setEntryType("event");
+    setTitle("");
+    setDomain("career");
+    const day = formatDateForInput(defaultDate);
+    setStartDate(day);
+    setEndDate(day);
+    setTaskDate(day);
+    setStartTime(times.startTime);
+    setEndTime(times.endTime);
+    setAllDay(false);
+    setIsRecurring(false);
+    setLinkedEventId("");
   }, [showAddEventModal, defaultDate, editEvent, editTask, domains]);
 
   const resolveDomainId = (): number | null => {
@@ -162,14 +195,29 @@ export function EventModal({
 
     try {
       if (category === "event") {
-        const form = { title, domain, date, startTime, endTime, allDay, isRecurring };
+        const form = {
+          title,
+          domain,
+          startDate,
+          endDate,
+          startTime,
+          endTime,
+          allDay,
+          isRecurring,
+        };
+        const rangeError = validateEventFormRange(form);
+        if (rangeError) {
+          setError(rangeError);
+          setSaving(false);
+          return;
+        }
         if (editEvent) {
           await updateEvent(editEvent.id, eventFormToUpdate(form, domainId));
         } else {
           await createEvent(eventFormToCreate(form, domainId));
         }
       } else {
-        const form = { title, domain, date, startTime, linkedEventId };
+        const form = { title, domain, date: taskDate, startTime, linkedEventId };
         if (editTask) {
           await updateTask(editTask.id, taskFormToUpdate(form, domainId));
         } else {
@@ -222,7 +270,7 @@ export function EventModal({
               placeholder="Add title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full border-0 text-lg font-medium placeholder:text-gray-400 focus:outline-none focus:ring-0"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg font-medium placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
             />
             <button
               type="button"
@@ -276,18 +324,52 @@ export function EventModal({
               </select>
             </div>
 
-            <div>
-              <label htmlFor="date" className="mb-1 block text-gray-500">
-                {entryType === "event" ? "Date" : "Due on"}
-              </label>
-              <input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
+            {entryType === "event" ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="startDate" className="mb-1 block text-gray-500">
+                    Start date
+                  </label>
+                  <input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setStartDate(next);
+                      setEndDate((current) => (current < next ? next : current));
+                    }}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="endDate" className="mb-1 block text-gray-500">
+                    End date
+                  </label>
+                  <input
+                    id="endDate"
+                    type="date"
+                    value={endDate}
+                    min={startDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="taskDate" className="mb-1 block text-gray-500">
+                  Due on
+                </label>
+                <input
+                  id="taskDate"
+                  type="date"
+                  value={taskDate}
+                  onChange={(e) => setTaskDate(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
+            )}
 
             {entryType === "event" ? (
               <div className="grid grid-cols-2 gap-3">

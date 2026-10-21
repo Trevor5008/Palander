@@ -2,7 +2,7 @@
 
 Calendar planner for daily task and event planning
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-2.6+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
@@ -53,9 +53,11 @@ Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE 
 
 #### UI views
 
-**Calendar view** — A monthly/weekly grid (Sun–Thu) where each day shows tasks and events as distinct markers. Selecting a day (e.g. Thursday the 4th) surfaces items like "TASK 001" and "EVENT 001".
+**Calendar view** — Monthly grid (Sun–Sat) with prev/next month navigation. Events and tasks appear as domain-colored chips per day; click to edit.
 
-**Daily view** — A vertical timeline from 12am to 11:59pm with a current-time indicator, listing the day's tasks and events in chronological order.
+**Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans). Week prev/next/today navigation matches daily view.
+
+**Daily view** — Vertical timeline from 12am to 11:59pm with a current-time indicator, all-day event row, domain-colored task chips, and timed event blocks.
 
 #### CRUD modal
 
@@ -144,7 +146,7 @@ See the badges above for the main technologies. Backend: FastAPI, SQLAlchemy, Al
 
 ## Versioning
 
-The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.3.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
+The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.4.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
 
 ## Project structure
 

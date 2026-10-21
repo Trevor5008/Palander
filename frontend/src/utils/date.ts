@@ -10,6 +10,10 @@ export function formatDayName(date: Date): string {
   return date.toLocaleDateString(undefined, { weekday: "long" });
 }
 
+export function formatShortMonthDay(date: Date): string {
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -52,4 +56,43 @@ export function addHours(date: Date, hours: number): Date {
 export function parseDateInput(value: string): Date {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(year, month - 1, day);
+}
+
+export function startOfWeek(date: Date, weekStartsOn = 0): Date {
+  const start = startOfDay(date);
+  const day = start.getDay();
+  const diff = (day - weekStartsOn + 7) % 7;
+  return addDays(start, -diff);
+}
+
+export function endOfWeek(date: Date, weekStartsOn = 0): Date {
+  const start = startOfWeek(date, weekStartsOn);
+  const end = addDays(start, 6);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+export function addWeeks(date: Date, weeks: number): Date {
+  return addDays(date, weeks * 7);
+}
+
+export function formatWeekRange(start: Date, end: Date): string {
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const startLabel = start.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+  const endLabel = end.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  return `${startLabel} – ${endLabel}`;
+}
+
+export function addMonths(date: Date, months: number): Date {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next;
 }
