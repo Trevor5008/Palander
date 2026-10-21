@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import type { ReactNode } from "react";
+import { AddEntryButton } from "./AddEntryButton";
 
 type DateNavBarProps = {
   label: string;
@@ -53,13 +54,7 @@ export function DateNavBar({
       {center ?? <h2 className="text-center text-lg font-semibold">{label}</h2>}
 
       <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onAdd}
-          className="rounded border border-gray-300 p-1.5 text-sm text-gray-600 hover:bg-gray-100"
-        >
-          add +
-        </button>
+        <AddEntryButton onClick={onAdd} />
       </div>
     </div>
   );

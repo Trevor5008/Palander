@@ -1,8 +1,9 @@
 import { WEEKDAY_LABELS } from "../constants/calendar";
-import { CalendarDayCell } from "./calendar/CalendarDayCell";
-import { CalendarWeekdayLabel } from "./calendar/CalendarWeekdayLabel";
+import { CalendarDayCell } from "./Calendar/CalendarDayCell";
+import { CalendarWeekdayLabel } from "./Calendar/CalendarWeekdayLabel";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
 import { dayFromCellKey, isSameApiDay } from "../utils/apiMappers";
+import { getEventsForDay } from "../utils/eventSegments";
 import type { CalendarCell } from "../utils/calendar";
 
 // Calendar Grid component props
@@ -13,6 +14,7 @@ type CalendarGridProps = {
   domains: DomainRead[];
   onEditEvent: (event: EventRead) => void;
   onEditTask: (task: TaskRead) => void;
+  onCreateForDay?: (date: Date) => void;
 };
 
 // Calendar Grid component
@@ -23,10 +25,11 @@ export function CalendarGrid({
   domains,
   onEditEvent,
   onEditTask,
+  onCreateForDay,
 }: CalendarGridProps) {
   // Render the Calendar Grid component
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-[auto_repeat(6,minmax(0,1fr))] gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200">
+    <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-[auto_repeat(6,minmax(0,1fr))] overflow-hidden rounded-lg border border-gray-200 bg-white">
       {/* Render the Calendar Weekday Labels */}
       {WEEKDAY_LABELS.map((day) => (
         <CalendarWeekdayLabel key={day} label={day} />
@@ -35,9 +38,7 @@ export function CalendarGrid({
       {cells.map((cell) => {
         // Get the cell date
         const cellDate = dayFromCellKey(cell.key);
-        const dayEvents = cellDate
-          ? events.filter((e) => isSameApiDay(e.start_at, cellDate))
-          : [];
+        const dayEvents = cellDate ? getEventsForDay(events, cellDate) : [];
         // Get the day tasks
         const dayTasks = cellDate
           ? tasks.filter((t) => isSameApiDay(t.due_date, cellDate))
@@ -53,6 +54,9 @@ export function CalendarGrid({
             domains={domains}
             onEditEvent={onEditEvent}
             onEditTask={onEditTask}
+            onCreateForDay={
+              cellDate && onCreateForDay ? () => onCreateForDay(cellDate) : undefined
+            }
           />
         );
       })}

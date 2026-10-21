@@ -43,6 +43,54 @@ def test_list_events_in_date_range(client, seed_user, seed_domain, auth_headers)
     assert len(response.json()) == 1
 
 
+def test_list_events_includes_event_starting_before_range(client, seed_user, seed_domain, auth_headers):
+    client.post(
+        "/events",
+        json=event_payload(
+            seed_domain.id,
+            start_at="2026-08-17T09:00:00",
+            end_at="2026-08-18T10:00:00",
+        ),
+        headers=auth_headers,
+    )
+
+    response = client.get(
+        "/events",
+        params={
+            "start": "2026-08-18T00:00:00",
+            "end": "2026-08-18T23:59:59",
+        },
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+
+def test_list_events_includes_multi_day_spanning_range(client, seed_user, seed_domain, auth_headers):
+    client.post(
+        "/events",
+        json=event_payload(
+            seed_domain.id,
+            start_at="2026-08-16T00:00:00",
+            end_at="2026-08-20T23:59:00",
+        ),
+        headers=auth_headers,
+    )
+
+    response = client.get(
+        "/events",
+        params={
+            "start": "2026-08-18T00:00:00",
+            "end": "2026-08-18T23:59:59",
+        },
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+
 def test_list_events_excludes_outside_range(client, seed_user, seed_domain, auth_headers):
     client.post("/events", json=event_payload(seed_domain.id), headers=auth_headers)
 

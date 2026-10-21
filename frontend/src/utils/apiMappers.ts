@@ -5,7 +5,8 @@ import { formatDateForInput, formatTimeForInput, parseDateInput } from "./date";
 export type EventFormState = {
   title: string;
   domain: Domain;
-  date: string;
+  startDate: string;
+  endDate: string;
   startTime: string;
   endTime: string;
   allDay: boolean;
@@ -27,12 +28,12 @@ function combineDateAndTime(date: string, time: string): string {
 export function eventFormToCreate(form: EventFormState, domainId: number): EventCreate {
   const { start_at, end_at } = form.allDay
     ? {
-        start_at: combineDateAndTime(form.date, "00:00"),
-        end_at: combineDateAndTime(form.date, "23:59"),
+        start_at: combineDateAndTime(form.startDate, "00:00"),
+        end_at: combineDateAndTime(form.endDate, "23:59"),
       }
     : {
-        start_at: combineDateAndTime(form.date, form.startTime),
-        end_at: combineDateAndTime(form.date, form.endTime),
+        start_at: combineDateAndTime(form.startDate, form.startTime),
+        end_at: combineDateAndTime(form.endDate, form.endTime),
       };
 
   return {
@@ -104,12 +105,21 @@ export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventF
   return {
     title: event.title,
     domain: domainName as Domain,
-    date: formatDateForInput(start),
+    startDate: formatDateForInput(start),
+    endDate: formatDateForInput(end),
     startTime: formatTimeForInput(start),
     endTime: formatTimeForInput(end),
     allDay,
     isRecurring: event.is_recurring,
   };
+}
+
+export function validateEventFormRange(form: EventFormState): string | null {
+  const { start_at, end_at } = eventFormToCreate(form, 0);
+  if (new Date(end_at).getTime() < new Date(start_at).getTime()) {
+    return "End must be on or after start";
+  }
+  return null;
 }
 
 export function taskReadToForm(task: TaskRead, domains: DomainRead[]): TaskFormState {

@@ -10,6 +10,7 @@ type CalendarDayCellProps = {
   domains: DomainRead[];
   onEditEvent: (event: EventRead) => void;
   onEditTask: (task: TaskRead) => void;
+  onCreateForDay?: () => void;
 };
 
 // Calendar Day Cell component
@@ -20,11 +21,26 @@ export function CalendarDayCell({
   domains,
   onEditEvent,
   onEditTask,
+  onCreateForDay,
 }: CalendarDayCellProps) {
-  // Render the Calendar Day Cell component
+  const isInteractive = cell.day !== null && onCreateForDay;
+
   return (
     <div
-      className={`flex min-h-0 flex-col overflow-hidden p-1.5 ${cell.isCurrentMonth ? "bg-white" : "bg-gray-50"} ${cell.isToday ? "ring-2 ring-inset ring-blue-400" : ""}`}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      onClick={isInteractive ? onCreateForDay : undefined}
+      onKeyDown={
+        isInteractive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onCreateForDay();
+              }
+            }
+          : undefined
+      }
+      className={`flex min-h-0 flex-col overflow-hidden border border-gray-200 p-1.5 ${cell.isCurrentMonth ? "bg-white" : "bg-gray-50"} ${cell.isToday ? "ring-2 ring-inset ring-blue-400" : ""} ${isInteractive ? "cursor-pointer hover:bg-gray-50/80" : ""}`}
     >
       {/* Render the day number */}
       {cell.day !== null && (
@@ -41,7 +57,10 @@ export function CalendarDayCell({
             label={event.title}
             domainId={event.domain_id}
             domains={domains}
-            onClick={() => onEditEvent(event)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditEvent(event);
+            }}
           />
         ))}
         {tasks.map((task) => (
@@ -50,7 +69,10 @@ export function CalendarDayCell({
             label={task.name}
             domainId={task.domain_id}
             domains={domains}
-            onClick={() => onEditTask(task)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditTask(task);
+            }}
           />
         ))}
       </div>

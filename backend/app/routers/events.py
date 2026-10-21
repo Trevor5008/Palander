@@ -46,8 +46,8 @@ def list_events(
         db.query(Event)
         .filter(
             Event.user_id == user_id,
-            Event.start_at >= start,
-            Event.start_at <= end,
+            Event.start_at < end,
+            Event.end_at > start,
         )
         .order_by(Event.start_at)
         .all()

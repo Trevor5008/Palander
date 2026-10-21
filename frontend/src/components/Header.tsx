@@ -1,6 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { LAYOUT_WIDTH_DEFAULT } from "../constants/layout";
 import { useAuth } from "../context/AuthContext";
+
+function navLinkClass({ isActive }: { isActive: boolean }) {
+  return [
+    "rounded-md px-2.5 py-1 transition-colors",
+    isActive
+      ? "bg-blue-50 font-medium text-blue-700"
+      : "text-gray-600 hover:bg-gray-100 hover:text-blue-600",
+  ].join(" ");
+}
 
 type HeaderProps = {
   widthClass?: string;
@@ -20,16 +29,16 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
       <div className={`mx-auto flex w-full items-center justify-between ${widthClass}`}>
         <h1 className="text-xl font-semibold">Palander</h1>
         <div className="flex items-center gap-4 text-sm">
-          <nav className="flex gap-4">
-            <Link to="/" className="hover:text-blue-600">
+          <nav className="flex items-center gap-1" aria-label="Views">
+            <NavLink to="/" end className={navLinkClass}>
               Calendar
-            </Link>
-            <Link to="/weekly" className="hover:text-blue-600">
+            </NavLink>
+            <NavLink to="/weekly" className={navLinkClass}>
               Weekly
-            </Link>
-            <Link to="/daily" className="hover:text-blue-600">
+            </NavLink>
+            <NavLink to="/daily" className={navLinkClass}>
               Daily
-            </Link>
+            </NavLink>
           </nav>
           {user && (
             <div className="flex items-center gap-3 border-l border-gray-200 pl-4">

@@ -1,3 +1,4 @@
+import type { MouseEventHandler } from "react";
 import { getDomainClassesById } from "../../constants/domainColors";
 import type { DomainRead } from "../../types/api";
 
@@ -6,7 +7,7 @@ type CalendarEntryChipProps = {
   label: string;
   domainId: number | null | undefined;
   domains: DomainRead[];
-  onClick: () => void;
+  onClick: MouseEventHandler<HTMLButtonElement>;
 };
 
 // Calendar Entry Chip component

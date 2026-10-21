@@ -6,7 +6,8 @@ import { useDomains } from "../hooks/useDomains";
 import { useEntriesRange } from "../hooks/useEntriesRange";
 import { useEventTaskModal } from "../hooks/useEventTaskModal";
 import { EventModal } from "../modals/EventModal";
-import { endOfDay, isSameApiDay, partitionEvents } from "../utils/apiMappers";
+import { endOfDay, partitionEvents } from "../utils/apiMappers";
+import { getEventsForDay } from "../utils/eventSegments";
 import { addDays, formatDate, startOfDay } from "../utils/date";
 
 export function DailyView() {
@@ -28,7 +29,7 @@ export function DailyView() {
     closeModal,
   } = useEventTaskModal(selectedDate);
 
-  const dayEvents = events.filter((e) => isSameApiDay(e.start_at, selectedDate));
+  const dayEvents = getEventsForDay(events, selectedDate);
   const { allDay } = partitionEvents(dayEvents);
 
   return (

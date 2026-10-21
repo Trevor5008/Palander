@@ -10,6 +10,7 @@ import {
 import { useCurrentTime } from "../hooks/useCurrentTime";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
 import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
+import { getEventsForDay } from "../utils/eventSegments";
 import { formatDayName, isSameDay } from "../utils/date";
 import {
   getEventBlockStyle,
@@ -41,7 +42,7 @@ export function DayTimeline({
   const [rowHeight, setRowHeight] = useState(40);
   const isToday = isSameDay(selectedDate, now);
 
-  const dayEvents = events.filter((e) => isSameApiDay(e.start_at, selectedDate));
+  const dayEvents = getEventsForDay(events, selectedDate);
   const { timed } = partitionEvents(dayEvents);
   const dayTasks = tasks.filter((t) => isSameApiDay(t.due_date, selectedDate));
 
@@ -100,7 +101,9 @@ export function DayTimeline({
           )}
 
           {timed.map((event) => {
-            const { top, height } = getEventBlockStyle(event, rowHeight);
+            const blockStyle = getEventBlockStyle(event, rowHeight, selectedDate);
+            if (!blockStyle) return null;
+            const { top, height } = blockStyle;
             const colors = getDomainClassesById(event.domain_id, domains);
             return (
               <button

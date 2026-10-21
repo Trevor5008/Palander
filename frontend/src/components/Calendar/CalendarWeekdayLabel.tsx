@@ -7,7 +7,7 @@ type CalendarWeekdayLabelProps = {
 export function CalendarWeekdayLabel({ label }: CalendarWeekdayLabelProps) {
   // Render the Calendar Weekday Label component
   return (
-    <div className="bg-gray-100 px-2 py-2 text-center text-xs font-medium text-gray-500">
+    <div className="border border-gray-200 bg-gray-100 px-2 py-2 text-center text-xs font-medium text-gray-500">
       {label}
     </div>
   );

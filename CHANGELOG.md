@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-21
+
+### Added
+
+- Multi-day events: separate start/end dates in the event modal (end date defaults to start date)
+- Event list API returns events that **overlap** the requested range (not only those starting in range)
+- Shared overlap helpers and per-day clipped rendering for timed events on daily and weekly views
+- `AddEntryButton` for consistent add actions across calendar, daily, and weekly views
+
+### Changed
+
+- Monthly, weekly, and daily views show events on every date they overlap; tasks remain single due date
+- Calendar month grid uses cell borders instead of gray gap gutters
+- Event modal title uses a bordered input; empty month cells are clickable to create an event on that day
+
+### Removed
+
+- Unused `WeekStrip` component (weekly view uses `WeekTimeline`)
+
 ## [0.4.0] - 2026-08-26
 
 ### Added

@@ -55,7 +55,7 @@ Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE 
 
 **Calendar view** — Monthly grid (Sun–Sat) with prev/next month navigation. Events and tasks appear as domain-colored chips per day; click to edit.
 
-**Weekly view** — Week strip (Sun–Sat) to pick a day, plus the shared daily timeline for the selected date. Week prev/next navigation and entry indicators on days with items.
+**Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans). Week prev/next/today navigation matches daily view.
 
 **Daily view** — Vertical timeline from 12am to 11:59pm with a current-time indicator, all-day event row, domain-colored task chips, and timed event blocks.
 

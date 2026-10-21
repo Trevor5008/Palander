@@ -11,6 +11,7 @@ import {
 import { useCurrentTime } from "../hooks/useCurrentTime";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
 import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
+import { getEventsForDay } from "../utils/eventSegments";
 import { addDays, formatShortMonthDay, isSameDay } from "../utils/date";
 import {
   getEventBlockStyle,
@@ -68,7 +69,7 @@ export function WeekTimeline({
 
   // Check if there are any all-day events
   const hasAllDayEvents = days.some((day) => {
-    const dayEvents = events.filter((e) => isSameApiDay(e.start_at, day));
+    const dayEvents = getEventsForDay(events, day);
     return partitionEvents(dayEvents).allDay.length > 0;
   });
 
@@ -110,7 +111,7 @@ export function WeekTimeline({
           <div className="grid flex-1 grid-cols-7">
             {/* Render the all-day events */}
             {days.map((day) => {
-              const dayEvents = events.filter((e) => isSameApiDay(e.start_at, day));
+              const dayEvents = getEventsForDay(events, day);
               const { allDay } = partitionEvents(dayEvents);
               return (
                 <div
@@ -176,7 +177,7 @@ export function WeekTimeline({
               {/* Render the day columns */}
               {days.map((day) => {
                 const isToday = isSameDay(day, now);
-                const dayEvents = events.filter((e) => isSameApiDay(e.start_at, day));
+                const dayEvents = getEventsForDay(events, day);
                 const { timed } = partitionEvents(dayEvents);
                 const dayTasks = tasks.filter((t) => isSameApiDay(t.due_date, day));
 
@@ -198,11 +199,13 @@ export function WeekTimeline({
 
                     {/* Render the timed events */}
                     {timed.map((event) => {
-                      const { top, height } = getEventBlockStyle(event, rowHeight);
+                      const blockStyle = getEventBlockStyle(event, rowHeight, day);
+                      if (!blockStyle) return null;
+                      const { top, height } = blockStyle;
                       const colors = getDomainClassesById(event.domain_id, domains);
                       return (
                         <button
-                          key={event.id}
+                          key={`${event.id}-${day.toISOString()}`}
                           type="button"
                           onClick={() => onEditEvent(event)}
                           className={`absolute left-0.5 right-0.5 z-10 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] ${colors.block}`}

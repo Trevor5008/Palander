@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { fetchHealth } from "../api";
+import { AddEntryButton } from "./AddEntryButton";
 import { formatMonthYear } from "../utils/calendar";
 
 // Calendar Header component props
@@ -65,13 +66,7 @@ export function CalendarHeader({
         <span className="text-sm text-gray-500">API: {apiStatus}</span>
       </div>
       <div className="mb-3 flex shrink-0 items-center justify-end">
-        <button
-          type="button"
-          onClick={onAdd}
-          className="rounded-md bg-blue-500 px-4 py-2 text-white"
-        >
-          Add +
-        </button>
+        <AddEntryButton onClick={onAdd} />
       </div>
     </>
   );

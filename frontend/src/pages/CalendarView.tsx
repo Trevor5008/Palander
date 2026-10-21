@@ -51,6 +51,7 @@ export function CalendarView() {
         domains={domains}
         onEditEvent={openEditEvent}
         onEditTask={openEditTask}
+        onCreateForDay={openCreate}
       />
 
       {/* Event modal */}
