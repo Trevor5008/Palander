@@ -210,7 +210,7 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Default `DATABASE_URL`: `postgresql://postgres:postgres@localhost:5432/palander`
+Default `DATABASE_URL`: `postgresql+psycopg2://postgres:postgres@localhost:5432/palander` (explicit driver matches `psycopg2-binary` in requirements)
 
 ### Frontend
 
