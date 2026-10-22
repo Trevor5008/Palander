@@ -32,6 +32,12 @@ import {
   isSameDay,
   parseDateInput,
 } from "../utils/date";
+import {
+  defaultTimezone,
+  WEEKDAY_CODES,
+  WEEKDAY_LABELS,
+  type WeekdayCode,
+} from "../utils/recurrence";
 
 type EntryType = "event" | "task";
 
@@ -76,6 +82,9 @@ export function EventModal({
   const [endTime, setEndTime] = useState("10:00");
   const [allDay, setAllDay] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceWeekdays, setRecurrenceWeekdays] = useState<WeekdayCode[]>(["MO"]);
+  const [recurrenceUntil, setRecurrenceUntil] = useState(() => formatDateForInput(defaultDate));
+  const [timezone, setTimezone] = useState(() => defaultTimezone());
   const [linkedEventId, setLinkedEventId] = useState("");
   const [domains, setDomains] = useState<DomainRead[]>([]);
   const [linkedEvents, setLinkedEvents] = useState<EventRead[]>([]);
@@ -140,6 +149,9 @@ export function EventModal({
       setEndTime(form.endTime);
       setAllDay(form.allDay);
       setIsRecurring(form.isRecurring);
+      setRecurrenceWeekdays(form.recurrenceWeekdays);
+      setRecurrenceUntil(form.recurrenceUntil);
+      setTimezone(form.timezone);
       setLinkedEventId("");
       return;
     }
@@ -170,6 +182,9 @@ export function EventModal({
     setEndTime(times.endTime);
     setAllDay(false);
     setIsRecurring(false);
+    setRecurrenceWeekdays(["MO"]);
+    setRecurrenceUntil(day);
+    setTimezone(defaultTimezone());
     setLinkedEventId("");
   }, [showAddEventModal, defaultDate, editEvent, editTask, domains]);
 
@@ -195,15 +210,28 @@ export function EventModal({
 
     try {
       if (category === "event") {
+        if (isRecurring && allDay) {
+          setError("All-day recurring events are not supported yet");
+          setSaving(false);
+          return;
+        }
+        if (isRecurring && recurrenceWeekdays.length === 0) {
+          setError("Select at least one weekday for recurrence");
+          setSaving(false);
+          return;
+        }
         const form = {
           title,
           domain,
           startDate,
-          endDate,
+          endDate: isRecurring ? startDate : endDate,
           startTime,
           endTime,
           allDay,
           isRecurring,
+          recurrenceWeekdays,
+          recurrenceUntil,
+          timezone,
         };
         const rangeError = validateEventFormRange(form);
         if (rangeError) {
@@ -447,13 +475,64 @@ export function EventModal({
                   />
                 </label>
                 <label className="flex cursor-pointer items-center justify-between">
-                  <span>Recurring event</span>
+                  <span>Recurring event (weekly)</span>
                   <input
                     type="checkbox"
                     checked={isRecurring}
                     onChange={(e) => setIsRecurring(e.target.checked)}
                   />
                 </label>
+                {isRecurring && (
+                  <div className="space-y-2 rounded-md border border-gray-200 p-3">
+                    <div>
+                      <span className="mb-1 block text-gray-500">Repeat on</span>
+                      <div className="flex flex-wrap gap-2">
+                        {WEEKDAY_CODES.map((code) => (
+                          <label key={code} className="flex items-center gap-1 text-xs">
+                            <input
+                              type="checkbox"
+                              checked={recurrenceWeekdays.includes(code)}
+                              onChange={(e) => {
+                                setRecurrenceWeekdays((current) => {
+                                  if (e.target.checked) {
+                                    return [...current, code];
+                                  }
+                                  return current.filter((day) => day !== code);
+                                });
+                              }}
+                            />
+                            {WEEKDAY_LABELS[code]}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="recurrenceUntil" className="mb-1 block text-gray-500">
+                        Repeat until
+                      </label>
+                      <input
+                        id="recurrenceUntil"
+                        type="date"
+                        value={recurrenceUntil}
+                        min={startDate}
+                        onChange={(e) => setRecurrenceUntil(e.target.value)}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="timezone" className="mb-1 block text-gray-500">
+                        Timezone
+                      </label>
+                      <input
+                        id="timezone"
+                        type="text"
+                        value={timezone}
+                        onChange={(e) => setTimezone(e.target.value)}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -466,14 +545,19 @@ export function EventModal({
 
           <div className="mt-6 flex items-center justify-between gap-3">
             {isEditMode ? (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={saving}
-                className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-              >
-                Delete
-              </button>
+              <div className="space-y-1">
+                {editEvent?.is_recurring && (
+                  <p className="text-xs text-gray-500">Edits and delete apply to the entire series.</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={saving}
+                  className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </div>
             ) : (
               <span />
             )}

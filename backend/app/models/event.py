@@ -35,6 +35,9 @@ class Event(Base):
     # Event Recurring Rule
     rrule: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
+    timezone: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    recurrence_until: Mapped[datetime | None] = mapped_column(nullable=True)
+
     # Foreign Keys
     domain_id: Mapped[int] = mapped_column(ForeignKey("domains.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

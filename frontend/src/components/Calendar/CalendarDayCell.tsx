@@ -1,4 +1,5 @@
 import type { DomainRead, EventRead, TaskRead } from "../../types/api";
+import { eventOccurrenceKey } from "../../utils/recurrence";
 import type { CalendarCell } from "../../utils/calendar";
 import { CalendarEntryChip } from "./CalendarEntryChip";
 
@@ -53,7 +54,7 @@ export function CalendarDayCell({
       <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto">
         {events.map((event) => (
           <CalendarEntryChip
-            key={`e-${event.id}`}
+            key={`e-${eventOccurrenceKey(event)}`}
             label={event.title}
             domainId={event.domain_id}
             domains={domains}

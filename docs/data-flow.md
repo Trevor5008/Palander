@@ -115,8 +115,30 @@ The modal collects human-friendly form fields; `apiMappers.ts` converts them to 
 | `linkedEventId` | — | `event_id` |
 | — | `Authorization: Bearer <token>` | `Authorization: Bearer <token>` |
 
+## Recurrence (0.6+)
+
+Recurring events are stored as **one series row** (`is_recurring`, `rrule`, `timezone`, `recurrence_until`). `GET /events` expands weekly occurrences into the requested `[start, end)` window. The UI keys rendered rows by `id + start_at` because multiple occurrences share the same series id.
+
+## Schedule import (0.6+)
+
+```mermaid
+sequenceDiagram
+  participant UI as ScheduleImportModal
+  participant API as POST /schedule/parse
+  participant Parser as ScheduleParser
+  participant Import as POST /schedule/import
+  participant DB as PostgreSQL
+
+  UI->>API: paste text + default_year + timezone
+  API->>Parser: extract RawCandidate rows
+  Parser-->>API: normalized ImportCandidate preview
+  API-->>UI: editable candidates (no DB write)
+  UI->>Import: confirmed included candidates
+  Import->>DB: INSERT recurring Event rows (transaction)
+```
+
 ## Not wired yet
 
-- RRULE expansion / recurrence instances
+- Single-occurrence edit/delete for recurring series
 - Objective linking in the UI
 - Notes and reminders

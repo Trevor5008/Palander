@@ -9,6 +9,10 @@ import type {
   TaskUpdate,
   TokenResponse,
   UserRead,
+  ScheduleImportRequest,
+  ScheduleImportResult,
+  ScheduleParseRequest,
+  ScheduleParseResponse,
 } from "./types/api";
 
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
@@ -34,7 +38,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(detail || `Request failed: ${response.status}`);
+    let message = detail || `Request failed: ${response.status}`;
+    try {
+      const parsed = JSON.parse(detail) as { detail?: string };
+      if (parsed.detail) message = parsed.detail;
+    } catch {
+      // keep raw body
+    }
+    if (response.status === 404 && path.startsWith("/schedule")) {
+      message =
+        `${message} — schedule import requires API 0.6.0+. Rebuild/restart the backend (e.g. docker compose up --build).`;
+    }
+    throw new Error(message);
   }
   if (response.status === 204) {
     return undefined as T;
@@ -107,4 +122,12 @@ export async function updateTask(id: number, body: TaskUpdate): Promise<TaskRead
 
 export async function deleteTask(id: number): Promise<void> {
   return request(`/tasks/${id}`, { method: "DELETE" });
+}
+
+export async function parseSchedule(body: ScheduleParseRequest): Promise<ScheduleParseResponse> {
+  return request("/schedule/parse", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function importSchedule(body: ScheduleImportRequest): Promise<ScheduleImportResult> {
+  return request("/schedule/import", { method: "POST", body: JSON.stringify(body) });
 }

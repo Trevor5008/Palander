@@ -11,6 +11,7 @@ type CalendarHeaderProps = {
   onNextMonth: () => void;
   onToday: () => void;
   onAdd: () => void;
+  onImportSchedule?: () => void;
 };
 
 // Calendar Header component
@@ -20,6 +21,7 @@ export function CalendarHeader({
   onNextMonth,
   onToday,
   onAdd,
+  onImportSchedule,
 }: CalendarHeaderProps) {
   const [apiStatus, setApiStatus] = useState("checking…");
 
@@ -65,7 +67,16 @@ export function CalendarHeader({
         </div>
         <span className="text-sm text-gray-500">API: {apiStatus}</span>
       </div>
-      <div className="mb-3 flex shrink-0 items-center justify-end">
+      <div className="mb-3 flex shrink-0 items-center justify-end gap-2">
+        {onImportSchedule && (
+          <button
+            type="button"
+            onClick={onImportSchedule}
+            className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Import schedule
+          </button>
+        )}
         <AddEntryButton onClick={onAdd} />
       </div>
     </>

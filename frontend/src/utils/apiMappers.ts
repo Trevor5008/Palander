@@ -1,6 +1,13 @@
 import type { Domain } from "../constants/domains";
 import type { DomainRead, EventCreate, EventRead, EventUpdate, TaskCreate, TaskRead, TaskUpdate } from "../types/api";
 import { formatDateForInput, formatTimeForInput, parseDateInput } from "./date";
+import {
+  buildWeeklyRrule,
+  defaultTimezone,
+  parseUntilDateFromRrule,
+  parseWeekdaysFromRrule,
+  type WeekdayCode,
+} from "./recurrence";
 
 export type EventFormState = {
   title: string;
@@ -11,6 +18,9 @@ export type EventFormState = {
   endTime: string;
   allDay: boolean;
   isRecurring: boolean;
+  recurrenceWeekdays: WeekdayCode[];
+  recurrenceUntil: string;
+  timezone: string;
 };
 
 export type TaskFormState = {
@@ -36,12 +46,29 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
         end_at: combineDateAndTime(form.endDate, form.endTime),
       };
 
+  if (form.isRecurring) {
+    const recurrence_until = `${form.recurrenceUntil}T23:59:00`;
+    return {
+      title: form.title.trim(),
+      start_at,
+      end_at,
+      is_recurring: true,
+      rrule: buildWeeklyRrule(form.recurrenceWeekdays, form.recurrenceUntil, form.timezone),
+      timezone: form.timezone,
+      recurrence_until,
+      domain_id: domainId,
+      objective_id: null,
+    };
+  }
+
   return {
     title: form.title.trim(),
     start_at,
     end_at,
-    is_recurring: form.isRecurring,
+    is_recurring: false,
     rrule: null,
+    timezone: null,
+    recurrence_until: null,
     domain_id: domainId,
     objective_id: null,
   };
@@ -111,6 +138,11 @@ export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventF
     endTime: formatTimeForInput(end),
     allDay,
     isRecurring: event.is_recurring,
+    recurrenceWeekdays: parseWeekdaysFromRrule(event.rrule),
+    recurrenceUntil: event.recurrence_until
+      ? formatDateForInput(new Date(event.recurrence_until))
+      : parseUntilDateFromRrule(event.rrule, formatDateForInput(start)),
+    timezone: event.timezone ?? defaultTimezone(),
   };
 }
 
