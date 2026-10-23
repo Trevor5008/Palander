@@ -12,6 +12,7 @@ import { useCurrentTime } from "../hooks/useCurrentTime";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
 import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
 import { getEventsForDay } from "../utils/eventSegments";
+import { eventOccurrenceKey } from "../utils/recurrence";
 import { addDays, formatShortMonthDay, isSameDay } from "../utils/date";
 import {
   getEventBlockStyle,
@@ -123,7 +124,7 @@ export function WeekTimeline({
                     const colors = getDomainClassesById(event.domain_id, domains);
                     return (
                       <button
-                        key={event.id}
+                        key={eventOccurrenceKey(event)}
                         type="button"
                         onClick={() => onEditEvent(event)}
                         className={`block w-full truncate rounded px-1 py-0.5 text-left text-[10px] ${colors.chip}`}
@@ -205,7 +206,7 @@ export function WeekTimeline({
                       const colors = getDomainClassesById(event.domain_id, domains);
                       return (
                         <button
-                          key={`${event.id}-${day.toISOString()}`}
+                          key={`${eventOccurrenceKey(event)}-${day.toISOString()}`}
                           type="button"
                           onClick={() => onEditEvent(event)}
                           className={`absolute left-0.5 right-0.5 z-10 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] ${colors.block}`}

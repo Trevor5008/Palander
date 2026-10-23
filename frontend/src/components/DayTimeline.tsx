@@ -12,6 +12,7 @@ import type { DomainRead, EventRead, TaskRead } from "../types/api";
 import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
 import { getEventsForDay } from "../utils/eventSegments";
 import { formatDayName, isSameDay } from "../utils/date";
+import { eventOccurrenceKey } from "../utils/recurrence";
 import {
   getEventBlockStyle,
   measureRowHeight,
@@ -107,7 +108,7 @@ export function DayTimeline({
             const colors = getDomainClassesById(event.domain_id, domains);
             return (
               <button
-                key={event.id}
+                key={eventOccurrenceKey(event)}
                 type="button"
                 onClick={() => onEditEvent(event)}
                 className={`absolute left-16 right-2 z-10 overflow-hidden rounded border px-2 py-1 text-left text-xs ${colors.block}`}

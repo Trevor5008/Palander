@@ -1,5 +1,6 @@
 import { getDomainClassesById } from "../constants/domainColors";
 import type { DomainRead, EventRead } from "../types/api";
+import { eventOccurrenceKey } from "../utils/recurrence";
 
 type AllDayRowProps = {
   events: EventRead[];
@@ -18,7 +19,7 @@ export function AllDayRow({ events, domains, onEditEvent }: AllDayRowProps) {
           const colors = getDomainClassesById(event.domain_id, domains);
           return (
             <button
-              key={event.id}
+              key={eventOccurrenceKey(event)}
               type="button"
               onClick={() => onEditEvent(event)}
               className={`rounded px-2 py-1 text-xs ${colors.chip}`}

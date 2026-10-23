@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_user_id
 from app.database import get_db
 from app.models.event import Event
-from app.schemas.event import EventCreate, EventRead, EventUpdate, validate_event_time_range
+from app.schemas.event import (
+    EventCreate,
+    EventRead,
+    EventUpdate,
+    validate_event_recurrence_state,
+    validate_event_time_range,
+)
+from app.services.events_list import list_events_in_range
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -42,16 +49,7 @@ def list_events(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    return (
-        db.query(Event)
-        .filter(
-            Event.user_id == user_id,
-            Event.start_at < end,
-            Event.end_at > start,
-        )
-        .order_by(Event.start_at)
-        .all()
-    )
+    return list_events_in_range(db, user_id, start, end)
 
 
 @router.get("/{event_id}", response_model=EventRead)
@@ -60,7 +58,8 @@ def get_event(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    return _get_event_or_404(db, event_id, user_id)
+    event = _get_event_or_404(db, event_id, user_id)
+    return EventRead.model_validate(event).model_copy(update={"series_id": None})
 
 
 @router.patch("/{event_id}", response_model=EventRead)
@@ -75,6 +74,13 @@ def update_event(
         setattr(event, key, value)
     try:
         validate_event_time_range(event.start_at, event.end_at)
+        validate_event_recurrence_state(
+            is_recurring=event.is_recurring,
+            rrule=event.rrule,
+            timezone=event.timezone,
+            recurrence_until=event.recurrence_until,
+            start_at=event.start_at,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     db.commit()

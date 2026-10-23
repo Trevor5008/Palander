@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     jwt_secret: str = "change-me-in-production"
     jwt_expire_minutes: int = 60 * 24 * 7
+    schedule_parser_base_url: str | None = None
+    schedule_parser_api_key: str | None = None
+    schedule_parser_model: str | None = None
 
     @property
     def cors_origins_list(self) -> list[str]:

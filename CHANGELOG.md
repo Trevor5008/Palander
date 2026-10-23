@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-23
+
+### Added
+
+- Schedule parse: user-defined term start and repeat-until (recurrence cutoff); optional `format_hint` (auto, plain, csv)
+- Composite schedule parser registry (heuristic + CSV/TSV table parser) with merge and confidence threshold
+- OpenAI-compatible parser structured JSON schema output with composite fallback
+- Import preview: edit weekdays, times, per-row series end; client validation before import
+
+## [0.6.0] - 2026-10-22
+
+### Added
+
+- Weekly recurring event series with IANA timezone, RRULE, and recurrence end boundary
+- Server-side occurrence expansion in `GET /events` for month/week/day views
+- Manual weekly recurrence controls in the event modal (weekdays, repeat-until, timezone)
+- Schedule ingestion: `POST /schedule/parse` and `POST /schedule/import` with preview-first workflow
+- Provider-neutral `ScheduleParser` with OpenAI-compatible adapter and heuristic fallback
+- Import schedule UI on the calendar view with editable candidate review
+
+### Changed
+
+- Editing or deleting a recurring event applies to the entire series (single-occurrence edits deferred)
+
 ## [0.5.0] - 2026-10-21
 
 ### Added

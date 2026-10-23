@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { fetchEvent } from "../api";
 import type { EventRead, TaskRead } from "../types/api";
 import { startOfDay } from "../utils/date";
 
@@ -16,10 +17,17 @@ export function useEventTaskModal(initialDate: Date = new Date()) {
   }, []);
 
   const openEditEvent = useCallback((event: EventRead) => {
-    setEditEvent(event);
     setEditTask(null);
     setModalDate(startOfDay(new Date(event.start_at)));
-    setShowModal(true);
+    void fetchEvent(event.id)
+      .then((master) => {
+        setEditEvent(master);
+        setShowModal(true);
+      })
+      .catch(() => {
+        setEditEvent(event);
+        setShowModal(true);
+      });
   }, []);
 
   const openEditTask = useCallback((task: TaskRead) => {

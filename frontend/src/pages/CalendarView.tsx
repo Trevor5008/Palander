@@ -5,6 +5,7 @@ import { useDomains } from "../hooks/useDomains";
 import { useEntriesRange } from "../hooks/useEntriesRange";
 import { useEventTaskModal } from "../hooks/useEventTaskModal";
 import { EventModal } from "../modals/EventModal";
+import { ScheduleImportModal } from "../modals/ScheduleImportModal";
 import { endOfMonth, startOfMonth } from "../utils/apiMappers";
 import { buildMonthGrid } from "../utils/calendar";
 import { addMonths, startOfDay } from "../utils/date";
@@ -12,6 +13,7 @@ import { addMonths, startOfDay } from "../utils/date";
 export function CalendarView() {
   const today = useMemo(() => startOfDay(new Date()), []);
   const [viewDate, setViewDate] = useState(() => startOfDay(new Date()));
+  const [showImportModal, setShowImportModal] = useState(false);
   const domains = useDomains();
 
   const rangeStart = useMemo(() => startOfMonth(viewDate), [viewDate]);
@@ -42,6 +44,7 @@ export function CalendarView() {
         onNextMonth={() => setViewDate((date) => addMonths(date, 1))}
         onToday={() => setViewDate(today)}
         onAdd={() => openCreate(viewDate)}
+        onImportSchedule={() => setShowImportModal(true)}
       />
       {/* Calendar grid */}
       <CalendarGrid
@@ -55,6 +58,13 @@ export function CalendarView() {
       />
 
       {/* Event modal */}
+      <ScheduleImportModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        domains={domains}
+        onImported={reload}
+      />
+
       {showModal && (
         <EventModal
           showAddEventModal={showModal}

@@ -1,0 +1,2 @@
+Chemistry Lab,Mon;Wed,09:00,10:30
+Team Sync,Tue,13:00,14:00
