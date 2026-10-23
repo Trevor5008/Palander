@@ -4,6 +4,7 @@ from datetime import datetime
 from app.recurrence.humanize import humanize_rrule
 from app.recurrence.rrule_build import build_weekly_rrule
 from app.schedule.parser import ParseContext, RawCandidate
+from app.schedule.registry import CONFIDENCE_THRESHOLD
 
 
 @dataclass
@@ -40,10 +41,15 @@ def normalize_candidates(
             warnings.append("Missing weekdays")
         if not raw.start_time or not raw.end_time:
             warnings.append("Missing start/end time")
+        if raw.confidence < CONFIDENCE_THRESHOLD:
+            warnings.append("Low confidence — review before import")
 
         unresolved = bool(warnings)
-        start_date = raw.start_date or f"{context.default_year}-08-18"
-        recurrence_until = raw.end_date or f"{context.default_year}-12-15"
+        start_date = raw.start_date or _term_start(context)
+        recurrence_until = raw.end_date or _term_end(context)
+        if context.term_start and context.term_end and recurrence_until < start_date:
+            warnings.append("Series ends before term start")
+            unresolved = True
 
         start_at = _combine(start_date, raw.start_time or "09:00")
         end_at = _combine(start_date, raw.end_time or "10:00")
@@ -71,6 +77,18 @@ def normalize_candidates(
             )
         )
     return normalized
+
+
+def _term_start(context: ParseContext) -> str:
+    if context.term_start:
+        return context.term_start
+    return f"{context.default_year}-08-18"
+
+
+def _term_end(context: ParseContext) -> str:
+    if context.term_end:
+        return context.term_end
+    return f"{context.default_year}-12-15"
 
 
 def _combine(date_str: str, time_str: str) -> datetime:

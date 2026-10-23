@@ -129,8 +129,8 @@ sequenceDiagram
   participant Import as POST /schedule/import
   participant DB as PostgreSQL
 
-  UI->>API: paste text + default_year + timezone
-  API->>Parser: extract RawCandidate rows
+  UI->>API: paste + default_year + timezone + term_start/end + format_hint
+  API->>Parser: composite or OpenAI-compat extract RawCandidate rows
   Parser-->>API: normalized ImportCandidate preview
   API-->>UI: editable candidates (no DB write)
   UI->>Import: confirmed included candidates

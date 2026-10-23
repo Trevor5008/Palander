@@ -15,6 +15,14 @@ export function defaultTimezone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 }
 
+export function defaultTermStart(year: number): string {
+  return `${year}-08-18`;
+}
+
+export function defaultTermEnd(year: number): string {
+  return `${year}-12-15`;
+}
+
 export function buildWeeklyRrule(
   weekdays: WeekdayCode[],
   recurrenceUntilDate: string,

@@ -1,57 +1,54 @@
 import re
 
-from app.schedule.parser import ParseContext, RawCandidate, ScheduleParser
+from app.schedule.format_issues import FormatIssue
+from app.schedule.parser import ParseContext, RawCandidate, ScheduleParseResult
 from app.schedule.sanitize import redact_pii
+from app.utils.schedule_plain_line import parse_plain_schedule_line, tokenize_schedule_line
+from app.utils.schedule_time import normalize_time_token
+from app.utils.schedule_weekdays import resolve_weekday_token
 
-_TIME_RE = re.compile(r"(?P<start>\d{1,2}:\d{2})\s*-\s*(?P<end>\d{1,2}:\d{2})")
-_DAYS_RE = re.compile(
-    r"(?P<days>(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:,\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))*)",
-    re.IGNORECASE,
-)
+_TIMEISH_RE = re.compile(r"\d{1,2}:\d{2}|\d{3,4}")
 
-_DAY_MAP = {
-    "mon": "MO",
-    "tue": "TU",
-    "wed": "WE",
-    "thu": "TH",
-    "fri": "FR",
-    "sat": "SA",
-    "sun": "SU",
-}
+
+def _line_looks_like_schedule(line: str) -> bool:
+    if _TIMEISH_RE.search(line):
+        return True
+    for token in tokenize_schedule_line(line):
+        if resolve_weekday_token(token):
+            return True
+    return False
 
 
 class HeuristicScheduleParser:
-    async def parse(self, text: str, context: ParseContext) -> list[RawCandidate]:
+    async def parse(self, text: str, context: ParseContext) -> ScheduleParseResult:
         candidates: list[RawCandidate] = []
-        for line in text.splitlines():
+        format_issues: list[FormatIssue] = []
+        for line_number, line in enumerate(text.splitlines(), start=1):
             stripped = line.strip()
             if not stripped:
                 continue
-            time_match = _TIME_RE.search(stripped)
-            if not time_match:
-                continue
-            prefix = stripped[: time_match.start()].strip()
-            days_match = _DAYS_RE.search(prefix)
-            if not days_match:
-                continue
-            title = prefix[: days_match.start()].strip(" -")
-            weekdays = []
-            for token in re.split(r",\s*", days_match.group("days")):
-                code = _DAY_MAP.get(token.strip().lower()[:3])
-                if code:
-                    weekdays.append(code)
-            if not title:
-                title = "Untitled"
-            candidates.append(
-                RawCandidate(
-                    title=title,
-                    weekdays=weekdays,
-                    start_time=time_match.group("start"),
-                    end_time=time_match.group("end"),
-                    start_date=f"{context.default_year}-08-18",
-                    source_snippet=redact_pii(stripped[:160]),
-                    confidence=0.55,
-                    warnings=[] if weekdays else ["No weekdays detected"],
+            parsed = parse_plain_schedule_line(stripped)
+            if parsed.title and parsed.weekdays and parsed.start_time and parsed.end_time:
+                candidates.append(
+                    RawCandidate(
+                        title=parsed.title,
+                        weekdays=parsed.weekdays,
+                        start_time=parsed.start_time,
+                        end_time=parsed.end_time,
+                        source_snippet=redact_pii(stripped[:160]),
+                        confidence=0.6,
+                        warnings=[],
+                    )
                 )
-            )
-        return candidates
+                continue
+            if parsed.issue_code and _line_looks_like_schedule(stripped):
+                format_issues.append(
+                    FormatIssue(
+                        line_number=line_number,
+                        snippet=redact_pii(stripped[:120]),
+                        code=parsed.issue_code,
+                        message=parsed.issue_message or "Could not parse line.",
+                        help_section=parsed.help_section,
+                    )
+                )
+        return ScheduleParseResult(candidates=candidates, format_issues=format_issues)

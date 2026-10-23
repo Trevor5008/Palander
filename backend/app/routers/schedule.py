@@ -12,6 +12,7 @@ from app.schedule.openai_compat import get_schedule_parser
 from app.schedule.parser import ParseContext
 from app.schemas.schedule import (
     ConfirmedImportCandidate,
+    FormatIssueRead,
     ImportCandidateRead,
     ScheduleImportRequest,
     ScheduleImportResponse,
@@ -33,13 +34,20 @@ async def parse_schedule(
         settings.schedule_parser_api_key,
         settings.schedule_parser_model,
     )
-    context = ParseContext(default_year=body.default_year, timezone=body.timezone)
-    raw = await parser.parse(body.text, context)
-    candidates = normalize_candidates(raw, context, default_domain_id=None)
+    context = ParseContext(
+        default_year=body.default_year,
+        timezone=body.timezone,
+        term_start=body.term_start.isoformat() if body.term_start else None,
+        term_end=body.term_end.isoformat() if body.term_end else None,
+        format_hint=body.format_hint,
+    )
+    parse_result = await parser.parse(body.text, context)
+    candidates = normalize_candidates(parse_result.candidates, context, default_domain_id=None)
     existing = db.query(Event).filter(Event.user_id == user_id).all()
     mark_duplicates(candidates, existing)
     return ScheduleParseResponse(
-        candidates=[ImportCandidateRead.model_validate(item.__dict__) for item in candidates]
+        candidates=[ImportCandidateRead.model_validate(item.__dict__) for item in candidates],
+        format_issues=[FormatIssueRead.model_validate(issue.__dict__) for issue in parse_result.format_issues],
     )
 
 
@@ -71,11 +79,15 @@ def import_schedule(
                 unresolved += 1
                 continue
 
-            rrule = build_weekly_rrule(
-                candidate.weekdays,
-                candidate.recurrence_until,
-                candidate.timezone,
-            )
+            try:
+                rrule = build_weekly_rrule(
+                    candidate.weekdays,
+                    candidate.recurrence_until,
+                    candidate.timezone,
+                )
+            except ValueError:
+                unresolved += 1
+                continue
             event = Event(
                 title=candidate.title.strip(),
                 start_at=candidate.start_at,

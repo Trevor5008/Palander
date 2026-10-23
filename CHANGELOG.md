@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-23
+
+### Added
+
+- Schedule parse: user-defined term start and repeat-until (recurrence cutoff); optional `format_hint` (auto, plain, csv)
+- Composite schedule parser registry (heuristic + CSV/TSV table parser) with merge and confidence threshold
+- OpenAI-compatible parser structured JSON schema output with composite fallback
+- Import preview: edit weekdays, times, per-row series end; client validation before import
+
 ## [0.6.0] - 2026-10-22
 
 ### Added

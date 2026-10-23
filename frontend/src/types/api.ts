@@ -69,14 +69,28 @@ export type ImportCandidateRead = {
   unresolved: boolean;
 };
 
+export type ScheduleFormatHint = "auto" | "plain" | "csv";
+
 export type ScheduleParseRequest = {
   text: string;
   default_year: number;
   timezone: string;
+  term_start?: string | null;
+  term_end?: string | null;
+  format_hint?: ScheduleFormatHint;
+};
+
+export type FormatIssueRead = {
+  line_number: number;
+  snippet: string;
+  code: string;
+  message: string;
+  help_section: string;
 };
 
 export type ScheduleParseResponse = {
   candidates: ImportCandidateRead[];
+  format_issues: FormatIssueRead[];
 };
 
 export type ScheduleImportRequest = {

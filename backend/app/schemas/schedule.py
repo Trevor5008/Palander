@@ -1,12 +1,22 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ScheduleParseRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=20000)
     default_year: int
     timezone: str = Field(..., max_length=64)
+    term_start: date | None = None
+    term_end: date | None = None
+    format_hint: Literal["auto", "plain", "csv"] = "auto"
+
+    @model_validator(mode="after")
+    def term_range_valid(self) -> "ScheduleParseRequest":
+        if self.term_start and self.term_end and self.term_end < self.term_start:
+            raise ValueError("term_end must be on or after term_start")
+        return self
 
 
 class ImportCandidateRead(BaseModel):
@@ -28,8 +38,17 @@ class ImportCandidateRead(BaseModel):
     unresolved: bool
 
 
+class FormatIssueRead(BaseModel):
+    line_number: int
+    snippet: str
+    code: str
+    message: str
+    help_section: str
+
+
 class ScheduleParseResponse(BaseModel):
     candidates: list[ImportCandidateRead]
+    format_issues: list[FormatIssueRead] = Field(default_factory=list)
 
 
 class ConfirmedImportCandidate(BaseModel):
