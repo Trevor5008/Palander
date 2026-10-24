@@ -6,10 +6,14 @@ export const LAYOUT_WIDTH_DEFAULT = "max-w-full";
 export const LAYOUT_HEADER_OFFSET = "4.5rem";
 
 export function layoutWidthForPath(pathname: string): string {
-    if (pathname === "/") return LAYOUT_WIDTH_CALENDAR;
+    if (pathname === "/monthly") return LAYOUT_WIDTH_CALENDAR;
     return LAYOUT_WIDTH_DEFAULT;
 }
 
 export function isCalendarPath(pathname: string): boolean {
-    return pathname === "/"
+    return pathname === "/monthly";
+}
+
+export function isDailyWorkspacePath(pathname: string): boolean {
+    return pathname === "/" || pathname === "/daily";
 }

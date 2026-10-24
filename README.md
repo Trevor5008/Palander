@@ -48,18 +48,21 @@ Hierarchy: **User → Domain → Objective → Event / Task**
 | **TASK** | `id` (PK), `name`, `due_date`, `is_recurring`, `rrule`, `domain_id` (FK), `objective_id` (FK, optional), `event_id` (FK, optional), `user_id` (FK) | Action item; has notes and reminders |
 | **REMINDER** | `id` (PK), `text`, `task_id` (FK), `event_id` (FK) | Attached to exactly one task **or** one event |
 | **NOTE** | `id` (PK), `content`, `created_at`, `updated_at`, `task_id` (FK), `event_id` (FK) | Attached to exactly one task **or** one event |
+| **DAILY_NOTE** | `id` (PK), `user_id` (FK), `note_date` (date), `content`, `created_at`, `updated_at` | One Markdown page per user per calendar day (unique on user + date) |
 
 Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE strings), not a separate recurrence table.
 
 #### UI views
 
-**Calendar view** — Monthly grid (Sun–Sat) with prev/next month navigation. Events and tasks appear as domain-colored chips per day; click to edit.
+Navigation order: **Daily → Weekly → Monthly** (`/`, `/weekly`, `/monthly`). Optional `?date=YYYY-MM-DD` is shared when switching views.
 
-**Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans). Week prev/next/today navigation matches daily view.
+**Daily view (default)** — Split workspace: schedule timeline (all-day row, timed events/tasks, current-time indicator) on the left; Markdown daily note with autosave on the right (stacks on narrow screens).
 
-**Schedule import (0.6+)** — Paste schedule text or upload a **FIU Schedule of Classes PDF** (0.8) on the calendar view, set term defaults, review candidates, then import as weekly series. Text formats include plain lines (`M W 0900 1145`) and CSV. PDF import uses embedded text only (scanned PDFs require OCR, not supported yet). Optional OpenAI-compatible parser via `SCHEDULE_PARSER_*` for pasted text.
+**Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans).
 
-**Daily view** — Vertical timeline from 12am to 11:59pm with a current-time indicator, all-day event row, domain-colored task chips, and timed event blocks.
+**Monthly view** — Sun–Sat grid with prev/next month navigation. Events and tasks appear as domain-colored chips per day; click to edit.
+
+**Schedule import (0.6+)** — From the monthly view: paste schedule text or upload a **FIU Schedule of Classes PDF** (0.8), review candidates, then import as weekly series.
 
 #### CRUD modal
 

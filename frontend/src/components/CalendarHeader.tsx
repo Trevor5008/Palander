@@ -54,7 +54,7 @@ export function CalendarHeader({
             <ChevronRightIcon className="size-5" />
           </button>
           <div>
-            <h2 className="text-2xl font-semibold">Calendar</h2>
+            <h2 className="text-2xl font-semibold">Monthly</h2>
             <p className="text-sm text-gray-500">{formatMonthYear(viewDate)}</p>
           </div>
           <button

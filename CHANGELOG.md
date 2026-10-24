@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-24
+
+### Added
+
+- Daily note workspace: Markdown-backed page per calendar day (`daily_notes` table)
+- `GET` / `PUT /daily-notes/{date}` with optimistic concurrency (`if_updated_at`, 409 on conflict)
+- Daily view split layout (timeline + note pane), autosave, edit/preview with GFM
+- Default landing **Daily**; monthly grid at `/monthly`; shared `?date=` across Daily / Weekly / Monthly
+
 ## [0.8.0] - 2026-10-24
 
 ### Added

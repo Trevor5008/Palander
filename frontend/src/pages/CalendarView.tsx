@@ -8,11 +8,12 @@ import { EventModal } from "../modals/EventModal";
 import { ScheduleImportModal } from "../modals/ScheduleImportModal";
 import { endOfMonth, startOfMonth } from "../utils/apiMappers";
 import { buildMonthGrid } from "../utils/calendar";
+import { useSelectedDateParam } from "../hooks/useSelectedDateParam";
 import { addMonths, startOfDay } from "../utils/date";
 
 export function CalendarView() {
   const today = useMemo(() => startOfDay(new Date()), []);
-  const [viewDate, setViewDate] = useState(() => startOfDay(new Date()));
+  const { selectedDate: viewDate, setSelectedDate: setViewDate } = useSelectedDateParam();
   const [showImportModal, setShowImportModal] = useState(false);
   const domains = useDomains();
 
@@ -40,8 +41,8 @@ export function CalendarView() {
       {/* Calendar header */}
       <CalendarHeader
         viewDate={viewDate}
-        onPrevMonth={() => setViewDate((date) => addMonths(date, -1))}
-        onNextMonth={() => setViewDate((date) => addMonths(date, 1))}
+        onPrevMonth={() => setViewDate(addMonths(viewDate, -1))}
+        onNextMonth={() => setViewDate(addMonths(viewDate, 1))}
         onToday={() => setViewDate(today)}
         onAdd={() => openCreate(viewDate)}
         onImportSchedule={() => setShowImportModal(true)}

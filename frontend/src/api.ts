@@ -1,5 +1,7 @@
 import { clearToken, getToken } from "./auth/token";
 import type {
+  DailyNoteRead,
+  DailyNoteUpsert,
   DomainRead,
   EventCreate,
   EventRead,
@@ -14,6 +16,16 @@ import type {
   ScheduleParseRequest,
   ScheduleParseResponse,
 } from "./types/api";
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
@@ -55,7 +67,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (response.status === 404 && path.startsWith("/schedule")) {
       message = scheduleEndpointErrorMessage(response.status, message);
     }
-    throw new Error(message);
+    throw new ApiError(message, response.status);
   }
   if (response.status === 204) {
     return undefined as T;
@@ -191,4 +203,18 @@ export async function parseSchedulePdf(
   }
 
   return response.json() as Promise<ScheduleParseResponse>;
+}
+
+export async function fetchDailyNote(noteDate: string): Promise<DailyNoteRead> {
+  return request(`/daily-notes/${noteDate}`);
+}
+
+export async function upsertDailyNote(
+  noteDate: string,
+  body: DailyNoteUpsert,
+): Promise<DailyNoteRead> {
+  return request(`/daily-notes/${noteDate}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
 }

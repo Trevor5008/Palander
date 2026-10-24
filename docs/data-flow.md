@@ -154,9 +154,33 @@ sequenceDiagram
   Pipe-->>UI: same preview as text parse
 ```
 
+## Daily notes (0.9+)
+
+```mermaid
+sequenceDiagram
+  participant DailyView
+  participant Hook as useDailyNote
+  participant API as daily_notes
+  participant DB as PostgreSQL
+
+  DailyView->>Hook: noteDate from URL date param
+  Hook->>API: GET /daily-notes/{date}
+  API->>DB: SELECT by user_id + note_date
+  DB-->>DailyView: content + updated_at
+  Hook->>API: debounced PUT + if_updated_at
+  API->>DB: INSERT or UPDATE with version check
+```
+
+| Route | View |
+|-------|------|
+| `/` | Daily (timeline + note) |
+| `/daily` | Redirect to `/` |
+| `/weekly` | Week timeline |
+| `/monthly` | Month grid + schedule import |
+
 ## Not wired yet
 
 - PDF OCR for scanned schedules
 - Single-occurrence edit/delete for recurring series
 - Objective linking in the UI
-- Notes and reminders
+- Task/event notes and reminders in the UI

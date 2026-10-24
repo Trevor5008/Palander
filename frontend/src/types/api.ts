@@ -115,3 +115,15 @@ export type ScheduleImportResult = {
   duplicate: number;
   unresolved: number;
 };
+
+export type DailyNoteRead = {
+  note_date: string;
+  content: string;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type DailyNoteUpsert = {
+  content: string;
+  if_updated_at?: string | null;
+};

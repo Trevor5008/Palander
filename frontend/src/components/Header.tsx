@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { LAYOUT_WIDTH_DEFAULT } from "../constants/layout";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,6 +18,8 @@ type HeaderProps = {
 export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { search } = useLocation();
+  const dateQuery = search || "";
 
   function handleLogout() {
     logout();
@@ -30,14 +32,14 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
         <h1 className="text-xl font-semibold">Palander</h1>
         <div className="flex items-center gap-4 text-sm">
           <nav className="flex items-center gap-1" aria-label="Views">
-            <NavLink to="/" end className={navLinkClass}>
-              Calendar
+            <NavLink to={{ pathname: "/", search: dateQuery }} end className={navLinkClass}>
+              Daily
             </NavLink>
-            <NavLink to="/weekly" className={navLinkClass}>
+            <NavLink to={{ pathname: "/weekly", search: dateQuery }} className={navLinkClass}>
               Weekly
             </NavLink>
-            <NavLink to="/daily" className={navLinkClass}>
-              Daily
+            <NavLink to={{ pathname: "/monthly", search: dateQuery }} className={navLinkClass}>
+              Monthly
             </NavLink>
           </nav>
           {user && (

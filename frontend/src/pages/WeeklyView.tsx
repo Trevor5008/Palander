@@ -1,20 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DateNavBar } from "../components/DateNavBar";
 import { WeekTimeline } from "../components/WeekTimeline";
 import { useDomains } from "../hooks/useDomains";
 import { useEntriesRange } from "../hooks/useEntriesRange";
 import { useEventTaskModal } from "../hooks/useEventTaskModal";
 import { EventModal } from "../modals/EventModal";
-import {
-  addWeeks,
-  endOfWeek,
-  formatWeekRange,
-  startOfDay,
-  startOfWeek,
-} from "../utils/date";
+import { useSelectedDateParam } from "../hooks/useSelectedDateParam";
+import { addWeeks, endOfWeek, formatWeekRange, startOfWeek } from "../utils/date";
 
 export function WeeklyView() {
-  const [viewDate, setViewDate] = useState(() => startOfDay(new Date()));
+  const { selectedDate: viewDate, setSelectedDate: setViewDate } = useSelectedDateParam();
   const domains = useDomains();
 
   const weekStart = useMemo(() => startOfWeek(viewDate), [viewDate]);
@@ -36,9 +31,9 @@ export function WeeklyView() {
     <section className="overflow-hidden rounded-lg border border-gray-200 bg-white">
       <DateNavBar
         label={formatWeekRange(weekStart, weekEnd)}
-        onPrev={() => setViewDate((date) => addWeeks(date, -1))}
-        onNext={() => setViewDate((date) => addWeeks(date, 1))}
-        onToday={() => setViewDate(startOfDay(new Date()))}
+        onPrev={() => setViewDate(addWeeks(viewDate, -1))}
+        onNext={() => setViewDate(addWeeks(viewDate, 1))}
+        onToday={() => setViewDate(new Date())}
         onAdd={() => openCreate(viewDate)}
         prevLabel="Previous week"
         nextLabel="Next week"
