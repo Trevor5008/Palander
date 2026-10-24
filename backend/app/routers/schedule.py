@@ -1,5 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
+
+from app.schedule.pdf_parser import parse_schedule_pdf_bytes
+from app.utils.schedule_pdf_extract import OcrRequiredError, PdfExtractError
 
 from app.auth import get_current_user_id
 from app.config import settings
@@ -21,6 +26,22 @@ from app.schemas.schedule import (
 )
 
 router = APIRouter(prefix="/schedule", tags=["schedule"])
+
+
+def _build_parse_response(
+    candidates,
+    format_issues,
+    source_filename: str | None = None,
+) -> ScheduleParseResponse:
+    reads: list[ImportCandidateRead] = []
+    for item in candidates:
+        payload = item.__dict__.copy()
+        payload["source_filename"] = source_filename
+        reads.append(ImportCandidateRead.model_validate(payload))
+    return ScheduleParseResponse(
+        candidates=reads,
+        format_issues=[FormatIssueRead.model_validate(issue.__dict__) for issue in format_issues],
+    )
 
 
 @router.post("/parse", response_model=ScheduleParseResponse)
@@ -45,10 +66,57 @@ async def parse_schedule(
     candidates = normalize_candidates(parse_result.candidates, context, default_domain_id=None)
     existing = db.query(Event).filter(Event.user_id == user_id).all()
     mark_duplicates(candidates, existing)
-    return ScheduleParseResponse(
-        candidates=[ImportCandidateRead.model_validate(item.__dict__) for item in candidates],
-        format_issues=[FormatIssueRead.model_validate(issue.__dict__) for issue in parse_result.format_issues],
+    return _build_parse_response(candidates, parse_result.format_issues)
+
+
+@router.post("/parse-pdf", response_model=ScheduleParseResponse)
+async def parse_schedule_pdf(
+    file: UploadFile = File(...),
+    default_year: int = Form(...),
+    timezone: str = Form(...),
+    term_start: date | None = Form(None),
+    term_end: date | None = Form(None),
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    if file.content_type not in {"application/pdf", "application/x-pdf", "application/octet-stream"}:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Upload must be a PDF file",
+        )
+    if term_start and term_end and term_end < term_start:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="term_end must be on or after term_start",
+        )
+
+    data = await file.read()
+    try:
+        parse_result = parse_schedule_pdf_bytes(data, file.filename)
+    except OcrRequiredError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "OCR_REQUIRED",
+                "message": "This PDF has no readable text layer. Scanned schedules require OCR (not supported yet).",
+            },
+        ) from None
+    except PdfExtractError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(exc),
+        ) from exc
+
+    context = ParseContext(
+        default_year=default_year,
+        timezone=timezone,
+        term_start=term_start.isoformat() if term_start else None,
+        term_end=term_end.isoformat() if term_end else None,
     )
+    candidates = normalize_candidates(parse_result.candidates, context, default_domain_id=None)
+    existing = db.query(Event).filter(Event.user_id == user_id).all()
+    mark_duplicates(candidates, existing)
+    return _build_parse_response(candidates, parse_result.format_issues, file.filename)
 
 
 @router.post("/import", response_model=ScheduleImportResponse)

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-24
+
+### Added
+
+- PDF schedule import: `POST /schedule/parse-pdf` (in-memory, no file retention)
+- FIU Schedule of Classes profile parser with per-course From/To dates and AM/PM times
+- Import modal **Paste | Upload PDF** tabs, format help for PDF, provenance (filename + page)
+- OCR-required response for scanned PDFs; TBA/asynchronous sections surfaced as format issues
+
 ## [0.7.0] - 2026-10-23
 
 ### Added

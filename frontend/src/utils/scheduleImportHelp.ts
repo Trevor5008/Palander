@@ -1,4 +1,4 @@
-export type ScheduleHelpSection = "plain" | "csv" | "weekdays" | "term";
+export type ScheduleHelpSection = "plain" | "csv" | "weekdays" | "term" | "pdf";
 
 export const WEEKDAY_LETTER_HELP: { letter: string; day: string }[] = [
   { letter: "M", day: "Monday" },
@@ -48,6 +48,14 @@ export const SCHEDULE_HELP_SECTIONS: Record<
     body: [
       "Term starts sets the first occurrence date for each series.",
       "Repeat until applies to every imported series (same end date for all rows).",
+    ],
+  },
+  pdf: {
+    title: "FIU Schedule of Classes PDF",
+    body: [
+      "Upload a text-based Schedule of Classes export (PantherSoft / Oracle Analytics Publisher).",
+      "Each course meeting becomes a weekly recurring event using Days, times, and From/To dates from the PDF.",
+      "Scanned or image-only PDFs are not supported (OCR required). TBA and asynchronous sections are flagged, not auto-imported.",
     ],
   },
 };
