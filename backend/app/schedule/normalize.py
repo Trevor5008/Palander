@@ -21,6 +21,8 @@ class ImportCandidate:
     domain_id: int | None
     source_snippet: str
     confidence: float
+    source_page: int | None = None
+    source_filename: str | None = None
     warnings: list[str] = field(default_factory=list)
     duplicate_of_event_id: int | None = None
     included: bool = True
@@ -70,6 +72,7 @@ def normalize_candidates(
                 rrule_human=humanize_rrule(rrule, context.timezone),
                 domain_id=default_domain_id,
                 source_snippet=raw.source_snippet,
+                source_page=raw.source_page,
                 confidence=raw.confidence,
                 warnings=warnings,
                 unresolved=unresolved,

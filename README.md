@@ -57,7 +57,7 @@ Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE 
 
 **Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans). Week prev/next/today navigation matches daily view.
 
-**Schedule import (0.6+)** — Paste schedule text on the calendar view, set term start / repeat-until, choose format (auto, plain lines, or CSV/TSV), review and edit candidates, then import as weekly series. Supported paste shapes include `Title Mon,Wed 09:00-10:30` and `Title,Mon;Wed,09:00,10:30`. Optional OpenAI-compatible parser via `SCHEDULE_PARSER_*` env vars (structured JSON); composite heuristic + table parsers when unset.
+**Schedule import (0.6+)** — Paste schedule text or upload a **FIU Schedule of Classes PDF** (0.8) on the calendar view, set term defaults, review candidates, then import as weekly series. Text formats include plain lines (`M W 0900 1145`) and CSV. PDF import uses embedded text only (scanned PDFs require OCR, not supported yet). Optional OpenAI-compatible parser via `SCHEDULE_PARSER_*` for pasted text.
 
 **Daily view** — Vertical timeline from 12am to 11:59pm with a current-time indicator, all-day event row, domain-colored task chips, and timed event blocks.
 

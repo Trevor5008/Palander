@@ -8,3 +8,6 @@ pyjwt>=2.9.0
 bcrypt>=4.2.0
 python-dateutil>=2.9.0
 httpx>=0.28.0
+pypdf>=5.1.0
+cryptography>=43.0.0
+python-multipart>=0.0.9

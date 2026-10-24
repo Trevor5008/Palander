@@ -31,6 +31,8 @@ class ImportCandidateRead(BaseModel):
     rrule_human: str
     domain_id: int | None
     source_snippet: str
+    source_page: int | None = None
+    source_filename: str | None = None
     confidence: float
     warnings: list[str]
     duplicate_of_event_id: int | None

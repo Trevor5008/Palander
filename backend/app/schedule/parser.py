@@ -24,6 +24,7 @@ class RawCandidate:
     end_date: str | None = None
     location: str | None = None
     source_snippet: str = ""
+    source_page: int | None = None
     confidence: float = 0.0
     warnings: list[str] = field(default_factory=list)
 

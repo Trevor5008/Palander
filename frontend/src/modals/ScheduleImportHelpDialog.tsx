@@ -20,7 +20,7 @@ export function ScheduleImportHelpDialog({
   highlightSection = "plain",
   formatIssues = [],
 }: ScheduleImportHelpDialogProps) {
-  const sectionOrder: ScheduleHelpSection[] = ["plain", "weekdays", "csv", "term"];
+  const sectionOrder: ScheduleHelpSection[] = ["plain", "pdf", "weekdays", "csv", "term"];
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-[60]">

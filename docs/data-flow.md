@@ -137,8 +137,26 @@ sequenceDiagram
   Import->>DB: INSERT recurring Event rows (transaction)
 ```
 
+## Schedule PDF import (0.8+)
+
+```mermaid
+sequenceDiagram
+  participant UI as ScheduleImportModal
+  participant API as POST /schedule/parse-pdf
+  participant PDF as pypdf extract
+  participant FIU as fiu_schedule_of_classes
+  participant Pipe as normalize_dedupe
+
+  UI->>API: multipart PDF + timezone + term defaults
+  API->>PDF: bytes in memory only
+  PDF->>FIU: page text
+  FIU-->>Pipe: RawCandidate + format_issues
+  Pipe-->>UI: same preview as text parse
+```
+
 ## Not wired yet
 
+- PDF OCR for scanned schedules
 - Single-occurrence edit/delete for recurring series
 - Objective linking in the UI
 - Notes and reminders

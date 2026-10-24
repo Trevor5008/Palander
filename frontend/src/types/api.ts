@@ -62,6 +62,8 @@ export type ImportCandidateRead = {
   rrule_human: string;
   domain_id: number | null;
   source_snippet: string;
+  source_page?: number | null;
+  source_filename?: string | null;
   confidence: number;
   warnings: string[];
   duplicate_of_event_id: number | null;

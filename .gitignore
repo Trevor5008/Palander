@@ -35,3 +35,6 @@ dist/
 
 # Alembic / DB
 *.db
+
+# Local-only PDF fixtures (may contain personal schedule exports)
+backend/tests/fixtures/schedules/fiu_schedule_of_classes.pdf

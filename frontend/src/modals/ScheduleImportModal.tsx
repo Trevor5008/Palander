@@ -1,7 +1,7 @@
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { InformationCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import { importSchedule, parseSchedule } from "../api";
+import { importSchedule, parseSchedule, parseSchedulePdf } from "../api";
 import { DOMAINS } from "../constants/domains";
 import type {
   DomainRead,
@@ -26,6 +26,8 @@ import {
   WEEKDAY_LABELS,
   type WeekdayCode,
 } from "../utils/recurrence";
+
+type ImportMode = "paste" | "pdf";
 
 type ScheduleImportModalProps = {
   open: boolean;
@@ -54,7 +56,9 @@ export function ScheduleImportModal({
   onImported,
 }: ScheduleImportModalProps) {
   const year = new Date().getFullYear();
+  const [importMode, setImportMode] = useState<ImportMode>("paste");
   const [text, setText] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [defaultYear, setDefaultYear] = useState(year);
   const [termStart, setTermStart] = useState(defaultTermStart(year));
   const [termEnd, setTermEnd] = useState(defaultTermEnd(year));
@@ -70,6 +74,7 @@ export function ScheduleImportModal({
 
   const resetImportForm = (clearResult = false) => {
     setText("");
+    setPdfFile(null);
     setCandidates([]);
     setFormatIssues([]);
     setError(null);
@@ -87,8 +92,37 @@ export function ScheduleImportModal({
       setTermEnd(defaultTermEnd(y));
       setTimezone(defaultTimezone());
       setFormatHint("auto");
+      setImportMode("paste");
     }
   }, [open]);
+
+  const applyParseResponse = (
+    response: Awaited<ReturnType<typeof parseSchedule>>,
+    options?: { keepRecurrenceFromPdf?: boolean },
+  ) => {
+    const withDomains = response.candidates.map((candidate) => ({
+      ...candidate,
+      recurrence_until: options?.keepRecurrenceFromPdf
+        ? candidate.recurrence_until
+        : repeatUntilIso(termEnd),
+      domain_id: candidate.domain_id ?? domains[0]?.id ?? null,
+    }));
+    const issues = response.format_issues ?? [];
+    setFormatIssues(issues);
+    setCandidates(withDomains);
+    if (issues.length > 0) {
+      const section = (issues[0]?.help_section as ScheduleHelpSection) ?? "plain";
+      setHelpSection(
+        section === "csv" ||
+          section === "term" ||
+          section === "weekdays" ||
+          section === "pdf"
+          ? section
+          : "plain",
+      );
+      setHelpOpen(true);
+    }
+  };
 
   const updateCandidate = (clientKey: string, patch: Partial<ImportCandidateRead>) => {
     setCandidates((rows) =>
@@ -127,24 +161,30 @@ export function ScheduleImportModal({
         term_end: termEnd,
         format_hint: formatHint,
       });
-      const until = repeatUntilIso(termEnd);
-      const withDomains = response.candidates.map((candidate) => ({
-        ...candidate,
-        recurrence_until: until,
-        domain_id: candidate.domain_id ?? domains[0]?.id ?? null,
-      }));
-      const issues = response.format_issues ?? [];
-      setFormatIssues(issues);
-      setCandidates(withDomains);
-      if (issues.length > 0) {
-        const section = (issues[0]?.help_section as ScheduleHelpSection) ?? "plain";
-        setHelpSection(
-          section === "csv" || section === "term" || section === "weekdays" ? section : "plain",
-        );
-        setHelpOpen(true);
-      }
+      applyParseResponse(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Parse failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleParsePdf = async () => {
+    if (!pdfFile) {
+      setError("Choose a PDF file first");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      const response = await parseSchedulePdf(pdfFile, {
+        default_year: defaultYear,
+        timezone,
+      });
+      applyParseResponse(response, { keepRecurrenceFromPdf: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF parse failed");
     } finally {
       setBusy(false);
     }
@@ -183,7 +223,9 @@ export function ScheduleImportModal({
           start_at: candidate.start_at,
           end_at: candidate.end_at,
           weekdays: candidate.weekdays,
-          recurrence_until: repeatUntilIso(termEnd),
+          recurrence_until: candidate.source_filename
+            ? candidate.recurrence_until
+            : repeatUntilIso(termEnd),
           timezone: candidate.timezone,
           domain_id: candidate.domain_id ?? domains[0].id,
           included: true,
@@ -199,6 +241,8 @@ export function ScheduleImportModal({
     }
   };
 
+  const termFieldsDisabled = importMode === "pdf";
+
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
@@ -210,7 +254,9 @@ export function ScheduleImportModal({
               <button
                 type="button"
                 onClick={() => {
-                  setHelpSection(formatHint === "csv" ? "csv" : "plain");
+                  setHelpSection(
+                    importMode === "pdf" ? "pdf" : formatHint === "csv" ? "csv" : "plain",
+                  );
                   setHelpOpen(true);
                 }}
                 aria-label="Schedule paste format help"
@@ -253,60 +299,118 @@ export function ScheduleImportModal({
                 </button>
               </div>
             )}
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="e.g. Chemistry Lab M W 0900 1145 or Mon Wed 09:00 10:30"
-              className={`h-32 w-full rounded-md border px-3 py-2 ${
-                formatIssues.length > 0
-                  ? "border-red-400 bg-red-50/30 focus:border-red-500"
-                  : "border-gray-300"
-              }`}
-              aria-invalid={formatIssues.length > 0}
-            />
+            <div className="flex gap-2 border-b border-gray-200 pb-2">
+              <button
+                type="button"
+                onClick={() => setImportMode("paste")}
+                className={`rounded-md px-3 py-1.5 text-sm ${
+                  importMode === "paste"
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                Paste text
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportMode("pdf")}
+                className={`rounded-md px-3 py-1.5 text-sm ${
+                  importMode === "pdf"
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                Upload PDF
+              </button>
+            </div>
+            {importMode === "paste" ? (
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="e.g. Chemistry Lab M W 0900 1145 or Mon Wed 09:00 10:30"
+                className={`h-32 w-full rounded-md border px-3 py-2 ${
+                  formatIssues.length > 0
+                    ? "border-red-400 bg-red-50/30 focus:border-red-500"
+                    : "border-gray-300"
+                }`}
+                aria-invalid={formatIssues.length > 0}
+              />
+            ) : (
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                className={`w-full rounded-md border px-3 py-2 text-sm ${
+                  formatIssues.length > 0 ? "border-red-400 bg-red-50/30" : "border-gray-300"
+                }`}
+              />
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-gray-500">Default year</label>
+                <label
+                  className={`mb-1 block ${termFieldsDisabled ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  Default year
+                </label>
                 <input
                   type="number"
                   value={defaultYear}
+                  disabled={termFieldsDisabled}
                   onChange={(e) => setDefaultYear(Number(e.target.value))}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
                 />
               </div>
+              {importMode === "paste" && (
+                <div>
+                  <label className="mb-1 block text-gray-500">Format</label>
+                  <select
+                    value={formatHint}
+                    onChange={(e) => setFormatHint(e.target.value as ScheduleFormatHint)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  >
+                    <option value="auto">Auto</option>
+                    <option value="plain">Plain lines</option>
+                    <option value="csv">CSV / TSV</option>
+                  </select>
+                </div>
+              )}
               <div>
-                <label className="mb-1 block text-gray-500">Format</label>
-                <select
-                  value={formatHint}
-                  onChange={(e) => setFormatHint(e.target.value as ScheduleFormatHint)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                <label
+                  className={`mb-1 block ${termFieldsDisabled ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  <option value="auto">Auto</option>
-                  <option value="plain">Plain lines</option>
-                  <option value="csv">CSV / TSV</option>
-                </select>
-              </div>
-              <div>
-                <label className="mb-1 block text-gray-500">Term starts</label>
+                  Term starts
+                </label>
                 <input
                   type="date"
                   value={termStart}
+                  disabled={termFieldsDisabled}
                   onChange={(e) => setTermStart(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-gray-500">Repeat until</label>
+                <label
+                  className={`mb-1 block ${termFieldsDisabled ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  Repeat until
+                </label>
                 <input
                   type="date"
                   value={termEnd}
+                  disabled={termFieldsDisabled}
                   onChange={(e) => setTermEnd(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
                 />
-                {candidates.length > 0 && (
+                {termFieldsDisabled ? (
                   <p className="mt-1 text-xs text-gray-500">
-                    All series use this end date on import.
+                    Start and end dates come from each course in the PDF.
                   </p>
+                ) : (
+                  candidates.length > 0 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      All series use this end date on import.
+                    </p>
+                  )
                 )}
               </div>
               <div className="col-span-2">
@@ -322,7 +426,7 @@ export function ScheduleImportModal({
             <button
               type="button"
               disabled={busy}
-              onClick={handleParse}
+              onClick={importMode === "pdf" ? handleParsePdf : handleParse}
               className="rounded-md bg-gray-800 px-4 py-2 text-white disabled:opacity-50"
             >
               {busy ? "Working…" : "Extract candidates"}
@@ -417,12 +521,23 @@ export function ScheduleImportModal({
                         </div>
                       </div>
                       <p className="text-xs text-gray-600">
-                        {recurrenceSummary(candidate.weekdays, termEnd)}
+                        {recurrenceSummary(
+                          candidate.weekdays,
+                          candidate.source_filename
+                            ? candidate.recurrence_until.slice(0, 10)
+                            : termEnd,
+                        )}
                       </p>
                       <p className="text-xs text-gray-500">
                         First occurrence {formatDateForInput(start)}
                       </p>
                       <p className="text-xs text-gray-500">{candidate.source_snippet}</p>
+                      {(candidate.source_filename || candidate.source_page) && (
+                        <p className="text-xs text-gray-500">
+                          Source: {candidate.source_filename ?? "PDF"}
+                          {candidate.source_page ? `, page ${candidate.source_page}` : ""}
+                        </p>
+                      )}
                       {candidate.warnings.length > 0 && (
                         <p className="text-xs text-amber-700">{candidate.warnings.join("; ")}</p>
                       )}
