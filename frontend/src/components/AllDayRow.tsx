@@ -1,3 +1,4 @@
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { getDomainClassesById } from "../constants/domainColors";
 import type { DomainRead, EventRead } from "../types/api";
 import { eventOccurrenceKey } from "../utils/recurrence";
@@ -5,10 +6,18 @@ import { eventOccurrenceKey } from "../utils/recurrence";
 type AllDayRowProps = {
   events: EventRead[];
   domains: DomainRead[];
+  selectedEventKey?: string | null;
+  onSelectEvent?: (event: EventRead) => void;
   onEditEvent: (event: EventRead) => void;
 };
 
-export function AllDayRow({ events, domains, onEditEvent }: AllDayRowProps) {
+export function AllDayRow({
+  events,
+  domains,
+  selectedEventKey = null,
+  onSelectEvent,
+  onEditEvent,
+}: AllDayRowProps) {
   if (events.length === 0) return null;
 
   return (
@@ -17,15 +26,35 @@ export function AllDayRow({ events, domains, onEditEvent }: AllDayRowProps) {
       <div className="flex flex-wrap gap-2">
         {events.map((event) => {
           const colors = getDomainClassesById(event.domain_id, domains);
+          const key = eventOccurrenceKey(event);
+          const selected = selectedEventKey === key;
           return (
-            <button
-              key={eventOccurrenceKey(event)}
-              type="button"
-              onClick={() => onEditEvent(event)}
-              className={`rounded px-2 py-1 text-xs ${colors.chip}`}
+            <div
+              key={key}
+              className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${colors.chip} ${
+                selected ? "ring-2 ring-blue-600 ring-offset-1" : ""
+              }`}
             >
-              {event.title}
-            </button>
+              <button
+                type="button"
+                onClick={() => onSelectEvent?.(event)}
+                onDoubleClick={() => onEditEvent(event)}
+                className="max-w-[14rem] truncate text-left"
+              >
+                {event.title}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditEvent(event);
+                }}
+                className="rounded p-0.5 opacity-70 hover:opacity-100"
+                aria-label={`Edit ${event.title}`}
+              >
+                <PencilSquareIcon className="size-3.5" />
+              </button>
+            </div>
           );
         })}
       </div>

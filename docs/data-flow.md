@@ -178,6 +178,21 @@ sequenceDiagram
 | `/weekly` | Week timeline |
 | `/monthly` | Month grid + schedule import |
 
+## Event notes (0.10+)
+
+```mermaid
+sequenceDiagram
+  participant DailyView
+  participant API as events notes
+  participant DB as notes table
+
+  DailyView->>API: GET /events/{id}/notes?occurrence_start_at=
+  API->>DB: note for event_id + occurrence
+  DailyView->>API: PUT with if_updated_at
+  DailyView->>API: GET /events/{id}/series-notes
+  API->>DB: prior occurrences DESC
+```
+
 ## Not wired yet
 
 - PDF OCR for scanned schedules

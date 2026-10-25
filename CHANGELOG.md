@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-25
+
+### Added
+
+- Contextual event notes on Daily view: click timeline block to open event note tab (no route change)
+- Per-occurrence notes on `notes.occurrence_start_at` with `GET`/`PUT /events/{id}/notes` and optimistic concurrency
+- Recurring **Series history** stack via `GET /events/{id}/series-notes` (newest first)
+- Timeline: single-click select, double-click or edit icon opens event modal
+- Header Digital Clock: Digital clock displaying current time centered in header
+
 ## [0.9.0] - 2026-10-24
 
 ### Added

@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { LAYOUT_WIDTH_DEFAULT } from "../constants/layout";
 import { useAuth } from "../context/AuthContext";
+import { useCurrentTime } from "../hooks/useCurrentTime";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
@@ -20,6 +21,12 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
   const navigate = useNavigate();
   const { search } = useLocation();
   const dateQuery = search || "";
+  const now = useCurrentTime(1000);
+  const clockLabel = now.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   function handleLogout() {
     logout();
@@ -28,9 +35,18 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
 
   return (
     <header className="border-b border-gray-200 bg-white px-6 py-4">
-      <div className={`mx-auto flex w-full items-center justify-between ${widthClass}`}>
+      <div
+        className={`mx-auto grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 ${widthClass}`}
+      >
         <h1 className="text-xl font-semibold">Palander</h1>
-        <div className="flex items-center gap-4 text-sm">
+        <time
+          dateTime={now.toISOString()}
+          className="font-mono text-lg tabular-nums tracking-wide text-gray-800"
+          aria-live="off"
+        >
+          {clockLabel}
+        </time>
+        <div className="flex items-center justify-end gap-4 text-sm">
           <nav className="flex items-center gap-1" aria-label="Views">
             <NavLink to={{ pathname: "/", search: dateQuery }} end className={navLinkClass}>
               Daily

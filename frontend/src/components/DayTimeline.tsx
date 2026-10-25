@@ -1,3 +1,4 @@
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { useLayoutEffect, useRef, useState } from "react";
 import { CurrentTimeIndicator } from "./CurrentTimeIndicator";
 import { getDomainClassesById } from "../constants/domainColors";
@@ -24,6 +25,8 @@ type DayTimelineProps = {
   events: EventRead[];
   tasks: TaskRead[];
   domains: DomainRead[];
+  selectedEventKey?: string | null;
+  onSelectEvent?: (event: EventRead) => void;
   onEditEvent: (event: EventRead) => void;
   onEditTask: (task: TaskRead) => void;
   showDayName?: boolean;
@@ -34,6 +37,8 @@ export function DayTimeline({
   events,
   tasks,
   domains,
+  selectedEventKey = null,
+  onSelectEvent,
   onEditEvent,
   onEditTask,
   showDayName = true,
@@ -106,16 +111,41 @@ export function DayTimeline({
             if (!blockStyle) return null;
             const { top, height } = blockStyle;
             const colors = getDomainClassesById(event.domain_id, domains);
+            const key = eventOccurrenceKey(event);
+            const selected = selectedEventKey === key;
             return (
-              <button
-                key={eventOccurrenceKey(event)}
-                type="button"
-                onClick={() => onEditEvent(event)}
-                className={`absolute left-16 right-2 z-10 overflow-hidden rounded border px-2 py-1 text-left text-xs ${colors.block}`}
+              <div
+                key={key}
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelectEvent?.(event)}
+                onDoubleClick={() => onEditEvent(event)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelectEvent?.(event);
+                  }
+                }}
+                className={`absolute left-16 right-2 z-10 overflow-hidden rounded border px-2 py-1 text-left text-xs ${colors.block} ${
+                  selected ? "ring-2 ring-blue-600 ring-offset-1" : ""
+                }`}
                 style={{ top, height }}
               >
-                <span className="line-clamp-2 font-medium">{event.title}</span>
-              </button>
+                <div className="flex items-start justify-between gap-1">
+                  <span className="line-clamp-2 font-medium">{event.title}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditEvent(event);
+                    }}
+                    className="shrink-0 rounded p-0.5 opacity-70 hover:bg-black/10 hover:opacity-100"
+                    aria-label={`Edit ${event.title}`}
+                  >
+                    <PencilSquareIcon className="size-3.5" />
+                  </button>
+                </div>
+              </div>
             );
           })}
 

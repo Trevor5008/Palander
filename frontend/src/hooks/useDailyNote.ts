@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, fetchDailyNote, upsertDailyNote } from "../api";
+import type { NoteEditorStatus } from "./noteStatus";
 import { shouldApplyDailyNoteResponse } from "../utils/dailyNoteSync";
 
 const AUTOSAVE_MS = 600;
 
-export type DailyNoteStatus = "loading" | "idle" | "saving" | "saved" | "error";
+export type DailyNoteStatus = NoteEditorStatus;
 
 export function useDailyNote(noteDateIso: string) {
   const [content, setContent] = useState("");
@@ -209,6 +210,22 @@ export function useDailyNote(noteDateIso: string) {
     [noteDateIso, saveNote],
   );
 
+  const flushPendingSave = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    if (dirtyRef.current) {
+      const flushGeneration = generationRef.current;
+      void saveNote(
+        noteDateIso,
+        contentRef.current,
+        serverUpdatedAtRef.current,
+        flushGeneration,
+      );
+    }
+  }, [noteDateIso, saveNote]);
+
   return {
     content,
     onContentChange,
@@ -216,5 +233,6 @@ export function useDailyNote(noteDateIso: string) {
     loadError,
     saveError,
     conflictMessage,
+    flushPendingSave,
   };
 }

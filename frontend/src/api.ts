@@ -2,6 +2,9 @@ import { clearToken, getToken } from "./auth/token";
 import type {
   DailyNoteRead,
   DailyNoteUpsert,
+  EventNoteRead,
+  EventNoteUpsert,
+  SeriesNoteStackRead,
   DomainRead,
   EventCreate,
   EventRead,
@@ -217,4 +220,30 @@ export async function upsertDailyNote(
     method: "PUT",
     body: JSON.stringify(body),
   });
+}
+
+export async function fetchEventNote(
+  eventId: number,
+  occurrenceStartAt: string,
+): Promise<EventNoteRead> {
+  const params = new URLSearchParams({ occurrence_start_at: occurrenceStartAt });
+  return request(`/events/${eventId}/notes?${params}`);
+}
+
+export async function upsertEventNote(
+  eventId: number,
+  body: EventNoteUpsert,
+): Promise<EventNoteRead> {
+  return request(`/events/${eventId}/notes`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function fetchEventSeriesNotes(
+  eventId: number,
+  occurrenceStartAt: string,
+): Promise<SeriesNoteStackRead> {
+  const params = new URLSearchParams({ occurrence_start_at: occurrenceStartAt });
+  return request(`/events/${eventId}/series-notes?${params}`);
 }

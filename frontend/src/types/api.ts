@@ -127,3 +127,28 @@ export type DailyNoteUpsert = {
   content: string;
   if_updated_at?: string | null;
 };
+
+export type EventNoteRead = {
+  id: number | null;
+  event_id: number;
+  occurrence_start_at: string;
+  content: string;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type EventNoteUpsert = {
+  content: string;
+  occurrence_start_at: string;
+  if_updated_at?: string | null;
+};
+
+export type SeriesNoteStackItem = {
+  occurrence_start_at: string;
+  content: string;
+  updated_at: string | null;
+};
+
+export type SeriesNoteStackRead = {
+  items: SeriesNoteStackItem[];
+};

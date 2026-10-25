@@ -56,7 +56,7 @@ Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE 
 
 Navigation order: **Daily → Weekly → Monthly** (`/`, `/weekly`, `/monthly`). Optional `?date=YYYY-MM-DD` is shared when switching views.
 
-**Daily view (default)** — Split workspace: schedule timeline (all-day row, timed events/tasks, current-time indicator) on the left; Markdown daily note with autosave on the right (stacks on narrow screens).
+**Daily view (default)** — Split workspace: schedule timeline on the left; Markdown **Daily Note** or **event note** tab on the right. Click an event to edit its note in place; double-click or use the edit icon to open the event modal. Recurring events show prior occurrence notes in a series history stack (stacks on narrow screens).
 
 **Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans).
 
