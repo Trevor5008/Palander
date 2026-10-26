@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.recurrence.expand import expand_event_occurrences
-from app.recurrence.rrule_build import build_weekly_rrule
+from app.recurrence.rrule_build import build_rrule, build_weekly_rrule
 
 
 def test_build_weekly_rrule_includes_byday_and_until():
@@ -36,6 +36,20 @@ def test_expand_weekly_occurrences_in_range():
 
     assert len(occurrences) == 3
     assert all(occ.series_id == 1 for occ in occurrences)
+
+
+def test_build_daily_interval_rrule():
+    until = datetime(2026, 12, 31, 23, 59, 0)
+    rrule = build_rrule(freq="DAILY", interval=3, until=until, tz_name="UTC")
+    assert "FREQ=DAILY" in rrule
+    assert "INTERVAL=3" in rrule
+
+
+def test_build_monthly_interval_rrule():
+    until = datetime(2026, 12, 31, 23, 59, 0)
+    rrule = build_rrule(freq="MONTHLY", interval=2, until=until, tz_name="UTC")
+    assert "FREQ=MONTHLY" in rrule
+    assert "INTERVAL=2" in rrule
 
 
 def test_expand_dst_wall_clock_stable():

@@ -10,10 +10,13 @@ import type {
 } from "../types/api";
 import { formatDateForInput, formatTimeForInput, parseDateInput } from "./date";
 import {
-  buildWeeklyRrule,
+  buildRrule,
   defaultTimezone,
+  parseFreqFromRrule,
+  parseIntervalFromRrule,
   parseUntilDateFromRrule,
   parseWeekdaysFromRrule,
+  type RecurrenceFreq,
   type WeekdayCode,
 } from "./recurrence";
 
@@ -27,6 +30,8 @@ export type EventFormState = {
   endTime: string;
   allDay: boolean;
   isRecurring: boolean;
+  recurrenceFreq: RecurrenceFreq;
+  recurrenceInterval: number;
   recurrenceWeekdays: WeekdayCode[];
   recurrenceUntil: string;
   timezone: string;
@@ -72,7 +77,12 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
       start_at,
       end_at,
       is_recurring: true,
-      rrule: buildWeeklyRrule(form.recurrenceWeekdays, form.recurrenceUntil, form.timezone),
+      rrule: buildRrule(
+        form.recurrenceFreq,
+        form.recurrenceInterval,
+        form.recurrenceUntil,
+        form.recurrenceWeekdays,
+      ),
       timezone: form.timezone,
       recurrence_until,
       domain_id: domainId,
@@ -160,6 +170,8 @@ export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventF
     endTime: formatTimeForInput(end),
     allDay,
     isRecurring: event.is_recurring,
+    recurrenceFreq: parseFreqFromRrule(event.rrule),
+    recurrenceInterval: parseIntervalFromRrule(event.rrule),
     recurrenceWeekdays: parseWeekdaysFromRrule(event.rrule),
     recurrenceUntil: event.recurrence_until
       ? formatDateForInput(new Date(event.recurrence_until))

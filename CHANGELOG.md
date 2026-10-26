@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-26
+
+### Added
+
+- Planning tabs: **Objectives** (with target dates), **Weekly review** (domain allocation, warnings, carry-forward), **Progress** (completed objectives and weekly activity)
+- `GET /planning/weekly-review`, `GET /planning/progress`, `POST /planning/carry-forward`
+- Event recurrence: daily, weekly, and monthly frequencies with `INTERVAL` (RRULE validation and expansion)
+- [`docs/legacy-notes-export.md`](docs/legacy-notes-export.md) for archiving note data before upgrade from 0.11
+
+### Changed
+
+- README: core capabilities, local-only dev credentials, corrected setup links, version-neutral container pull example
+- Expanded recurrence beyond weekly-only in Event modal and backend validators
+
+### Removed
+
+- Legacy note tables (`daily_notes`, `notes`) and note APIs (migration **008**); export endpoint removed after retirement — use 0.11 export before upgrading
+
 ## [0.11.0] - 2026-10-26
 
 ### Added

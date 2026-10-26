@@ -1,18 +1,22 @@
 # Palander
 
-Calendar planner for daily task and event planning
+Palander is a personal **execution planner**: organize work by **Domains** and **Objectives**, run your day with **Tasks** and calendar **Events**, and review progress in **Planning** without turning the app into a general-purpose notes vault.
 
-[![Version](https://img.shields.io/badge/version-0.11.0-blue)](CHANGELOG.md)
+**Status:** Active development ([`CHANGELOG.md`](CHANGELOG.md)).
+
+[![Version](https://img.shields.io/badge/version-0.12.0-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Pydantic](https://img.shields.io/badge/Pydantic-2.6+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
-[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
-[![Alembic](https://img.shields.io/badge/Alembic-1.14+-000000)](https://alembic.sqlalchemy.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+
+## Core capabilities
+
+- **Daily execution** — timeline plus Today / Overdue / Completed task sections with domain and objective context
+- **Planning** — objectives by domain, weekly domain allocation review, carry-forward, and progress history
+- **Calendar views** — weekly and monthly timelines with domain-colored entries
+- **Recurring events** — daily, weekly, or monthly patterns with custom intervals (RRULE-backed)
+- **Schedule import** — paste or PDF import for recurring class schedules (FIU profile)
 
 ## Table of contents
 
@@ -22,46 +26,39 @@ Calendar planner for daily task and event planning
 - [Versioning](#versioning)
 - [Project structure](#project-structure)
 - [Getting started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Docker (recommended)](#docker-recommended)
-  - [Backend (native)](#backend-native)
-  - [Frontend](#frontend)
 - [CI/CD](#cicd)
+- [License](#license)
 
 ## Design
 
-Palander is an execution-focused calendar: **Daily** and **Planning** for tasks and objectives, plus **Weekly** and **Monthly** calendar views. Routes: `/`, `/planning`, `/weekly`, `/monthly` (optional shared `?date=YYYY-MM-DD`).
-
-Detailed design and reference material is in [`docs/`](docs/):
+Routes: **Daily** `/`, **Planning** `/planning`, **Weekly** `/weekly`, **Monthly** `/monthly` (optional shared `?date=YYYY-MM-DD`).
 
 | Doc | Contents |
 |-----|----------|
-| [`schema.md`](docs/schema.md) | PostgreSQL ER diagram, constraints, status enums |
-| [`data-flow.md`](docs/data-flow.md) | Architecture diagrams, API paths, field mapping |
-| [`design-whiteboard.png`](docs/design-whiteboard.png) | Early product whiteboard sketch |
-| [`crud-design.png`](docs/crud-design.png) | Event/task modal mockup |
+| [`schema.md`](docs/schema.md) | PostgreSQL ER diagram |
+| [`data-flow.md`](docs/data-flow.md) | API and UI data paths |
+| [`legacy-notes-export.md`](docs/legacy-notes-export.md) | Pre-0.12 note archive (if upgrading from 0.11) |
 
-Release history and behavior changes: [`CHANGELOG.md`](CHANGELOG.md).
+Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Data flow
 
-The React UI talks to FastAPI over JWT (`POST /auth/login`; dev user **dev** / **dev**). Request paths, sequences, and modal field mapping are documented in [`docs/data-flow.md`](docs/data-flow.md).
+The React UI talks to FastAPI over JWT. See [`docs/data-flow.md`](docs/data-flow.md).
 
 ## Tech Stack
 
-See the badges above for the main technologies. Backend: FastAPI, SQLAlchemy, Alembic, PostgreSQL, Pydantic. Frontend: React, TypeScript, Vite, Tailwind CSS, Headless UI.
+Backend: FastAPI, SQLAlchemy, Alembic, PostgreSQL. Frontend: React, TypeScript, Vite, Tailwind CSS, Headless UI.
 
 ## Versioning
 
-The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.11.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
+Version in [`VERSION`](VERSION) (currently **0.12.0**). Backend `/health` and OpenAPI expose the same value.
 
 ## Project structure
 
-- `backend/` — FastAPI API, SQLAlchemy models, Alembic migrations, Dockerfile
-- `frontend/` — Vite + Tailwind UI (calendar and daily views)
-- `docs/` — design artifacts ([`schema.md`](docs/schema.md), [`data-flow.md`](docs/data-flow.md))
+- `backend/` — FastAPI API, models, Alembic migrations
+- `frontend/` — Vite UI: **Daily**, **Planning**, **Weekly**, and **Monthly** views
+- `docs/` — schema, data-flow, design artifacts
 - `docker-compose.yml` — PostgreSQL + API for local development
-- `.github/workflows/` — CI (pytest, frontend build, compose smoke test) and release (GHCR)
 
 ## Getting started
 
@@ -81,52 +78,33 @@ docker run --name palander-db \
   -d postgres:16
 ```
 
-**PostgreSQL on Arch Linux:**
-
-```bash
-sudo pacman -S postgresql
-sudo -iu postgres initdb --locale=C.UTF-8 -D /var/lib/postgres/data   # first time only
-sudo systemctl enable --now postgresql
-sudo -iu postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-sudo -iu postgres createdb palander
-```
-
 ### Docker (recommended)
-
-Requires [Docker](https://docs.docker.com/get-docker/) and Docker Compose v2.
 
 ```bash
 docker compose up --build
 ```
 
-This starts PostgreSQL and the API on http://localhost:8000. Migrations run automatically on startup. Optional overrides: copy [`docker-compose.env.example`](docker-compose.env.example) to `docker-compose.env` and pass `--env-file docker-compose.env`.
-
-Then run the frontend locally (see [Frontend](#frontend)). Sign in with **dev** / **dev**.
+API: http://localhost:8000 (migrations run on startup). Then start the [frontend](#frontend).
 
 ### Backend (native)
 
-Alternative to Docker — run Postgres yourself (see below), then:
+Run Postgres first (see [Prerequisites](#prerequisites)), then:
 
 ```bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
-cp .env.example .env   # set DATABASE_URL if needed
+cp .env.example .env
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Run tests from `backend/` **with the venv activated** (or use `.venv/bin/pytest`). Plain `pytest` from your system Python will fail to load `tests/conftest.py` because FastAPI and other app deps are not installed globally:
+Tests (venv required):
 
 ```bash
-cd backend
-source .venv/bin/activate
-pytest
-# or: .venv/bin/pytest
+cd backend && source .venv/bin/activate && pytest
 ```
-
-Default `DATABASE_URL`: `postgresql+psycopg2://postgres:postgres@localhost:5432/palander` (explicit driver matches `psycopg2-binary` in requirements)
 
 ### Frontend
 
@@ -137,24 +115,28 @@ cp .env.example .env
 npm run dev
 ```
 
-The frontend dev server runs at http://localhost:5173 and calls the backend at `VITE_API_URL` (default http://localhost:8000).
+Dev server: http://localhost:5173 → API at `VITE_API_URL` (default http://localhost:8000).
 
-Sign in with the seeded dev account: **username** `dev`, **password** `dev`. The JWT is stored in `localStorage` and sent as `Authorization: Bearer …` on API requests.
+**Local development credentials only** — seeded user `dev` / `dev`. Do **not** use these in deployed environments; set a strong `JWT_SECRET` and proper user accounts in production.
+
+After login, the client stores a JWT and sends:
+
+```http
+Authorization: Bearer <access_token>
+```
 
 ## CI/CD
 
-**CI** (`.github/workflows/ci.yml`) runs on every push to `main` and on pull requests:
+**CI** (`.github/workflows/ci.yml`): backend `pytest`, frontend build, Docker smoke test.
 
-- Backend: `pytest` in `backend/` (after `pip install -r requirements-dev.txt`)
-- Frontend: `npm ci` + `npm run build`
-- Docker: `docker compose up --build --wait`, then `curl /health`
-
-**Release** (`.github/workflows/release.yml`) runs when a version tag is pushed (e.g. `v0.3.0`):
-
-- Builds the backend image and publishes to GHCR:
+**Release** (tag `v*.*.*`): publishes `ghcr.io/trevor5008/palander-api` images.
 
 ```bash
-docker pull ghcr.io/trevor5008/palander-api:0.3.0
+docker pull ghcr.io/trevor5008/palander-api:$(cat VERSION)
 ```
 
-For private repositories, authenticate with `docker login ghcr.io` using a GitHub personal access token with `read:packages`. Set `JWT_SECRET` to at least 32 bytes in production deployments.
+Private repos: `docker login ghcr.io` with a PAT that has `read:packages`. Use a `JWT_SECRET` of at least 32 bytes in production.
+
+## License
+
+[MIT](LICENSE) — Copyright (c) 2026 Trevor C Werner

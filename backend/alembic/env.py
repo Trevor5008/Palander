@@ -5,7 +5,8 @@ from sqlalchemy import engine_from_config, pool
 
 from app.config import settings
 from app.database import Base
-from app.models import Domain, Event, Note, Objective, Reminder, Task, User  # noqa: F401
+# Import every mapped model so Base.metadata is complete (see app.models.__all__).
+from app.models import Domain, Event, Objective, Reminder, Task, User  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

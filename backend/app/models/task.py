@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from app.models.user import User
     from app.models.event import Event
     from app.models.reminder import Reminder
-    from app.models.note import Note
     from app.models.objective import Objective
     from app.models.domain import Domain
 
@@ -36,4 +35,3 @@ class Task(Base):
     objective: Mapped["Objective | None"] = relationship(back_populates="tasks")
     domain: Mapped["Domain"] = relationship(back_populates="tasks")
     reminders: Mapped[list["Reminder"]] = relationship(back_populates="task", cascade="all, delete-orphan")
-    notes: Mapped[list["Note"]] = relationship(back_populates="task", cascade="all, delete-orphan")

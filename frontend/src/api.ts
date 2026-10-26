@@ -1,15 +1,12 @@
 import { clearToken, getToken } from "./auth/token";
 import type {
-  DailyNoteRead,
-  DailyNoteUpsert,
-  EventNoteRead,
-  EventNoteUpsert,
-  SeriesNoteStackRead,
   DomainRead,
   EventCreate,
   EventRead,
   EventUpdate,
   DailyWorkspaceRead,
+  PlanningProgressRead,
+  WeeklyReviewRead,
   ObjectiveCreate,
   ObjectiveRead,
   ObjectiveUpdate,
@@ -187,6 +184,25 @@ export async function fetchDailyWorkspace(date: string): Promise<DailyWorkspaceR
   return request(`/daily-workspace?${params}`);
 }
 
+export async function fetchWeeklyReview(weekStart: string): Promise<WeeklyReviewRead> {
+  const params = new URLSearchParams({ week_start: weekStart });
+  return request(`/planning/weekly-review?${params}`);
+}
+
+export async function fetchPlanningProgress(weeks = 8): Promise<PlanningProgressRead> {
+  const params = new URLSearchParams({ weeks: String(weeks) });
+  return request(`/planning/progress?${params}`);
+}
+
+export async function carryForwardTasks(
+  items: Array<{ task_id: number; planned_for: string }>,
+): Promise<{ updated: number }> {
+  return request("/planning/carry-forward", {
+    method: "POST",
+    body: JSON.stringify({ items }),
+  });
+}
+
 export async function parseSchedule(body: ScheduleParseRequest): Promise<ScheduleParseResponse> {
   return request("/schedule/parse", { method: "POST", body: JSON.stringify(body) });
 }
@@ -248,44 +264,4 @@ export async function parseSchedulePdf(
   }
 
   return response.json() as Promise<ScheduleParseResponse>;
-}
-
-export async function fetchDailyNote(noteDate: string): Promise<DailyNoteRead> {
-  return request(`/daily-notes/${noteDate}`);
-}
-
-export async function upsertDailyNote(
-  noteDate: string,
-  body: DailyNoteUpsert,
-): Promise<DailyNoteRead> {
-  return request(`/daily-notes/${noteDate}`, {
-    method: "PUT",
-    body: JSON.stringify(body),
-  });
-}
-
-export async function fetchEventNote(
-  eventId: number,
-  occurrenceStartAt: string,
-): Promise<EventNoteRead> {
-  const params = new URLSearchParams({ occurrence_start_at: occurrenceStartAt });
-  return request(`/events/${eventId}/notes?${params}`);
-}
-
-export async function upsertEventNote(
-  eventId: number,
-  body: EventNoteUpsert,
-): Promise<EventNoteRead> {
-  return request(`/events/${eventId}/notes`, {
-    method: "PUT",
-    body: JSON.stringify(body),
-  });
-}
-
-export async function fetchEventSeriesNotes(
-  eventId: number,
-  occurrenceStartAt: string,
-): Promise<SeriesNoteStackRead> {
-  const params = new URLSearchParams({ occurrence_start_at: occurrenceStartAt });
-  return request(`/events/${eventId}/series-notes?${params}`);
 }
