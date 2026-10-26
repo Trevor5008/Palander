@@ -6,16 +6,14 @@ import { eventOccurrenceKey } from "../utils/recurrence";
 type AllDayRowProps = {
   events: EventRead[];
   domains: DomainRead[];
-  selectedEventKey?: string | null;
-  onSelectEvent?: (event: EventRead) => void;
+  objectivesById: Map<number, string>;
   onEditEvent: (event: EventRead) => void;
 };
 
 export function AllDayRow({
   events,
   domains,
-  selectedEventKey = null,
-  onSelectEvent,
+  objectivesById,
   onEditEvent,
 }: AllDayRowProps) {
   if (events.length === 0) return null;
@@ -27,21 +25,23 @@ export function AllDayRow({
         {events.map((event) => {
           const colors = getDomainClassesById(event.domain_id, domains);
           const key = eventOccurrenceKey(event);
-          const selected = selectedEventKey === key;
+          const obj =
+            event.objective_id != null
+              ? objectivesById.get(event.objective_id)
+              : null;
           return (
             <div
               key={key}
-              className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${colors.chip} ${
-                selected ? "ring-2 ring-blue-600 ring-offset-1" : ""
-              }`}
+              className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${colors.chip}`}
             >
               <button
                 type="button"
-                onClick={() => onSelectEvent?.(event)}
                 onDoubleClick={() => onEditEvent(event)}
+                onClick={() => onEditEvent(event)}
                 className="max-w-[14rem] truncate text-left"
               >
                 {event.title}
+                {obj ? ` · ${obj}` : ""}
               </button>
               <button
                 type="button"

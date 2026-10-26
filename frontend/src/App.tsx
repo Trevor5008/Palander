@@ -11,6 +11,7 @@ import { useLayoutWidth } from "./hooks/useLayoutWidth";
 import { CalendarView } from "./pages/CalendarView";
 import { WeeklyView } from "./pages/WeeklyView";
 import { DailyView } from "./pages/DailyView";
+import { PlanningView } from "./pages/PlanningView";
 import { LoginView } from "./pages/LoginView";
 
 function AppShell({ children }: { children: React.ReactNode }) {
@@ -43,6 +44,7 @@ export function App() {
                 <Route path="/login" element={<LoginView />} />
                 <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<DailyView />} />
+                    <Route path="/planning" element={<PlanningView />} />
                     <Route path="/daily" element={<DailyRedirect />} />
                     <Route path="/weekly" element={<WeeklyView />} />
                     <Route path="/monthly" element={<CalendarView />} />

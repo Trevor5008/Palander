@@ -9,6 +9,10 @@ import type {
   EventCreate,
   EventRead,
   EventUpdate,
+  DailyWorkspaceRead,
+  ObjectiveCreate,
+  ObjectiveRead,
+  ObjectiveUpdate,
   TaskCreate,
   TaskRead,
   TaskUpdate,
@@ -143,6 +147,44 @@ export async function updateTask(id: number, body: TaskUpdate): Promise<TaskRead
 
 export async function deleteTask(id: number): Promise<void> {
   return request(`/tasks/${id}`, { method: "DELETE" });
+}
+
+export async function fetchObjectives(params?: {
+  domain_id?: number;
+  status?: string;
+}): Promise<ObjectiveRead[]> {
+  const search = new URLSearchParams();
+  if (params?.domain_id != null) {
+    search.set("domain_id", String(params.domain_id));
+  }
+  if (params?.status) {
+    search.set("status", params.status);
+  }
+  const qs = search.toString();
+  return request(`/objectives${qs ? `?${qs}` : ""}`);
+}
+
+export async function createObjective(body: ObjectiveCreate): Promise<ObjectiveRead> {
+  return request("/objectives", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function updateObjective(
+  id: number,
+  body: ObjectiveUpdate,
+): Promise<ObjectiveRead> {
+  return request(`/objectives/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteObjective(id: number): Promise<void> {
+  return request(`/objectives/${id}`, { method: "DELETE" });
+}
+
+export async function fetchDailyWorkspace(date: string): Promise<DailyWorkspaceRead> {
+  const params = new URLSearchParams({ date });
+  return request(`/daily-workspace?${params}`);
 }
 
 export async function parseSchedule(body: ScheduleParseRequest): Promise<ScheduleParseResponse> {

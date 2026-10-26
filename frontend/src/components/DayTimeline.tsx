@@ -10,7 +10,7 @@ import {
 } from "../constants/time";
 import { useCurrentTime } from "../hooks/useCurrentTime";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
-import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
+import { isSamePlannedDay, partitionEvents } from "../utils/apiMappers";
 import { getEventsForDay } from "../utils/eventSegments";
 import { formatDayName, isSameDay } from "../utils/date";
 import { eventOccurrenceKey } from "../utils/recurrence";
@@ -25,8 +25,7 @@ type DayTimelineProps = {
   events: EventRead[];
   tasks: TaskRead[];
   domains: DomainRead[];
-  selectedEventKey?: string | null;
-  onSelectEvent?: (event: EventRead) => void;
+  objectivesById: Map<number, string>;
   onEditEvent: (event: EventRead) => void;
   onEditTask: (task: TaskRead) => void;
   showDayName?: boolean;
@@ -37,8 +36,7 @@ export function DayTimeline({
   events,
   tasks,
   domains,
-  selectedEventKey = null,
-  onSelectEvent,
+  objectivesById,
   onEditEvent,
   onEditTask,
   showDayName = true,
@@ -50,7 +48,7 @@ export function DayTimeline({
 
   const dayEvents = getEventsForDay(events, selectedDate);
   const { timed } = partitionEvents(dayEvents);
-  const dayTasks = tasks.filter((t) => isSameApiDay(t.due_date, selectedDate));
+  const dayTasks = tasks.filter((t) => isSamePlannedDay(t.planned_for, selectedDate));
 
   useLayoutEffect(() => {
     const container = scrollRef.current;
@@ -66,6 +64,11 @@ export function DayTimeline({
     container.scrollTop = 0;
   }, [selectedDate, isToday, now.getHours(), now.getMinutes()]);
 
+  function objectiveLabel(objectiveId: number | null): string | null {
+    if (objectiveId == null) return null;
+    return objectivesById.get(objectiveId) ?? null;
+  }
+
   return (
     <>
       {showDayName && (
@@ -78,6 +81,7 @@ export function DayTimeline({
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-2">
           {dayTasks.map((task) => {
             const colors = getDomainClassesById(task.domain_id, domains);
+            const obj = objectiveLabel(task.objective_id);
             return (
               <button
                 key={task.id}
@@ -86,6 +90,7 @@ export function DayTimeline({
                 className={`rounded px-2 py-1 text-xs ${colors.chip}`}
               >
                 {task.name}
+                {obj ? ` · ${obj}` : ""}
               </button>
             );
           })}
@@ -112,27 +117,27 @@ export function DayTimeline({
             const { top, height } = blockStyle;
             const colors = getDomainClassesById(event.domain_id, domains);
             const key = eventOccurrenceKey(event);
-            const selected = selectedEventKey === key;
+            const obj = objectiveLabel(event.objective_id);
             return (
               <div
                 key={key}
                 role="button"
                 tabIndex={0}
-                onClick={() => onSelectEvent?.(event)}
                 onDoubleClick={() => onEditEvent(event)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (e.key === "Enter") {
                     e.preventDefault();
-                    onSelectEvent?.(event);
+                    onEditEvent(event);
                   }
                 }}
-                className={`absolute left-16 right-2 z-10 overflow-hidden rounded border px-2 py-1 text-left text-xs ${colors.block} ${
-                  selected ? "ring-2 ring-blue-600 ring-offset-1" : ""
-                }`}
+                className={`absolute left-16 right-2 z-10 overflow-hidden rounded border px-2 py-1 text-left text-xs ${colors.block}`}
                 style={{ top, height }}
               >
                 <div className="flex items-start justify-between gap-1">
-                  <span className="line-clamp-2 font-medium">{event.title}</span>
+                  <div className="min-w-0">
+                    <span className="line-clamp-2 font-medium">{event.title}</span>
+                    {obj && <div className="truncate opacity-80">{obj}</div>}
+                  </div>
                   <button
                     type="button"
                     onClick={(e) => {

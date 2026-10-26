@@ -23,21 +23,73 @@ export type EventCreate = Omit<EventRead, "id" | "user_id" | "series_id">;
 
 export type EventUpdate = Partial<EventCreate>;
 
+export type TaskStatus = "active" | "completed" | "cancelled";
+
 export type TaskRead = {
   id: number;
   name: string;
-  due_date: string;
+  planned_for: string;
+  due_at: string;
+  status: TaskStatus;
+  completed_at: string | null;
   is_recurring: boolean;
   rrule: string | null;
   user_id: number;
-  domain_id: number | null;
+  domain_id: number;
   event_id: number | null;
   objective_id: number | null;
 };
 
-export type TaskCreate = Omit<TaskRead, "id" | "user_id">;
+export type TaskCreate = Omit<TaskRead, "id" | "user_id" | "completed_at">;
 
-export type TaskUpdate = Partial<TaskCreate>;
+export type TaskUpdate = Partial<Omit<TaskRead, "id" | "user_id">>;
+
+export type ObjectiveStatus = "active" | "paused" | "completed" | "cancelled";
+
+export type ObjectiveRead = {
+  id: number;
+  title: string;
+  target_date: string | null;
+  status: ObjectiveStatus;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  domain_id: number;
+  user_id: number;
+};
+
+export type ObjectiveCreate = {
+  title: string;
+  target_date?: string | null;
+  status?: ObjectiveStatus;
+  domain_id: number;
+};
+
+export type ObjectiveUpdate = Partial<ObjectiveCreate>;
+
+export type DomainCoverageItem = {
+  domain_id: number;
+  domain_name: string;
+  scheduled_event_minutes: number;
+  planned_task_count: number;
+};
+
+export type ObjectiveActivityItem = {
+  objective_id: number;
+  objective_title: string;
+  domain_id: number;
+  planned_task_count: number;
+  completed_task_count: number;
+};
+
+export type DailyWorkspaceRead = {
+  date: string;
+  today: TaskRead[];
+  overdue: TaskRead[];
+  completed: TaskRead[];
+  domain_coverage: DomainCoverageItem[];
+  objective_activity: ObjectiveActivityItem[];
+};
 
 export type TokenResponse = {
   access_token: string;

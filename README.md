@@ -2,7 +2,7 @@
 
 Calendar planner for daily task and event planning
 
-[![Version](https://img.shields.io/badge/version-0.4.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.11.0-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-2.6+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
@@ -17,9 +17,6 @@ Calendar planner for daily task and event planning
 ## Table of contents
 
 - [Design](#design)
-  - [Database schema](#database-schema)
-  - [UI views](#ui-views)
-  - [CRUD modal](#crud-modal)
 - [Data flow](#data-flow)
 - [Tech Stack](#tech-stack)
 - [Versioning](#versioning)
@@ -31,119 +28,24 @@ Calendar planner for daily task and event planning
   - [Frontend](#frontend)
 - [CI/CD](#cicd)
 
-### Design
+## Design
 
-![Design whiteboard](docs/design-whiteboard.png)
+Palander is an execution-focused calendar: **Daily** and **Planning** for tasks and objectives, plus **Weekly** and **Monthly** calendar views. Routes: `/`, `/planning`, `/weekly`, `/monthly` (optional shared `?date=YYYY-MM-DD`).
 
-#### Database schema
+Detailed design and reference material is in [`docs/`](docs/):
 
-Hierarchy: **User → Domain → Objective → Event / Task**
+| Doc | Contents |
+|-----|----------|
+| [`schema.md`](docs/schema.md) | PostgreSQL ER diagram, constraints, status enums |
+| [`data-flow.md`](docs/data-flow.md) | Architecture diagrams, API paths, field mapping |
+| [`design-whiteboard.png`](docs/design-whiteboard.png) | Early product whiteboard sketch |
+| [`crud-design.png`](docs/crud-design.png) | Event/task modal mockup |
 
-| Entity | Fields | Relationships |
-|--------|--------|---------------|
-| **USER** | `id` (int, PK), `username`, `email` | Owns domains, objectives, events, and tasks |
-| **DOMAIN** | `id` (PK), `name`, `user_id` (FK) | Life pillars (e.g. career, academics); has objectives, events, and tasks |
-| **OBJECTIVE** | `id` (PK), `title`, `target_date`, `domain_id` (FK), `user_id` (FK) | Goals under a domain; has events and tasks |
-| **EVENT** | `id` (PK), `title`, `start_at`, `end_at`, `is_recurring`, `rrule`, `domain_id` (FK), `user_id` (FK), `objective_id` (FK, optional) | Calendar block; has tasks, notes, and reminders |
-| **TASK** | `id` (PK), `name`, `due_date`, `is_recurring`, `rrule`, `domain_id` (FK), `objective_id` (FK, optional), `event_id` (FK, optional), `user_id` (FK) | Action item; has notes and reminders |
-| **REMINDER** | `id` (PK), `text`, `task_id` (FK), `event_id` (FK) | Attached to exactly one task **or** one event |
-| **NOTE** | `id` (PK), `content`, `created_at`, `updated_at`, `task_id` (FK), `event_id` (FK) | Attached to exactly one task **or** one event |
-| **DAILY_NOTE** | `id` (PK), `user_id` (FK), `note_date` (date), `content`, `created_at`, `updated_at` | One Markdown page per user per calendar day (unique on user + date) |
-
-Recurring events and tasks use inline `is_recurring` + `rrule` (iCalendar RRULE strings), not a separate recurrence table.
-
-#### UI views
-
-Navigation order: **Daily → Weekly → Monthly** (`/`, `/weekly`, `/monthly`). Optional `?date=YYYY-MM-DD` is shared when switching views.
-
-**Daily view (default)** — Split workspace: schedule timeline on the left; Markdown **Daily Note** or **event note** tab on the right. Click an event to edit its note in place; double-click or use the edit icon to open the event modal. Recurring events show prior occurrence notes in a series history stack (stacks on narrow screens).
-
-**Weekly view** — Seven day columns with a shared time gutter, all-day row per column, and timed events clipped to each day (including overnight and multi-day spans).
-
-**Monthly view** — Sun–Sat grid with prev/next month navigation. Events and tasks appear as domain-colored chips per day; click to edit.
-
-**Schedule import (0.6+)** — From the monthly view: paste schedule text or upload a **FIU Schedule of Classes PDF** (0.8), review candidates, then import as weekly series.
-
-#### CRUD modal
-
-Dynamic add modal triggered by an Add button. Event/Task radio buttons switch the form fields:
-
-- **Event** — date, domain (career, fitness, finances, school), start time, end time
-- **Task** — domain, due date, time, optional linked event (filtered select list)
-
-![CRUD modal design](docs/crud-design.png)
+Release history and behavior changes: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Data flow
 
-Events and tasks persist through the React UI → FastAPI → PostgreSQL stack. The frontend authenticates with JWT Bearer tokens (`POST /auth/login`); the dev user is `dev` / `dev`.
-
-**Architecture (component flow):**
-
-```mermaid
-flowchart TB
-  subgraph frontend [Frontend — React / Vite]
-    CalendarView[CalendarView]
-    DailyView[DailyView]
-    EventModal[EventModal]
-    mappers[apiMappers.ts]
-    apiTs[api.ts]
-  end
-
-  subgraph backend [Backend — FastAPI]
-    domainsRouter["GET /domains"]
-    eventsRouter["/events CRUD"]
-    tasksRouter["/tasks CRUD"]
-    pydantic[Pydantic schemas]
-    sqlalchemy[SQLAlchemy models]
-  end
-
-  DB[(PostgreSQL)]
-
-  CalendarView --> apiTs
-  DailyView --> apiTs
-  EventModal --> mappers
-  EventModal --> apiTs
-  mappers --> apiTs
-  apiTs --> domainsRouter
-  apiTs --> eventsRouter
-  apiTs --> tasksRouter
-  domainsRouter --> pydantic
-  eventsRouter --> pydantic
-  tasksRouter --> pydantic
-  pydantic --> sqlalchemy
-  sqlalchemy --> DB
-```
-
-**CRUD sequence (list → modal → save → refetch):**
-
-```mermaid
-sequenceDiagram
-  participant View as CalendarView / DailyView
-  participant Modal as EventModal
-  participant API as api.ts
-  participant BE as FastAPI
-  participant DB as PostgreSQL
-
-  View->>API: GET /events and /tasks
-  API->>BE: list by user_id + date range
-  BE->>DB: SELECT
-  DB-->>View: render markers / blocks
-
-  View->>Modal: open create or edit
-  Modal->>API: GET /domains
-  alt Create or update
-    Modal->>API: POST or PATCH
-    API->>BE: write
-    BE->>DB: INSERT or UPDATE
-  else Delete
-    Modal->>API: DELETE
-    BE->>DB: DELETE
-  end
-  Modal->>View: onSaved / onDeleted
-  View->>API: refetch lists
-```
-
-Full detail (field mapping, file index, out-of-scope items): [`docs/data-flow.md`](docs/data-flow.md).
+The React UI talks to FastAPI over JWT (`POST /auth/login`; dev user **dev** / **dev**). Request paths, sequences, and modal field mapping are documented in [`docs/data-flow.md`](docs/data-flow.md).
 
 ## Tech Stack
 
@@ -151,13 +53,13 @@ See the badges above for the main technologies. Backend: FastAPI, SQLAlchemy, Al
 
 ## Versioning
 
-The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.4.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
+The project version lives in [`VERSION`](VERSION) at the repo root (currently **0.11.0**). Release notes are in [`CHANGELOG.md`](CHANGELOG.md). The backend exposes the version at `/health` and in the OpenAPI docs; the frontend mirrors it in `frontend/package.json`.
 
 ## Project structure
 
 - `backend/` — FastAPI API, SQLAlchemy models, Alembic migrations, Dockerfile
 - `frontend/` — Vite + Tailwind UI (calendar and daily views)
-- `docs/` — design artifacts
+- `docs/` — design artifacts ([`schema.md`](docs/schema.md), [`data-flow.md`](docs/data-flow.md))
 - `docker-compose.yml` — PostgreSQL + API for local development
 - `.github/workflows/` — CI (pytest, frontend build, compose smoke test) and release (GHCR)
 

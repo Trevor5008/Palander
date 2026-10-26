@@ -10,7 +10,7 @@ import {
 } from "../constants/time";
 import { useCurrentTime } from "../hooks/useCurrentTime";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
-import { isSameApiDay, partitionEvents } from "../utils/apiMappers";
+import { isSamePlannedDay, partitionEvents } from "../utils/apiMappers";
 import { getEventsForDay } from "../utils/eventSegments";
 import { eventOccurrenceKey } from "../utils/recurrence";
 import { addDays, formatShortMonthDay, isSameDay } from "../utils/date";
@@ -180,7 +180,9 @@ export function WeekTimeline({
                 const isToday = isSameDay(day, now);
                 const dayEvents = getEventsForDay(events, day);
                 const { timed } = partitionEvents(dayEvents);
-                const dayTasks = tasks.filter((t) => isSameApiDay(t.due_date, day));
+                const dayTasks = tasks.filter((t) =>
+                  isSamePlannedDay(t.planned_for, day),
+                );
 
                 // Render a day column for each day in the week
                 return (
@@ -220,7 +222,7 @@ export function WeekTimeline({
                     {/* Render the tasks */}
                     {dayTasks.map((task) => {
                       // Calculate the top position of the task
-                      const due = new Date(task.due_date);
+                      const due = new Date(task.due_at);
                       const top = getTimeOffsetPx(
                         due.getHours(),
                         due.getMinutes(),
