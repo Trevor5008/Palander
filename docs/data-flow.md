@@ -1,6 +1,6 @@
 # Data flow
 
-How events, tasks, and objectives move between the React UI, FastAPI API, and PostgreSQL (v0.11.0). Auth uses JWT Bearer tokens (`POST /auth/login`).
+How events, tasks, and objectives move between the React UI, FastAPI API, and PostgreSQL (v0.12.0). Auth uses JWT Bearer tokens (`POST /auth/login`).
 
 ## Schema
 
@@ -139,22 +139,24 @@ sequenceDiagram
 | Route | View |
 |-------|------|
 | `/` | Daily (timeline + execution pane) |
-| `/planning` | Objectives by domain |
+| `/planning` | Objectives, weekly review, progress tabs |
 | `/daily` | Redirect to `/` |
 | `/weekly` | Week timeline |
 | `/monthly` | Month grid + schedule import |
 
-## Legacy notes (export only)
+## Planning review (0.12+)
 
-Daily and event note **write APIs** and tables remain for migration/export. The UI no longer creates note content.
+- `GET /planning/weekly-review?week_start=` — domain allocation, objective warnings, carry-forward tasks
+- `GET /planning/progress?weeks=` — completed objectives and weekly task activity
+- `POST /planning/carry-forward` — bulk `planned_for` updates
 
-- `GET/PUT /daily-notes/{date}`
-- `GET/PUT /events/{id}/notes`, `GET /events/{id}/series-notes`
-- `GET /export/legacy-notes` — JSON bundle for the authenticated user
+## Legacy notes
 
-## Recurrence (0.6+)
+Removed in 0.12 (migration 008). Upgrading from 0.11: see [`legacy-notes-export.md`](legacy-notes-export.md).
 
-Recurring events are stored as one series row; `GET /events` expands occurrences into the requested window.
+## Recurrence (0.6+ / expanded 0.12)
+
+Recurring events use RRULE (`DAILY`, `WEEKLY`, `MONTHLY` + optional `INTERVAL`); `GET /events` expands occurrences into the requested window.
 
 ## Schedule import (0.6+ / PDF 0.8+)
 

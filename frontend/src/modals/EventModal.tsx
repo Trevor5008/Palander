@@ -37,6 +37,7 @@ import {
   defaultTimezone,
   WEEKDAY_CODES,
   WEEKDAY_LABELS,
+  type RecurrenceFreq,
   type WeekdayCode,
 } from "../utils/recurrence";
 
@@ -85,6 +86,8 @@ export function EventModal({
   const [endTime, setEndTime] = useState("10:00");
   const [allDay, setAllDay] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceFreq, setRecurrenceFreq] = useState<RecurrenceFreq>("WEEKLY");
+  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
   const [recurrenceWeekdays, setRecurrenceWeekdays] = useState<WeekdayCode[]>(["MO"]);
   const [recurrenceUntil, setRecurrenceUntil] = useState(() => formatDateForInput(defaultDate));
   const [timezone, setTimezone] = useState(() => defaultTimezone());
@@ -166,6 +169,8 @@ export function EventModal({
       setEndTime(form.endTime);
       setAllDay(form.allDay);
       setIsRecurring(form.isRecurring);
+      setRecurrenceFreq(form.recurrenceFreq);
+      setRecurrenceInterval(form.recurrenceInterval);
       setRecurrenceWeekdays(form.recurrenceWeekdays);
       setRecurrenceUntil(form.recurrenceUntil);
       setTimezone(form.timezone);
@@ -203,6 +208,8 @@ export function EventModal({
     setEndTime(times.endTime);
     setAllDay(false);
     setIsRecurring(false);
+    setRecurrenceFreq("WEEKLY");
+    setRecurrenceInterval(1);
     setRecurrenceWeekdays(["MO"]);
     setRecurrenceUntil(day);
     setTimezone(defaultTimezone());
@@ -236,8 +243,13 @@ export function EventModal({
           setSaving(false);
           return;
         }
-        if (isRecurring && recurrenceWeekdays.length === 0) {
-          setError("Select at least one weekday for recurrence");
+        if (isRecurring && recurrenceFreq === "WEEKLY" && recurrenceWeekdays.length === 0) {
+          setError("Select at least one weekday for weekly recurrence");
+          setSaving(false);
+          return;
+        }
+        if (isRecurring && (recurrenceInterval < 1 || recurrenceInterval > 99)) {
+          setError("Interval must be between 1 and 99");
           setSaving(false);
           return;
         }
@@ -251,6 +263,8 @@ export function EventModal({
           endTime,
           allDay,
           isRecurring,
+          recurrenceFreq,
+          recurrenceInterval,
           recurrenceWeekdays,
           recurrenceUntil,
           timezone,
@@ -541,7 +555,7 @@ export function EventModal({
                   />
                 </label>
                 <label className="flex cursor-pointer items-center justify-between">
-                  <span>Recurring event (weekly)</span>
+                  <span>Recurring event</span>
                   <input
                     type="checkbox"
                     checked={isRecurring}
@@ -550,6 +564,38 @@ export function EventModal({
                 </label>
                 {isRecurring && (
                   <div className="space-y-2 rounded-md border border-gray-200 p-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="recurrenceFreq" className="mb-1 block text-gray-500">
+                          Frequency
+                        </label>
+                        <select
+                          id="recurrenceFreq"
+                          value={recurrenceFreq}
+                          onChange={(e) => setRecurrenceFreq(e.target.value as RecurrenceFreq)}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        >
+                          <option value="DAILY">Daily</option>
+                          <option value="WEEKLY">Weekly</option>
+                          <option value="MONTHLY">Monthly</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="recurrenceInterval" className="mb-1 block text-gray-500">
+                          Every
+                        </label>
+                        <input
+                          id="recurrenceInterval"
+                          type="number"
+                          min={1}
+                          max={99}
+                          value={recurrenceInterval}
+                          onChange={(e) => setRecurrenceInterval(Number(e.target.value))}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        />
+                      </div>
+                    </div>
+                    {recurrenceFreq === "WEEKLY" && (
                     <div>
                       <span className="mb-1 block text-gray-500">Repeat on</span>
                       <div className="flex flex-wrap gap-2">
@@ -572,6 +618,7 @@ export function EventModal({
                         ))}
                       </div>
                     </div>
+                    )}
                     <div>
                       <label htmlFor="recurrenceUntil" className="mb-1 block text-gray-500">
                         Repeat until

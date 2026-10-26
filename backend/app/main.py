@@ -5,13 +5,11 @@ from app.config import settings
 from app.__version__ import __version__
 from app.routers import (
     auth,
-    daily_notes,
     daily_workspace,
     domains,
-    event_notes,
     events,
-    export,
     objectives,
+    planning_review,
     schedule,
     tasks,
 )
@@ -19,17 +17,14 @@ from app.routers import (
 app = FastAPI(title="Palander API", version=__version__)
 
 app.include_router(auth.router)
-app.include_router(daily_notes.router)
 app.include_router(daily_workspace.router)
 app.include_router(domains.router)
-app.include_router(export.router)
 app.include_router(events.router)
-app.include_router(event_notes.router)
 app.include_router(schedule.router)
 app.include_router(objectives.router)
+app.include_router(planning_review.router)
 app.include_router(tasks.router)
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -38,8 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Health check endpoint
+
 @app.get("/health")
 def health():
-    # Log the version
     return {"status": "ok", "version": __version__}

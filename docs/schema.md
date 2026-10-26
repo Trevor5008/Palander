@@ -1,8 +1,8 @@
 # Database schema (PostgreSQL)
 
-Canonical entity-relationship reference for Palander **v0.11.0** (Alembic revision **007**). Source of truth: SQLAlchemy models in [`backend/app/models/`](../backend/app/models/) and migrations in [`backend/alembic/versions/`](../backend/alembic/versions/).
+Canonical entity-relationship reference for Palander **v0.12.0** (Alembic revision **008**). Source of truth: SQLAlchemy models in [`backend/app/models/`](../backend/app/models/) and migrations in [`backend/alembic/versions/`](../backend/alembic/versions/).
 
-**Product boundary (0.11):** `daily_notes` and contextual `notes` rows are retained for export (`GET /export/legacy-notes`); the active UI focuses on execution (tasks, events, objectives). Knowledge-style note authoring is out of scope.
+Legacy `daily_notes` and `notes` tables were removed in revision **008**. Export before upgrading from 0.11: [`legacy-notes-export.md`](legacy-notes-export.md).
 
 ## Entity-relationship diagram
 
@@ -12,7 +12,6 @@ erDiagram
   users ||--o{ objectives : owns
   users ||--o{ events : owns
   users ||--o{ tasks : owns
-  users ||--o{ daily_notes : owns
 
   domains ||--o{ objectives : contains
   domains ||--o{ events : tags
@@ -23,10 +22,8 @@ erDiagram
 
   events ||--o{ tasks : optional
   events ||--o{ reminders : has
-  events ||--o{ notes : legacy
 
   tasks ||--o{ reminders : has
-  tasks ||--o{ notes : legacy
 
   users {
     int id PK
@@ -88,25 +85,6 @@ erDiagram
     int task_id FK
     int event_id FK
   }
-
-  notes {
-    int id PK
-    text content
-    datetime created_at
-    datetime updated_at
-    int task_id FK
-    int event_id FK
-    datetime occurrence_start_at
-  }
-
-  daily_notes {
-    int id PK
-    int user_id FK
-    date note_date
-    text content
-    datetime created_at
-    datetime updated_at
-  }
 ```
 
 ## Constraints (not shown in ER diagram)
@@ -114,9 +92,6 @@ erDiagram
 | Table | Constraint | Rule |
 |-------|------------|------|
 | `reminders` | `check_reminder_owner` | Exactly one of `task_id` or `event_id` is set |
-| `notes` | `check_note_owner` | Exactly one of `task_id` or `event_id` is set |
-| `notes` | `uq_notes_event_occurrence` | Unique `(event_id, occurrence_start_at)` for per-occurrence event notes |
-| `daily_notes` | `uq_daily_notes_user_date` | One row per `(user_id, note_date)` |
 
 ## Objective and task status values
 
@@ -125,6 +100,10 @@ erDiagram
 | `objectives` | `active`, `paused`, `completed`, `cancelled` |
 | `tasks` | `active`, `completed`, `cancelled` |
 
+## Recurrence (events)
+
+Stored as `is_recurring`, `rrule` (max 255 chars), `timezone`, and `recurrence_until`. Supported RRULE scopes: `FREQ=DAILY|WEEKLY|MONTHLY` with optional `INTERVAL` and required `UNTIL`; weekly series require `BYDAY`.
+
 ## Maintenance
 
-Update this file in the same change set as any Alembic revision that adds, renames, or drops columns or relationships.
+Update this file in the same change set as any Alembic revision that changes columns or relationships.

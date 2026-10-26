@@ -91,6 +91,60 @@ export type DailyWorkspaceRead = {
   objective_activity: ObjectiveActivityItem[];
 };
 
+export type DomainAllocationItem = {
+  domain_id: number;
+  domain_name: string;
+  scheduled_event_minutes: number;
+  tasks_planned: number;
+  tasks_completed: number;
+};
+
+export type ObjectiveWarningItem = {
+  objective_id: number;
+  objective_title: string;
+  domain_id: number;
+  warning_type: string;
+  message: string;
+};
+
+export type WeeklyReviewRead = {
+  week_start: string;
+  week_end: string;
+  domain_allocation: DomainAllocationItem[];
+  carry_forward: TaskRead[];
+  objective_warnings: ObjectiveWarningItem[];
+};
+
+export type CompletedObjectiveItem = {
+  objective_id: number;
+  title: string;
+  domain_id: number;
+  completed_at: string;
+};
+
+export type ObjectiveWeeklyActivity = {
+  objective_id: number;
+  objective_title: string;
+  domain_id: number;
+  week_start: string;
+  planned_task_count: number;
+  completed_task_count: number;
+};
+
+export type DomainWeeklyCompletions = {
+  domain_id: number;
+  domain_name: string;
+  week_start: string;
+  completed_task_count: number;
+};
+
+export type PlanningProgressRead = {
+  weeks: number;
+  recently_completed_objectives: CompletedObjectiveItem[];
+  objective_weekly_activity: ObjectiveWeeklyActivity[];
+  domain_weekly_completions: DomainWeeklyCompletions[];
+};
+
 export type TokenResponse = {
   access_token: string;
   token_type: string;
@@ -166,41 +220,4 @@ export type ScheduleImportResult = {
   skipped: number;
   duplicate: number;
   unresolved: number;
-};
-
-export type DailyNoteRead = {
-  note_date: string;
-  content: string;
-  created_at: string | null;
-  updated_at: string | null;
-};
-
-export type DailyNoteUpsert = {
-  content: string;
-  if_updated_at?: string | null;
-};
-
-export type EventNoteRead = {
-  id: number | null;
-  event_id: number;
-  occurrence_start_at: string;
-  content: string;
-  created_at: string | null;
-  updated_at: string | null;
-};
-
-export type EventNoteUpsert = {
-  content: string;
-  occurrence_start_at: string;
-  if_updated_at?: string | null;
-};
-
-export type SeriesNoteStackItem = {
-  occurrence_start_at: string;
-  content: string;
-  updated_at: string | null;
-};
-
-export type SeriesNoteStackRead = {
-  items: SeriesNoteStackItem[];
 };

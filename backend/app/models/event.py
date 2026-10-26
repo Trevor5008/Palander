@@ -9,7 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 if TYPE_CHECKING:
-    from app.models.note import Note
     from app.models.reminder import Reminder
     from app.models.task import Task
     from app.models.domain import Domain
@@ -50,9 +49,6 @@ class Event(Base):
     user: Mapped["User"] = relationship(back_populates="events")
     objective: Mapped["Objective | None"] = relationship(back_populates="events")
     tasks: Mapped[list["Task"]] = relationship(
-        back_populates="event", cascade="all, delete-orphan"
-    )
-    notes: Mapped[list["Note"]] = relationship(
         back_populates="event", cascade="all, delete-orphan"
     )
     reminders: Mapped[list["Reminder"]] = relationship(
