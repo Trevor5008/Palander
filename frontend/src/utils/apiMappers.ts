@@ -1,5 +1,13 @@
 import type { Domain } from "../constants/domains";
-import type { DomainRead, EventCreate, EventRead, EventUpdate, TaskCreate, TaskRead, TaskUpdate } from "../types/api";
+import type {
+  DomainRead,
+  EventCreate,
+  EventRead,
+  EventUpdate,
+  TaskCreate,
+  TaskRead,
+  TaskUpdate,
+} from "../types/api";
 import { formatDateForInput, formatTimeForInput, parseDateInput } from "./date";
 import {
   buildWeeklyRrule,
@@ -12,6 +20,7 @@ import {
 export type EventFormState = {
   title: string;
   domain: Domain;
+  objectiveId: string;
   startDate: string;
   endDate: string;
   startTime: string;
@@ -26,13 +35,21 @@ export type EventFormState = {
 export type TaskFormState = {
   title: string;
   domain: Domain;
-  date: string;
-  startTime: string;
+  plannedDate: string;
+  dueDate: string;
+  dueTime: string;
+  objectiveId: string;
   linkedEventId: string;
 };
 
 function combineDateAndTime(date: string, time: string): string {
   return `${date}T${time}:00`;
+}
+
+function parseObjectiveId(value: string): number | null {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
 }
 
 export function eventFormToCreate(form: EventFormState, domainId: number): EventCreate {
@@ -46,6 +63,8 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
         end_at: combineDateAndTime(form.endDate, form.endTime),
       };
 
+  const objective_id = parseObjectiveId(form.objectiveId);
+
   if (form.isRecurring) {
     const recurrence_until = `${form.recurrenceUntil}T23:59:00`;
     return {
@@ -57,7 +76,7 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
       timezone: form.timezone,
       recurrence_until,
       domain_id: domainId,
-      objective_id: null,
+      objective_id,
     };
   }
 
@@ -70,7 +89,7 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
     timezone: null,
     recurrence_until: null,
     domain_id: domainId,
-    objective_id: null,
+    objective_id,
   };
 }
 
@@ -81,12 +100,14 @@ export function eventFormToUpdate(form: EventFormState, domainId: number): Event
 export function taskFormToCreate(form: TaskFormState, domainId: number): TaskCreate {
   return {
     name: form.title.trim(),
-    due_date: combineDateAndTime(form.date, form.startTime),
+    planned_for: form.plannedDate,
+    due_at: combineDateAndTime(form.dueDate, form.dueTime),
+    status: "active",
     is_recurring: false,
     rrule: null,
     domain_id: domainId,
     event_id: form.linkedEventId ? Number(form.linkedEventId) : null,
-    objective_id: null,
+    objective_id: parseObjectiveId(form.objectiveId),
   };
 }
 
@@ -132,6 +153,7 @@ export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventF
   return {
     title: event.title,
     domain: domainName as Domain,
+    objectiveId: event.objective_id ? String(event.objective_id) : "",
     startDate: formatDateForInput(start),
     endDate: formatDateForInput(end),
     startTime: formatTimeForInput(start),
@@ -155,15 +177,17 @@ export function validateEventFormRange(form: EventFormState): string | null {
 }
 
 export function taskReadToForm(task: TaskRead, domains: DomainRead[]): TaskFormState {
-  const due = new Date(task.due_date);
+  const due = new Date(task.due_at);
   const domainName =
     domains.find((d) => d.id === task.domain_id)?.name ?? "career";
 
   return {
     title: task.name,
     domain: domainName as Domain,
-    date: formatDateForInput(due),
-    startTime: formatTimeForInput(due),
+    plannedDate: task.planned_for,
+    dueDate: formatDateForInput(due),
+    dueTime: formatTimeForInput(due),
+    objectiveId: task.objective_id ? String(task.objective_id) : "",
     linkedEventId: task.event_id ? String(task.event_id) : "",
   };
 }
@@ -196,6 +220,16 @@ export function isSameApiDay(iso: string, day: Date): boolean {
     value.getFullYear() === day.getFullYear() &&
     value.getMonth() === day.getMonth() &&
     value.getDate() === day.getDate()
+  );
+}
+
+export function isSamePlannedDay(plannedFor: string, day: Date): boolean {
+  const parts = plannedFor.split("-").map(Number);
+  if (parts.length !== 3) return false;
+  return (
+    parts[0] === day.getFullYear() &&
+    parts[1] === day.getMonth() + 1 &&
+    parts[2] === day.getDate()
   );
 }
 

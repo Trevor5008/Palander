@@ -8,11 +8,12 @@ import {
   deleteTask,
   fetchDomains,
   fetchEvents,
+  fetchObjectives,
   updateEvent,
   updateTask,
 } from "../api";
 import { DOMAINS, type Domain } from "../constants/domains";
-import type { DomainRead, EventRead, TaskRead } from "../types/api";
+import type { DomainRead, EventRead, ObjectiveRead, TaskRead } from "../types/api";
 import {
   endOfMonth,
   eventFormToCreate,
@@ -75,9 +76,11 @@ export function EventModal({
   const [entryType, setEntryType] = useState<EntryType>("event");
   const [title, setTitle] = useState("");
   const [domain, setDomain] = useState<Domain>("career");
+  const [objectiveId, setObjectiveId] = useState("");
   const [startDate, setStartDate] = useState(() => formatDateForInput(defaultDate));
   const [endDate, setEndDate] = useState(() => formatDateForInput(defaultDate));
-  const [taskDate, setTaskDate] = useState(() => formatDateForInput(defaultDate));
+  const [plannedDate, setPlannedDate] = useState(() => formatDateForInput(defaultDate));
+  const [dueDate, setDueDate] = useState(() => formatDateForInput(defaultDate));
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [allDay, setAllDay] = useState(false);
@@ -87,6 +90,7 @@ export function EventModal({
   const [timezone, setTimezone] = useState(() => defaultTimezone());
   const [linkedEventId, setLinkedEventId] = useState("");
   const [domains, setDomains] = useState<DomainRead[]>([]);
+  const [objectivesForDomain, setObjectivesForDomain] = useState<ObjectiveRead[]>([]);
   const [linkedEvents, setLinkedEvents] = useState<EventRead[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -118,6 +122,18 @@ export function EventModal({
   }, [showAddEventModal, startDate, endDate]);
 
   useEffect(() => {
+    if (!showAddEventModal) return;
+    const match = domains.find((d) => d.name === domain);
+    if (!match) {
+      setObjectivesForDomain([]);
+      return;
+    }
+    fetchObjectives({ domain_id: match.id })
+      .then((rows) => setObjectivesForDomain(rows.filter((o) => o.status !== "cancelled")))
+      .catch(() => setObjectivesForDomain([]));
+  }, [showAddEventModal, domain, domains]);
+
+  useEffect(() => {
     if (!showAddEventModal) {
       formSeedRef.current = null;
       return;
@@ -143,6 +159,7 @@ export function EventModal({
       setEntryType("event");
       setTitle(form.title);
       setDomain(form.domain);
+      setObjectiveId(form.objectiveId);
       setStartDate(form.startDate);
       setEndDate(form.endDate);
       setStartTime(form.startTime);
@@ -161,8 +178,10 @@ export function EventModal({
       setEntryType("task");
       setTitle(form.title);
       setDomain(form.domain);
-      setTaskDate(form.date);
-      setStartTime(form.startTime);
+      setObjectiveId(form.objectiveId);
+      setPlannedDate(form.plannedDate);
+      setDueDate(form.dueDate);
+      setStartTime(form.dueTime);
       setEndTime("10:00");
       setAllDay(false);
       setIsRecurring(false);
@@ -177,7 +196,9 @@ export function EventModal({
     const day = formatDateForInput(defaultDate);
     setStartDate(day);
     setEndDate(day);
-    setTaskDate(day);
+    setPlannedDate(day);
+    setDueDate(day);
+    setObjectiveId("");
     setStartTime(times.startTime);
     setEndTime(times.endTime);
     setAllDay(false);
@@ -223,6 +244,7 @@ export function EventModal({
         const form = {
           title,
           domain,
+          objectiveId,
           startDate,
           endDate: isRecurring ? startDate : endDate,
           startTime,
@@ -245,7 +267,15 @@ export function EventModal({
           await createEvent(eventFormToCreate(form, domainId));
         }
       } else {
-        const form = { title, domain, date: taskDate, startTime, linkedEventId };
+        const form = {
+          title,
+          domain,
+          plannedDate,
+          dueDate,
+          dueTime: startTime,
+          objectiveId,
+          linkedEventId,
+        };
         if (editTask) {
           await updateTask(editTask.id, taskFormToUpdate(form, domainId));
         } else {
@@ -341,12 +371,34 @@ export function EventModal({
               <select
                 id="domain"
                 value={domain}
-                onChange={(e) => setDomain(e.target.value as Domain)}
+                onChange={(e) => {
+                  setDomain(e.target.value as Domain);
+                  setObjectiveId("");
+                }}
                 className="w-full rounded-md border border-gray-300 px-3 py-2"
               >
                 {DOMAINS.map((option) => (
                   <option key={option} value={option}>
                     {option.charAt(0).toUpperCase() + option.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="objective" className="mb-1 block text-gray-500">
+                Objective (optional)
+              </label>
+              <select
+                id="objective"
+                value={objectiveId}
+                onChange={(e) => setObjectiveId(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
+              >
+                <option value="">None</option>
+                {objectivesForDomain.map((obj) => (
+                  <option key={obj.id} value={obj.id}>
+                    {obj.title}
                   </option>
                 ))}
               </select>
@@ -385,17 +437,31 @@ export function EventModal({
                 </div>
               </div>
             ) : (
-              <div>
-                <label htmlFor="taskDate" className="mb-1 block text-gray-500">
-                  Due on
-                </label>
-                <input
-                  id="taskDate"
-                  type="date"
-                  value={taskDate}
-                  onChange={(e) => setTaskDate(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="plannedDate" className="mb-1 block text-gray-500">
+                    Planned for
+                  </label>
+                  <input
+                    id="plannedDate"
+                    type="date"
+                    value={plannedDate}
+                    onChange={(e) => setPlannedDate(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="dueDate" className="mb-1 block text-gray-500">
+                    Due date
+                  </label>
+                  <input
+                    id="dueDate"
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  />
+                </div>
               </div>
             )}
 
@@ -431,7 +497,7 @@ export function EventModal({
             ) : (
               <div>
                 <label htmlFor="taskTime" className="mb-1 block text-gray-500">
-                  Time
+                  Due time
                 </label>
                 <input
                   id="taskTime"

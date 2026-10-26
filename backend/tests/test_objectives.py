@@ -2,6 +2,7 @@ def objective_payload(domain_id: int, **overrides):
     payload = {
         "title": "Finish thesis",
         "target_date": "2026-12-01T00:00:00",
+        "status": "active",
         "domain_id": domain_id,
     }
     payload.update(overrides)
@@ -132,6 +133,24 @@ def test_delete_objective(client, seed_user, seed_domain, auth_headers):
 
     get_response = client.get(f"/objectives/{created['id']}", headers=auth_headers)
     assert get_response.status_code == 404
+
+
+def test_objective_completed_sets_completed_at(client, seed_user, seed_domain, auth_headers):
+    created = client.post(
+        "/objectives",
+        json=objective_payload(seed_domain.id),
+        headers=auth_headers,
+    ).json()
+
+    response = client.patch(
+        f"/objectives/{created['id']}",
+        json={"status": "completed"},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "completed"
+    assert response.json()["completed_at"] is not None
 
 
 def test_create_objective_rejects_empty_title(client, seed_user, seed_domain, auth_headers):

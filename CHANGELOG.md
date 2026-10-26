@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-26
+
+### Added
+
+- **Planning** view (`/planning`): objectives grouped by domain with lifecycle status (`active`, `paused`, `completed`, `cancelled`)
+- Task execution fields: `planned_for`, `due_at` (renamed from `due_date`), `status`, `completed_at`; required `domain_id`
+- `GET /daily-workspace?date=` — Today, Overdue, Completed task sections plus domain coverage and objective activity
+- Domain → optional Objective selectors on Event/Task modal with server-side link validation
+- Daily execution pane replaces Markdown daily note and event-note workspace in the UI
+- `GET /export/legacy-notes` for daily and contextual note export (tables and write APIs retained)
+- [`docs/schema.md`](docs/schema.md) — PostgreSQL ER diagram (revision 007)
+
+### Changed
+
+- Product focus: Palander owns execution; note authoring removed from active UI (data preserved for export)
+- Timeline: double-click or edit icon opens modal (no note-selection workspace)
+- `GET /tasks` includes tasks when `planned_for` or `due_at` falls in the requested range
+
+### Removed
+
+- Daily note and event note / series history UI (backend routes unchanged)
+
 ## [0.10.0] - 2026-10-25
 
 ### Added

@@ -14,6 +14,7 @@ from app.schemas.event import (
     validate_event_time_range,
 )
 from app.services.events_list import list_events_in_range
+from app.services.link_validation import validate_domain_and_objective
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -35,6 +36,7 @@ def create_event(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    validate_domain_and_objective(db, user_id, body.domain_id, body.objective_id)
     event = Event(**body.model_dump(), user_id=user_id)
     db.add(event)
     db.commit()
@@ -70,7 +72,14 @@ def update_event(
     db: Session = Depends(get_db),
 ):
     event = _get_event_or_404(db, event_id, user_id)
-    for key, value in body.model_dump(exclude_unset=True).items():
+    updates = body.model_dump(exclude_unset=True)
+    domain_id = updates.get("domain_id", event.domain_id)
+    objective_id = updates.get("objective_id", event.objective_id)
+    if "domain_id" in updates or "objective_id" in updates:
+        if objective_id is not None and "domain_id" not in updates:
+            domain_id = event.domain_id
+        validate_domain_and_objective(db, user_id, domain_id, objective_id)
+    for key, value in updates.items():
         setattr(event, key, value)
     try:
         validate_event_time_range(event.start_at, event.end_at)

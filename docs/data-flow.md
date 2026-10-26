@@ -1,14 +1,19 @@
 # Data flow
 
-How events and tasks move between the React UI, FastAPI API, and PostgreSQL today (v0.2.0). Auth is not implemented yet — the frontend sends `user_id=1` on every request (dev user seeded by migration `002`).
+How events, tasks, and objectives move between the React UI, FastAPI API, and PostgreSQL (v0.11.0). Auth uses JWT Bearer tokens (`POST /auth/login`).
+
+## Schema
+
+Entity-relationship reference: [`schema.md`](schema.md).
 
 ## Architecture flow
 
 ```mermaid
 flowchart TB
   subgraph frontend [Frontend — React / Vite]
-    CalendarView[CalendarView]
     DailyView[DailyView]
+    PlanningView[PlanningView]
+    CalendarView[CalendarView]
     EventModal[EventModal]
     mappers[apiMappers.ts]
     apiTs[api.ts]
@@ -16,39 +21,46 @@ flowchart TB
 
   subgraph backend [Backend — FastAPI]
     domainsRouter["GET /domains"]
+    objectivesRouter["/objectives CRUD"]
     eventsRouter["/events CRUD"]
     tasksRouter["/tasks CRUD"]
+    dailyWorkspaceRouter["GET /daily-workspace"]
     pydantic[Pydantic schemas]
     sqlalchemy[SQLAlchemy models]
   end
 
   DB[(PostgreSQL)]
 
-  CalendarView -->|"fetchEvents / fetchTasks"| apiTs
-  DailyView -->|"fetchEvents / fetchTasks"| apiTs
-  EventModal -->|"form ↔ API payloads"| mappers
-  EventModal -->|"create / update / delete"| apiTs
+  DailyView --> apiTs
+  PlanningView --> apiTs
+  CalendarView --> apiTs
+  EventModal --> mappers
+  EventModal --> apiTs
   mappers --> apiTs
 
-  apiTs -->|"HTTP JSON"| domainsRouter
-  apiTs -->|"HTTP JSON"| eventsRouter
-  apiTs -->|"HTTP JSON"| tasksRouter
+  apiTs --> domainsRouter
+  apiTs --> objectivesRouter
+  apiTs --> eventsRouter
+  apiTs --> tasksRouter
+  apiTs --> dailyWorkspaceRouter
 
   domainsRouter --> pydantic
+  objectivesRouter --> pydantic
   eventsRouter --> pydantic
   tasksRouter --> pydantic
+  dailyWorkspaceRouter --> pydantic
   pydantic --> sqlalchemy
   sqlalchemy --> DB
 ```
 
 | Layer | Key files |
 |-------|-----------|
-| Views | `frontend/src/pages/CalendarView.tsx`, `DailyView.tsx` |
+| Views | `frontend/src/pages/DailyView.tsx`, `PlanningView.tsx`, `CalendarView.tsx` |
 | Modal | `frontend/src/modals/EventModal.tsx` |
 | Client | `frontend/src/api.ts`, `frontend/src/utils/apiMappers.ts` |
-| API | `backend/app/routers/domains.py`, `events.py`, `tasks.py` |
-| Validation | `backend/app/schemas/event.py`, `task.py`, `domain.py` |
-| Persistence | `backend/app/models/event.py`, `task.py`, `domain.py` |
+| API | `backend/app/routers/domains.py`, `objectives.py`, `events.py`, `tasks.py`, `daily_workspace.py` |
+| Validation | `backend/app/schemas/*.py`, `backend/app/services/link_validation.py` |
+| Persistence | `backend/app/models/*.py` |
 
 ## CRUD sequence
 
@@ -64,138 +76,93 @@ sequenceDiagram
   participant DB as PostgreSQL
 
   Note over View,DB: Page load — list entries for date range
-  View->>API: GET /events?user_id=1&start&end
-  View->>API: GET /tasks?user_id=1&start&end
+  View->>API: GET /events?start&end
+  View->>API: GET /tasks?start&end
   API->>BE: list_events / list_tasks
   BE->>DB: SELECT WHERE user_id AND date range
   DB-->>View: EventRead[] + TaskRead[]
   View->>View: Render day markers or timeline blocks
 
+  Note over View,DB: Daily execution pane
+  View->>API: GET /daily-workspace?date=
+  BE->>DB: tasks by planned_for / overdue / completed
+  DB-->>View: Today / Overdue / Completed sections
+
   Note over View,DB: Open modal — create or click existing item
   View->>Modal: open (defaultDate or editEvent / editTask)
-  Modal->>API: GET /domains?user_id=1
-  API->>BE: list_domains
-  BE->>DB: SELECT domains for user
-  DB-->>Modal: domain name → domain_id map
+  Modal->>API: GET /domains, GET /objectives?domain_id=
   Modal->>API: GET /events (month range, task linked-event dropdown)
 
   Note over View,DB: Save
   Modal->>Mappers: eventFormToCreate / taskFormToCreate (or Update)
-  Mappers-->>Modal: JSON body with start_at, due_date, domain_id, …
+  Mappers-->>Modal: JSON body with start_at, planned_for, due_at, domain_id, objective_id
   alt Create
     Modal->>API: POST /events or POST /tasks
-    API->>BE: create_event / create_task
+    API->>BE: create (link validation)
     BE->>DB: INSERT
   else Edit
-    Modal->>API: PATCH /events/{id} or PATCH /tasks/{id}
-    API->>BE: update_event / update_task
+    Modal->>API: PATCH
     BE->>DB: UPDATE
-  else Delete
-    Modal->>API: DELETE /events/{id} or DELETE /tasks/{id}
-    API->>BE: delete_event / delete_task
-    BE->>DB: DELETE
   end
   DB-->>Modal: OK
-  Modal->>View: onSaved() or onDeleted()
-  View->>API: refetch events + tasks
-  View->>View: Re-render calendar / daily timeline
+  Modal->>View: onSaved()
+  View->>API: refetch lists + daily-workspace
 ```
 
 ## Field mapping (modal → API)
 
-The modal collects human-friendly form fields; `apiMappers.ts` converts them to the backend schema before POST/PATCH.
-
 | Modal field | Event API | Task API |
 |-------------|-----------|----------|
 | `title` | `title` | `name` |
-| `date` + times | `start_at`, `end_at` | `due_date` |
-| `allDay` | 00:00 – 23:59 same day | — |
-| `domain` (slug) | `domain_id` via GET /domains | `domain_id` |
-| `isRecurring` | `is_recurring` | — |
+| date + times | `start_at`, `end_at` | `planned_for`, `due_at` |
+| `domain` (slug) | `domain_id` | `domain_id` (required) |
+| objective select | `objective_id` | `objective_id` |
 | `linkedEventId` | — | `event_id` |
-| — | `Authorization: Bearer <token>` | `Authorization: Bearer <token>` |
 
-## Recurrence (0.6+)
-
-Recurring events are stored as **one series row** (`is_recurring`, `rrule`, `timezone`, `recurrence_until`). `GET /events` expands weekly occurrences into the requested `[start, end)` window. The UI keys rendered rows by `id + start_at` because multiple occurrences share the same series id.
-
-## Schedule import (0.6+)
-
-```mermaid
-sequenceDiagram
-  participant UI as ScheduleImportModal
-  participant API as POST /schedule/parse
-  participant Parser as ScheduleParser
-  participant Import as POST /schedule/import
-  participant DB as PostgreSQL
-
-  UI->>API: paste + default_year + timezone + term_start/end + format_hint
-  API->>Parser: composite or OpenAI-compat extract RawCandidate rows
-  Parser-->>API: normalized ImportCandidate preview
-  API-->>UI: editable candidates (no DB write)
-  UI->>Import: confirmed included candidates
-  Import->>DB: INSERT recurring Event rows (transaction)
-```
-
-## Schedule PDF import (0.8+)
-
-```mermaid
-sequenceDiagram
-  participant UI as ScheduleImportModal
-  participant API as POST /schedule/parse-pdf
-  participant PDF as pypdf extract
-  participant FIU as fiu_schedule_of_classes
-  participant Pipe as normalize_dedupe
-
-  UI->>API: multipart PDF + timezone + term defaults
-  API->>PDF: bytes in memory only
-  PDF->>FIU: page text
-  FIU-->>Pipe: RawCandidate + format_issues
-  Pipe-->>UI: same preview as text parse
-```
-
-## Daily notes (0.9+)
+## Daily execution (0.11+)
 
 ```mermaid
 sequenceDiagram
   participant DailyView
-  participant Hook as useDailyNote
-  participant API as daily_notes
+  participant API as GET /daily-workspace
   participant DB as PostgreSQL
 
-  DailyView->>Hook: noteDate from URL date param
-  Hook->>API: GET /daily-notes/{date}
-  API->>DB: SELECT by user_id + note_date
-  DB-->>DailyView: content + updated_at
-  Hook->>API: debounced PUT + if_updated_at
-  API->>DB: INSERT or UPDATE with version check
+  DailyView->>API: date from URL
+  API->>DB: active tasks planned_for = date
+  API->>DB: active tasks due_at before date start
+  API->>DB: completed tasks on date
+  API->>DB: event minutes + counts by domain/objective
+  API-->>DailyView: structured sections
+  DailyView->>API: PATCH /tasks/{id} complete / reschedule
 ```
 
 | Route | View |
 |-------|------|
-| `/` | Daily (timeline + note) |
+| `/` | Daily (timeline + execution pane) |
+| `/planning` | Objectives by domain |
 | `/daily` | Redirect to `/` |
 | `/weekly` | Week timeline |
 | `/monthly` | Month grid + schedule import |
 
-## Event notes (0.10+)
+## Legacy notes (export only)
 
-```mermaid
-sequenceDiagram
-  participant DailyView
-  participant API as events notes
-  participant DB as notes table
+Daily and event note **write APIs** and tables remain for migration/export. The UI no longer creates note content.
 
-  DailyView->>API: GET /events/{id}/notes?occurrence_start_at=
-  API->>DB: note for event_id + occurrence
-  DailyView->>API: PUT with if_updated_at
-  DailyView->>API: GET /events/{id}/series-notes
-  API->>DB: prior occurrences DESC
-```
+- `GET/PUT /daily-notes/{date}`
+- `GET/PUT /events/{id}/notes`, `GET /events/{id}/series-notes`
+- `GET /export/legacy-notes` — JSON bundle for the authenticated user
+
+## Recurrence (0.6+)
+
+Recurring events are stored as one series row; `GET /events` expands occurrences into the requested window.
+
+## Schedule import (0.6+ / PDF 0.8+)
+
+Unchanged — see prior release notes in [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## Not wired yet
 
 - PDF OCR for scanned schedules
 - Single-occurrence edit/delete for recurring series
-- Objective linking in the UI
-- Task/event notes and reminders in the UI
+- Task/event reminders in the UI
+- Obsidian sync and knowledge-graph features (out of product scope)

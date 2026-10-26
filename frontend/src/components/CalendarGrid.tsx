@@ -2,7 +2,8 @@ import { WEEKDAY_LABELS } from "../constants/calendar";
 import { CalendarDayCell } from "./Calendar/CalendarDayCell";
 import { CalendarWeekdayLabel } from "./Calendar/CalendarWeekdayLabel";
 import type { DomainRead, EventRead, TaskRead } from "../types/api";
-import { dayFromCellKey, isSameApiDay } from "../utils/apiMappers";
+import { dayFromCellKey } from "../utils/apiMappers";
+import { formatDateForInput } from "../utils/date";
 import { getEventsForDay } from "../utils/eventSegments";
 import type { CalendarCell } from "../utils/calendar";
 
@@ -41,7 +42,7 @@ export function CalendarGrid({
         const dayEvents = cellDate ? getEventsForDay(events, cellDate) : [];
         // Get the day tasks
         const dayTasks = cellDate
-          ? tasks.filter((t) => isSameApiDay(t.due_date, cellDate))
+          ? tasks.filter((t) => t.planned_for === formatDateForInput(cellDate))
           : [];
 
         // Render the Calendar Day Cell component

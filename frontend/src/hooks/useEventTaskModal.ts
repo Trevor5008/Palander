@@ -33,7 +33,7 @@ export function useEventTaskModal(initialDate: Date = new Date()) {
   const openEditTask = useCallback((task: TaskRead) => {
     setEditTask(task);
     setEditEvent(null);
-    setModalDate(startOfDay(new Date(task.due_date)));
+    setModalDate(startOfDay(new Date(task.planned_for + "T12:00:00")));
     setShowModal(true);
   }, []);
 

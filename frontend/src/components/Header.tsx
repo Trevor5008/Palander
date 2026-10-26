@@ -51,6 +51,9 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
             <NavLink to={{ pathname: "/", search: dateQuery }} end className={navLinkClass}>
               Daily
             </NavLink>
+            <NavLink to="/planning" className={navLinkClass}>
+              Planning
+            </NavLink>
             <NavLink to={{ pathname: "/weekly", search: dateQuery }} className={navLinkClass}>
               Weekly
             </NavLink>
