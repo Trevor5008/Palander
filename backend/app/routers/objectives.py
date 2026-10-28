@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user_id
 from app.database import get_db
-from app.models.event import Event
+from app.models.associations import event_objectives, task_objectives
 from app.models.objective import Objective
-from app.models.task import Task
 from app.schemas.objective import ObjectiveCreate, ObjectiveRead, ObjectiveUpdate
 from app.services.link_validation import assert_domain_owned
 from app.services.objective_lifecycle import apply_objective_status_change
@@ -76,13 +75,13 @@ def update_objective(
         new_domain_id = updates["domain_id"]
         assert_domain_owned(db, new_domain_id, user_id)
         linked_tasks = (
-            db.query(Task)
-            .filter(Task.objective_id == objective.id, Task.user_id == user_id)
+            db.query(task_objectives)
+            .filter(task_objectives.c.objective_id == objective.id)
             .count()
         )
         linked_events = (
-            db.query(Event)
-            .filter(Event.objective_id == objective.id, Event.user_id == user_id)
+            db.query(event_objectives)
+            .filter(event_objectives.c.objective_id == objective.id)
             .count()
         )
         if linked_tasks or linked_events:

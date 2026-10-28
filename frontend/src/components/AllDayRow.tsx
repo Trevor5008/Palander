@@ -25,10 +25,10 @@ export function AllDayRow({
         {events.map((event) => {
           const colors = getDomainClassesById(event.domain_id, domains);
           const key = eventOccurrenceKey(event);
-          const obj =
-            event.objective_id != null
-              ? objectivesById.get(event.objective_id)
-              : null;
+          const objLabels = (event.objective_ids ?? [])
+            .map((id) => objectivesById.get(id))
+            .filter(Boolean);
+          const obj = objLabels.length ? objLabels.join(", ") : null;
           return (
             <div
               key={key}

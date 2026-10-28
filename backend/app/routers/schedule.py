@@ -166,7 +166,6 @@ def import_schedule(
                 recurrence_until=candidate.recurrence_until,
                 domain_id=candidate.domain_id,
                 user_id=user_id,
-                objective_id=None,
             )
             db.add(event)
             imported += 1

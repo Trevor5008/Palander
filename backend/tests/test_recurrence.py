@@ -29,7 +29,7 @@ def test_expand_weekly_occurrences_in_range():
         recurrence_until=until,
         domain_id=1,
         user_id=1,
-        objective_id=None,
+        objective_ids=[],
         range_start=datetime(2026, 8, 1, 0, 0, 0),
         range_end=datetime(2026, 9, 1, 0, 0, 0),
     )
@@ -69,7 +69,7 @@ def test_expand_dst_wall_clock_stable():
         recurrence_until=until,
         domain_id=1,
         user_id=1,
-        objective_id=None,
+        objective_ids=[],
         range_start=datetime(2026, 3, 1, 0, 0, 0),
         range_end=datetime(2026, 4, 1, 0, 0, 0),
     )

@@ -1,6 +1,6 @@
 # Data flow
 
-How events, tasks, and objectives move between the React UI, FastAPI API, and PostgreSQL (v0.12.0). Auth uses JWT Bearer tokens (`POST /auth/login`).
+How events, tasks, and objectives move between the React UI, FastAPI API, and PostgreSQL (v0.13.0). Auth uses JWT Bearer tokens (`POST /auth/login`).
 
 ## Schema
 
@@ -95,7 +95,7 @@ sequenceDiagram
 
   Note over View,DB: Save
   Modal->>Mappers: eventFormToCreate / taskFormToCreate (or Update)
-  Mappers-->>Modal: JSON body with start_at, planned_for, due_at, domain_id, objective_id
+  Mappers-->>Modal: JSON body with start_at, planned_for, due_at, domain_id, objective_ids
   alt Create
     Modal->>API: POST /events or POST /tasks
     API->>BE: create (link validation)
@@ -116,7 +116,7 @@ sequenceDiagram
 | `title` | `title` | `name` |
 | date + times | `start_at`, `end_at` | `planned_for`, `due_at` |
 | `domain` (slug) | `domain_id` | `domain_id` (required) |
-| objective select | `objective_id` | `objective_id` |
+| objective checkboxes | `objective_ids` | `objective_ids` |
 | `linkedEventId` | — | `event_id` |
 
 ## Daily execution (0.11+)
@@ -136,6 +136,8 @@ sequenceDiagram
   DailyView->>API: PATCH /tasks/{id} complete / reschedule
 ```
 
+**UI (0.13):** `DailyExecutionPane` renders API sections in block order inside a bounded scroll area. **Completed today** is collapsed until expanded. **Overdue** shows the first 10 rows, then **Show more** (client-side pagination; full list still comes from `GET /daily-workspace`). Recurring task rows may include `occurrence_date` and scope parameters on PATCH.
+
 | Route | View |
 |-------|------|
 | `/` | Daily (timeline + execution pane) |
@@ -154,9 +156,12 @@ sequenceDiagram
 
 Removed in 0.12 (migration 008). Upgrading from 0.11: see [`legacy-notes-export.md`](legacy-notes-export.md).
 
-## Recurrence (0.6+ / expanded 0.12)
+## Recurrence (0.6+ / 0.12 events / 0.13 tasks)
 
-Recurring events use RRULE (`DAILY`, `WEEKLY`, `MONTHLY` + optional `INTERVAL`); `GET /events` expands occurrences into the requested window.
+- Events: RRULE expansion on `GET /events`; PATCH/DELETE accept `scope=occurrence|future|series` and `occurrence_start_at` for instance edits
+- Tasks: recurring series expand on `GET /tasks` and daily workspace; per-date state in `task_occurrences`; PATCH/DELETE use `occurrence_date` + `scope`; series fields include `timezone`, `recurrence_until`, `estimated_duration_minutes`, `overdue_policy` (`keep_overdue`, `skip_expired`, `carry_forward`)
+- Event modal: multi-select objectives; task recurrence mirrors event scope UX (**Starting on** for series, **Planned for** when editing one occurrence)
+- Multi-objective links: `objective_ids[]` on create/update (all objectives must belong to the entity domain)
 
 ## Schedule import (0.6+ / PDF 0.8+)
 
@@ -165,6 +170,5 @@ Unchanged — see prior release notes in [`CHANGELOG.md`](../CHANGELOG.md).
 ## Not wired yet
 
 - PDF OCR for scanned schedules
-- Single-occurrence edit/delete for recurring series
 - Task/event reminders in the UI
 - Obsidian sync and knowledge-graph features (out of product scope)

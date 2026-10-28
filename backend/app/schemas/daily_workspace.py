@@ -10,6 +10,7 @@ class DomainCoverageItem(BaseModel):
     domain_name: str
     scheduled_event_minutes: int
     planned_task_count: int
+    planned_task_minutes: int = 0
 
 
 class ObjectiveActivityItem(BaseModel):
@@ -18,6 +19,8 @@ class ObjectiveActivityItem(BaseModel):
     domain_id: int
     planned_task_count: int
     completed_task_count: int
+    scheduled_event_count: int = 0
+    scheduled_event_minutes: int = 0
 
 
 class DailyWorkspaceRead(BaseModel):

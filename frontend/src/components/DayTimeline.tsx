@@ -64,9 +64,11 @@ export function DayTimeline({
     container.scrollTop = 0;
   }, [selectedDate, isToday, now.getHours(), now.getMinutes()]);
 
-  function objectiveLabel(objectiveId: number | null): string | null {
-    if (objectiveId == null) return null;
-    return objectivesById.get(objectiveId) ?? null;
+  function objectiveLabels(objectiveIds: number[]): string | null {
+    const labels = objectiveIds
+      .map((id) => objectivesById.get(id))
+      .filter(Boolean) as string[];
+    return labels.length ? labels.join(", ") : null;
   }
 
   return (
@@ -81,10 +83,10 @@ export function DayTimeline({
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-2">
           {dayTasks.map((task) => {
             const colors = getDomainClassesById(task.domain_id, domains);
-            const obj = objectiveLabel(task.objective_id);
+            const obj = objectiveLabels(task.objective_ids ?? []);
             return (
               <button
-                key={task.id}
+                key={`${task.id}-${task.occurrence_date ?? task.planned_for}`}
                 type="button"
                 onClick={() => onEditTask(task)}
                 className={`rounded px-2 py-1 text-xs ${colors.chip}`}
@@ -117,7 +119,7 @@ export function DayTimeline({
             const { top, height } = blockStyle;
             const colors = getDomainClassesById(event.domain_id, domains);
             const key = eventOccurrenceKey(event);
-            const obj = objectiveLabel(event.objective_id);
+            const obj = objectiveLabels(event.objective_ids ?? []);
             return (
               <div
                 key={key}

@@ -75,6 +75,7 @@ export function PlanningWeeklyReview({ weekStart, onWeekChange }: PlanningWeekly
                   <th className="pb-2">Event min</th>
                   <th className="pb-2">Planned</th>
                   <th className="pb-2">Completed</th>
+                  <th className="pb-2">Est. min</th>
                 </tr>
               </thead>
               <tbody>
@@ -84,6 +85,7 @@ export function PlanningWeeklyReview({ weekStart, onWeekChange }: PlanningWeekly
                     <td>{row.scheduled_event_minutes}</td>
                     <td>{row.tasks_planned}</td>
                     <td>{row.tasks_completed}</td>
+                    <td>{row.planned_task_minutes ?? 0}</td>
                   </tr>
                 ))}
               </tbody>

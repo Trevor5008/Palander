@@ -17,7 +17,7 @@ def recurring_payload(domain_id: int, **overrides):
         "timezone": "America/New_York",
         "recurrence_until": until.isoformat(),
         "domain_id": domain_id,
-        "objective_id": None,
+        "objective_ids": [],
     }
     payload.update(overrides)
     return payload
@@ -57,3 +57,24 @@ def test_list_recurring_event_expands_occurrences(client, seed_domain, auth_head
     assert len(rows) >= 2
     assert all(row["series_id"] == rows[0]["id"] for row in rows)
     assert len({row["start_at"] for row in rows}) == len(rows)
+
+
+def test_delete_single_occurrence(client, seed_domain, auth_headers):
+    created = client.post(
+        "/events",
+        json=recurring_payload(seed_domain.id),
+        headers=auth_headers,
+    ).json()
+    first_start = "2026-08-18T09:00:00"
+    response = client.delete(
+        f"/events/{created['id']}",
+        params={"scope": "occurrence", "occurrence_start_at": first_start},
+        headers=auth_headers,
+    )
+    assert response.status_code == 204
+    listed = client.get(
+        "/events",
+        params={"start": "2026-08-01T00:00:00", "end": "2026-09-01T00:00:00"},
+        headers=auth_headers,
+    ).json()
+    assert not any(row["start_at"].startswith("2026-08-18") for row in listed)

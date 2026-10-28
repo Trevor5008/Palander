@@ -89,9 +89,10 @@ export function DailyView() {
         </div>
 
         <div className="flex min-h-0 flex-col overflow-hidden border-t border-gray-200 lg:border-t-0 lg:border-l">
-          <div className="border-b border-gray-200 px-4 py-2">
+          <div className="shrink-0 border-b border-gray-200 px-4 py-2">
             <h2 className="text-sm font-semibold text-gray-800">Daily execution</h2>
           </div>
+          <div className="min-h-0 flex-1">
           <DailyExecutionPane
             workspace={workspace.data}
             loading={workspace.loading}
@@ -100,6 +101,7 @@ export function DailyView() {
             objectivesById={objectivesById}
             onChanged={handleChanged}
           />
+          </div>
         </div>
       </div>
 

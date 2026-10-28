@@ -5,6 +5,7 @@ import type {
   EventRead,
   EventUpdate,
   TaskCreate,
+  TaskOverduePolicy,
   TaskRead,
   TaskUpdate,
 } from "../types/api";
@@ -23,7 +24,7 @@ import {
 export type EventFormState = {
   title: string;
   domain: Domain;
-  objectiveId: string;
+  objectiveIds: number[];
   startDate: string;
   endDate: string;
   startTime: string;
@@ -43,18 +44,20 @@ export type TaskFormState = {
   plannedDate: string;
   dueDate: string;
   dueTime: string;
-  objectiveId: string;
+  objectiveIds: number[];
   linkedEventId: string;
+  isRecurring: boolean;
+  recurrenceFreq: RecurrenceFreq;
+  recurrenceInterval: number;
+  recurrenceWeekdays: WeekdayCode[];
+  recurrenceUntil: string;
+  timezone: string;
+  estimatedDurationMinutes: string;
+  overduePolicy: TaskOverduePolicy;
 };
 
 function combineDateAndTime(date: string, time: string): string {
   return `${date}T${time}:00`;
-}
-
-function parseObjectiveId(value: string): number | null {
-  if (!value) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
 }
 
 export function eventFormToCreate(form: EventFormState, domainId: number): EventCreate {
@@ -67,8 +70,6 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
         start_at: combineDateAndTime(form.startDate, form.startTime),
         end_at: combineDateAndTime(form.endDate, form.endTime),
       };
-
-  const objective_id = parseObjectiveId(form.objectiveId);
 
   if (form.isRecurring) {
     const recurrence_until = `${form.recurrenceUntil}T23:59:00`;
@@ -86,7 +87,7 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
       timezone: form.timezone,
       recurrence_until,
       domain_id: domainId,
-      objective_id,
+      objective_ids: form.objectiveIds,
     };
   }
 
@@ -99,7 +100,7 @@ export function eventFormToCreate(form: EventFormState, domainId: number): Event
     timezone: null,
     recurrence_until: null,
     domain_id: domainId,
-    objective_id,
+    objective_ids: form.objectiveIds,
   };
 }
 
@@ -108,17 +109,37 @@ export function eventFormToUpdate(form: EventFormState, domainId: number): Event
 }
 
 export function taskFormToCreate(form: TaskFormState, domainId: number): TaskCreate {
-  return {
+  const duration =
+    form.estimatedDurationMinutes.trim() === ""
+      ? null
+      : Number(form.estimatedDurationMinutes);
+  const dueDatePart = form.isRecurring ? form.plannedDate : form.dueDate;
+  const base: TaskCreate = {
     name: form.title.trim(),
     planned_for: form.plannedDate,
-    due_at: combineDateAndTime(form.dueDate, form.dueTime),
+    due_at: combineDateAndTime(dueDatePart, form.dueTime),
     status: "active",
-    is_recurring: false,
+    is_recurring: form.isRecurring,
     rrule: null,
+    timezone: null,
+    recurrence_until: null,
+    estimated_duration_minutes: duration,
+    overdue_policy: form.overduePolicy,
     domain_id: domainId,
     event_id: form.linkedEventId ? Number(form.linkedEventId) : null,
-    objective_id: parseObjectiveId(form.objectiveId),
+    objective_ids: form.objectiveIds,
   };
+  if (form.isRecurring) {
+    base.rrule = buildRrule(
+      form.recurrenceFreq,
+      form.recurrenceInterval,
+      form.recurrenceUntil,
+      form.recurrenceWeekdays,
+    );
+    base.timezone = form.timezone;
+    base.recurrence_until = `${form.recurrenceUntil}T23:59:00`;
+  }
+  return base;
 }
 
 export function taskFormToUpdate(form: TaskFormState, domainId: number): TaskUpdate {
@@ -163,7 +184,7 @@ export function eventReadToForm(event: EventRead, domains: DomainRead[]): EventF
   return {
     title: event.title,
     domain: domainName as Domain,
-    objectiveId: event.objective_id ? String(event.objective_id) : "",
+    objectiveIds: event.objective_ids ?? [],
     startDate: formatDateForInput(start),
     endDate: formatDateForInput(end),
     startTime: formatTimeForInput(start),
@@ -199,8 +220,19 @@ export function taskReadToForm(task: TaskRead, domains: DomainRead[]): TaskFormS
     plannedDate: task.planned_for,
     dueDate: formatDateForInput(due),
     dueTime: formatTimeForInput(due),
-    objectiveId: task.objective_id ? String(task.objective_id) : "",
+    objectiveIds: task.objective_ids ?? [],
     linkedEventId: task.event_id ? String(task.event_id) : "",
+    isRecurring: task.is_recurring,
+    recurrenceFreq: parseFreqFromRrule(task.rrule),
+    recurrenceInterval: parseIntervalFromRrule(task.rrule),
+    recurrenceWeekdays: parseWeekdaysFromRrule(task.rrule),
+    recurrenceUntil: task.recurrence_until
+      ? formatDateForInput(new Date(task.recurrence_until))
+      : task.planned_for,
+    timezone: task.timezone ?? defaultTimezone(),
+    estimatedDurationMinutes:
+      task.estimated_duration_minutes != null ? String(task.estimated_duration_minutes) : "",
+    overduePolicy: task.overdue_policy ?? "keep_overdue",
   };
 }
 

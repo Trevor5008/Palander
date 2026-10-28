@@ -1,8 +1,6 @@
 # Database schema (PostgreSQL)
 
-Canonical entity-relationship reference for Palander **v0.12.0** (Alembic revision **008**). Source of truth: SQLAlchemy models in [`backend/app/models/`](../backend/app/models/) and migrations in [`backend/alembic/versions/`](../backend/alembic/versions/).
-
-Legacy `daily_notes` and `notes` tables were removed in revision **008**. Export before upgrading from 0.11: [`legacy-notes-export.md`](legacy-notes-export.md).
+Canonical entity-relationship reference for Palander **v0.13.0** (Alembic revision **009**). Source of truth: SQLAlchemy models in [`backend/app/models/`](../backend/app/models/) and migrations in [`backend/alembic/versions/`](../backend/alembic/versions/).
 
 ## Entity-relationship diagram
 
@@ -17,13 +15,15 @@ erDiagram
   domains ||--o{ events : tags
   domains ||--o{ tasks : requires
 
-  objectives ||--o{ events : optional
-  objectives ||--o{ tasks : optional
+  objectives }o--o{ events : links
+  objectives }o--o{ tasks : links
 
   events ||--o{ tasks : optional
   events ||--o{ reminders : has
+  events ||--o{ event_occurrence_exceptions : has
 
   tasks ||--o{ reminders : has
+  tasks ||--o{ task_occurrences : has
 
   users {
     int id PK
@@ -61,7 +61,6 @@ erDiagram
     datetime recurrence_until
     int domain_id FK
     int user_id FK
-    int objective_id FK
   }
 
   tasks {
@@ -73,10 +72,44 @@ erDiagram
     datetime completed_at
     bool is_recurring
     string rrule
+    string timezone
+    datetime recurrence_until
+    int estimated_duration_minutes
+    string overdue_policy
     int domain_id FK
     int user_id FK
-    int objective_id FK
     int event_id FK
+  }
+
+  task_occurrences {
+    int id PK
+    int task_id FK
+    date occurrence_date
+    string status
+    date planned_for
+    datetime due_at
+    datetime completed_at
+    datetime skipped_at
+  }
+
+  event_occurrence_exceptions {
+    int id PK
+    int event_id FK
+    datetime occurrence_start_at
+    bool cancelled
+    string title
+    datetime start_at
+    datetime end_at
+  }
+
+  event_objectives {
+    int event_id FK
+    int objective_id FK
+  }
+
+  task_objectives {
+    int task_id FK
+    int objective_id FK
   }
 
   reminders {
@@ -92,6 +125,8 @@ erDiagram
 | Table | Constraint | Rule |
 |-------|------------|------|
 | `reminders` | `check_reminder_owner` | Exactly one of `task_id` or `event_id` is set |
+| `task_occurrences` | `uq_task_occurrence_date` | One row per `(task_id, occurrence_date)` |
+| `event_occurrence_exceptions` | `uq_event_occurrence_exception` | One row per `(event_id, occurrence_start_at)` |
 
 ## Objective and task status values
 
@@ -99,10 +134,11 @@ erDiagram
 |--------|-----------------|
 | `objectives` | `active`, `paused`, `completed`, `cancelled` |
 | `tasks` | `active`, `completed`, `cancelled` |
+| `task_occurrences` | `active`, `completed`, `cancelled`, `skipped` |
 
-## Recurrence (events)
+## Recurrence
 
-Stored as `is_recurring`, `rrule` (max 255 chars), `timezone`, and `recurrence_until`. Supported RRULE scopes: `FREQ=DAILY|WEEKLY|MONTHLY` with optional `INTERVAL` and required `UNTIL`; weekly series require `BYDAY`.
+Events and tasks store RRULE (`DAILY` / `WEEKLY` / `MONTHLY`, optional `INTERVAL`, required `UNTIL`). Events expand virtually; recurring tasks merge RRULE dates with `task_occurrences` for per-date complete/move/skip.
 
 ## Maintenance
 

@@ -50,12 +50,28 @@ def assert_objective_in_domain(
     return objective
 
 
+def validate_domain_and_objectives(
+    db: Session,
+    user_id: int,
+    domain_id: int,
+    objective_ids: list[int],
+) -> None:
+    assert_domain_owned(db, domain_id, user_id)
+    seen: set[int] = set()
+    for objective_id in objective_ids:
+        if objective_id in seen:
+            continue
+        seen.add(objective_id)
+        assert_objective_in_domain(db, objective_id, user_id, domain_id)
+
+
 def validate_domain_and_objective(
     db: Session,
     user_id: int,
     domain_id: int,
     objective_id: int | None,
 ) -> None:
-    assert_domain_owned(db, domain_id, user_id)
-    if objective_id is not None:
-        assert_objective_in_domain(db, objective_id, user_id, domain_id)
+    if objective_id is None:
+        validate_domain_and_objectives(db, user_id, domain_id, [])
+    else:
+        validate_domain_and_objectives(db, user_id, domain_id, [objective_id])
