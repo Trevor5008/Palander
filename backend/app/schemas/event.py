@@ -16,7 +16,7 @@ class EventWriteBase(BaseModel):
     timezone: str | None = Field(None, max_length=64)
     recurrence_until: datetime | None = None
     domain_id: int
-    objective_id: int | None = None
+    objective_ids: list[int] = Field(default_factory=list)
 
     @field_validator("title")
     @classmethod
@@ -72,7 +72,7 @@ class EventUpdate(BaseModel):
     timezone: str | None = Field(None, max_length=64)
     recurrence_until: datetime | None = None
     domain_id: int | None = None
-    objective_id: int | None = None
+    objective_ids: list[int] | None = None
 
     @field_validator("title")
     @classmethod
@@ -100,6 +100,7 @@ class EventRead(EventWriteBase):
     id: int
     user_id: int
     series_id: int | None = None
+    occurrence_start_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -4,6 +4,10 @@ export type DomainRead = {
   user_id: number;
 };
 
+export type RecurrenceEditScope = "occurrence" | "future" | "series";
+
+export type TaskOverduePolicy = "keep_overdue" | "skip_expired" | "carry_forward";
+
 export type EventRead = {
   id: number;
   title: string;
@@ -15,11 +19,12 @@ export type EventRead = {
   recurrence_until: string | null;
   domain_id: number;
   user_id: number;
-  objective_id: number | null;
+  objective_ids: number[];
   series_id: number | null;
+  occurrence_start_at: string | null;
 };
 
-export type EventCreate = Omit<EventRead, "id" | "user_id" | "series_id">;
+export type EventCreate = Omit<EventRead, "id" | "user_id" | "series_id" | "occurrence_start_at">;
 
 export type EventUpdate = Partial<EventCreate>;
 
@@ -34,15 +39,24 @@ export type TaskRead = {
   completed_at: string | null;
   is_recurring: boolean;
   rrule: string | null;
+  timezone: string | null;
+  recurrence_until: string | null;
+  estimated_duration_minutes: number | null;
+  overdue_policy: TaskOverduePolicy;
   user_id: number;
   domain_id: number;
   event_id: number | null;
-  objective_id: number | null;
+  objective_ids: number[];
+  series_id: number | null;
+  occurrence_date: string | null;
 };
 
-export type TaskCreate = Omit<TaskRead, "id" | "user_id" | "completed_at">;
+export type TaskCreate = Omit<
+  TaskRead,
+  "id" | "user_id" | "completed_at" | "series_id" | "occurrence_date"
+>;
 
-export type TaskUpdate = Partial<Omit<TaskRead, "id" | "user_id">>;
+export type TaskUpdate = Partial<TaskCreate>;
 
 export type ObjectiveStatus = "active" | "paused" | "completed" | "cancelled";
 
@@ -72,6 +86,7 @@ export type DomainCoverageItem = {
   domain_name: string;
   scheduled_event_minutes: number;
   planned_task_count: number;
+  planned_task_minutes: number;
 };
 
 export type ObjectiveActivityItem = {
@@ -80,6 +95,8 @@ export type ObjectiveActivityItem = {
   domain_id: number;
   planned_task_count: number;
   completed_task_count: number;
+  scheduled_event_count: number;
+  scheduled_event_minutes: number;
 };
 
 export type DailyWorkspaceRead = {
@@ -97,6 +114,7 @@ export type DomainAllocationItem = {
   scheduled_event_minutes: number;
   tasks_planned: number;
   tasks_completed: number;
+  planned_task_minutes: number;
 };
 
 export type ObjectiveWarningItem = {

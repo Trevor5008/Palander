@@ -17,7 +17,8 @@ class EventOccurrence:
     recurrence_until: datetime | None
     domain_id: int
     user_id: int
-    objective_id: int | None
+    objective_ids: tuple[int, ...]
+    occurrence_start_at: datetime | None = None
 
 
 def _as_local(dt: datetime, tz: ZoneInfo) -> datetime:
@@ -42,10 +43,11 @@ def expand_event_occurrences(
     recurrence_until: datetime | None,
     domain_id: int,
     user_id: int,
-    objective_id: int | None,
+    objective_ids: list[int],
     range_start: datetime,
     range_end: datetime,
 ) -> list[EventOccurrence]:
+    ids = tuple(sorted(objective_ids))
     if not is_recurring or not rrule or not timezone_name:
         if _overlaps(start_at, end_at, range_start, range_end):
             return [
@@ -60,7 +62,8 @@ def expand_event_occurrences(
                     recurrence_until=None,
                     domain_id=domain_id,
                     user_id=user_id,
-                    objective_id=objective_id,
+                    objective_ids=ids,
+                    occurrence_start_at=None,
                 )
             ]
         return []
@@ -91,7 +94,8 @@ def expand_event_occurrences(
                     recurrence_until=recurrence_until,
                     domain_id=domain_id,
                     user_id=user_id,
-                    objective_id=objective_id,
+                    objective_ids=ids,
+                    occurrence_start_at=occ_start_naive,
                 )
             )
     return occurrences

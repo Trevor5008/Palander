@@ -11,6 +11,7 @@ class DomainAllocationItem(BaseModel):
     scheduled_event_minutes: int
     tasks_planned: int
     tasks_completed: int
+    planned_task_minutes: int = 0
 
 
 class ObjectiveWarningItem(BaseModel):

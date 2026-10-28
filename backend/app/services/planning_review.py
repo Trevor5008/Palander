@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
+from app.models.associations import task_objectives
 from app.models.domain import Domain
 from app.models.objective import Objective
 from app.models.task import Task
@@ -14,8 +15,8 @@ from app.schemas.planning_review import (
     PlanningProgressRead,
     WeeklyReviewRead,
 )
-from app.schemas.task import TaskRead
 from app.services.events_list import list_events_in_range
+from app.services.tasks_list import list_tasks_in_range
 
 TARGET_DATE_WARN_DAYS = 14
 INACTIVITY_DAYS = 21
@@ -54,6 +55,14 @@ def _event_minutes_in_range(events: list, domain_id: int, range_start: datetime,
     return int(total)
 
 
+def _tasks_linked_to_objective(db: Session, user_id: int, objective_id: int):
+    return (
+        db.query(Task)
+        .join(task_objectives, Task.id == task_objectives.c.task_id)
+        .filter(Task.user_id == user_id, task_objectives.c.objective_id == objective_id)
+    )
+
+
 def build_weekly_review(db: Session, user_id: int, week_start: date, today: date | None = None) -> WeeklyReviewRead:
     if today is None:
         today = date.today()
@@ -61,33 +70,25 @@ def build_weekly_review(db: Session, user_id: int, week_start: date, today: date
     today_start = datetime(today.year, today.month, today.day)
 
     events = list_events_in_range(db, user_id, range_start, range_end)
+    week_tasks = list_tasks_in_range(db, user_id, week_start, week_end)
     domains = db.query(Domain).filter(Domain.user_id == user_id).order_by(Domain.name).all()
-
-    active_tasks = (
-        db.query(Task)
-        .filter(Task.user_id == user_id, Task.status == "active")
-        .all()
-    )
-    completed_in_week = (
-        db.query(Task)
-        .filter(
-            Task.user_id == user_id,
-            Task.status == "completed",
-            Task.completed_at.isnot(None),
-            Task.completed_at >= range_start,
-            Task.completed_at <= range_end,
-        )
-        .all()
-    )
 
     domain_allocation: list[DomainAllocationItem] = []
     for domain in domains:
-        planned = sum(
-            1
-            for t in active_tasks
-            if t.domain_id == domain.id and week_start <= t.planned_for <= week_end
-        )
-        completed = sum(1 for t in completed_in_week if t.domain_id == domain.id)
+        planned_reads = [
+            t
+            for t in week_tasks
+            if t.domain_id == domain.id
+            and t.status == "active"
+            and week_start <= t.planned_for <= week_end
+        ]
+        completed_reads = [
+            t
+            for t in week_tasks
+            if t.domain_id == domain.id
+            and t.status == "completed"
+            and t.completed_at is not None
+        ]
         domain_allocation.append(
             DomainAllocationItem(
                 domain_id=domain.id,
@@ -95,18 +96,18 @@ def build_weekly_review(db: Session, user_id: int, week_start: date, today: date
                 scheduled_event_minutes=_event_minutes_in_range(
                     events, domain.id, range_start, range_end
                 ),
-                tasks_planned=planned,
-                tasks_completed=completed,
+                tasks_planned=len(planned_reads),
+                tasks_completed=len(completed_reads),
+                planned_task_minutes=sum(t.estimated_duration_minutes or 0 for t in planned_reads),
             )
         )
 
-    carry_ids: set[int] = set()
-    carry_forward: list[Task] = []
-    for task in active_tasks:
-        if task.planned_for < week_start or task.due_at.replace(tzinfo=None) < today_start:
-            if task.id not in carry_ids:
-                carry_ids.add(task.id)
-                carry_forward.append(task)
+    carry_forward = [
+        t
+        for t in week_tasks
+        if t.status == "active"
+        and (t.planned_for < week_start or t.due_at.replace(tzinfo=None) < today_start)
+    ]
     carry_forward.sort(key=lambda t: t.due_at)
 
     objectives = (
@@ -144,12 +145,8 @@ def build_weekly_review(db: Session, user_id: int, week_start: date, today: date
                 )
 
         recent_task = (
-            db.query(Task)
-            .filter(
-                Task.user_id == user_id,
-                Task.objective_id == obj.id,
-                Task.status.in_(("active", "completed")),
-            )
+            _tasks_linked_to_objective(db, user_id, obj.id)
+            .filter(Task.status.in_(("active", "completed")))
             .order_by(Task.due_at.desc())
             .first()
         )
@@ -180,16 +177,12 @@ def build_weekly_review(db: Session, user_id: int, week_start: date, today: date
                     )
                 )
 
-        unplanned = (
-            db.query(Task)
-            .filter(
-                Task.user_id == user_id,
-                Task.objective_id == obj.id,
-                Task.status == "active",
-            )
-            .all()
-        )
-        if unplanned and not any(week_start <= t.planned_for <= week_end for t in unplanned):
+        linked = _tasks_linked_to_objective(db, user_id, obj.id).filter(Task.status == "active").all()
+        linked_ids = {t.id for t in linked}
+        expanded_linked = [t for t in week_tasks if t.id in linked_ids or t.series_id in linked_ids]
+        if linked and not any(
+            week_start <= t.planned_for <= week_end for t in expanded_linked if t.status == "active"
+        ):
             objective_warnings.append(
                 ObjectiveWarningItem(
                     objective_id=obj.id,
@@ -204,7 +197,7 @@ def build_weekly_review(db: Session, user_id: int, week_start: date, today: date
         week_start=week_start,
         week_end=week_end,
         domain_allocation=domain_allocation,
-        carry_forward=[TaskRead.model_validate(t) for t in carry_forward],
+        carry_forward=carry_forward,
         objective_warnings=objective_warnings,
     )
 
@@ -250,30 +243,21 @@ def build_planning_progress(db: Session, user_id: int, weeks: int = 8) -> Planni
         we = ws + timedelta(days=6)
         rs = datetime(ws.year, ws.month, ws.day)
         re = datetime(we.year, we.month, we.day, 23, 59, 59, 999999)
+        week_tasks = list_tasks_in_range(db, user_id, ws, we)
 
         for obj in objectives:
-            planned = (
-                db.query(Task)
-                .filter(
-                    Task.user_id == user_id,
-                    Task.objective_id == obj.id,
-                    Task.status == "active",
-                    Task.planned_for >= ws,
-                    Task.planned_for <= we,
-                )
-                .count()
+            planned = sum(
+                1
+                for t in week_tasks
+                if obj.id in t.objective_ids and t.status == "active" and ws <= t.planned_for <= we
             )
-            completed = (
-                db.query(Task)
-                .filter(
-                    Task.user_id == user_id,
-                    Task.objective_id == obj.id,
-                    Task.status == "completed",
-                    Task.completed_at.isnot(None),
-                    Task.completed_at >= rs,
-                    Task.completed_at <= re,
-                )
-                .count()
+            completed = sum(
+                1
+                for t in week_tasks
+                if obj.id in t.objective_ids
+                and t.status == "completed"
+                and t.completed_at is not None
+                and rs <= t.completed_at.replace(tzinfo=None) <= re
             )
             if planned or completed:
                 objective_weekly.append(
@@ -288,17 +272,13 @@ def build_planning_progress(db: Session, user_id: int, weeks: int = 8) -> Planni
                 )
 
         for domain_id, domain in domains.items():
-            completed_count = (
-                db.query(Task)
-                .filter(
-                    Task.user_id == user_id,
-                    Task.domain_id == domain_id,
-                    Task.status == "completed",
-                    Task.completed_at.isnot(None),
-                    Task.completed_at >= rs,
-                    Task.completed_at <= re,
-                )
-                .count()
+            completed_count = sum(
+                1
+                for t in week_tasks
+                if t.domain_id == domain_id
+                and t.status == "completed"
+                and t.completed_at is not None
+                and rs <= t.completed_at.replace(tzinfo=None) <= re
             )
             if completed_count:
                 domain_weekly.append(
@@ -340,6 +320,8 @@ def apply_carry_forward(
             .first()
         )
         if not task:
+            continue
+        if task.is_recurring:
             continue
         task.planned_for = planned_for
         updated += 1

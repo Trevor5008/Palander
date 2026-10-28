@@ -4,7 +4,7 @@ Palander is a personal **execution planner**: organize work by **Domains** and *
 
 **Status:** Active development ([`CHANGELOG.md`](CHANGELOG.md)).
 
-[![Version](https://img.shields.io/badge/version-0.12.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-blue)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -12,10 +12,10 @@ Palander is a personal **execution planner**: organize work by **Domains** and *
 
 ## Core capabilities
 
-- **Daily execution** — timeline plus Today / Overdue / Completed task sections with domain and objective context
+- **Daily execution** — timeline plus Today / Overdue / Completed task sections (overdue pagination, completed collapsed) with domain and objective context
 - **Planning** — objectives by domain, weekly domain allocation review, carry-forward, and progress history
 - **Calendar views** — weekly and monthly timelines with domain-colored entries
-- **Recurring events** — daily, weekly, or monthly patterns with custom intervals (RRULE-backed)
+- **Recurring events and tasks** — daily, weekly, or monthly patterns with custom intervals (RRULE-backed); per-occurrence complete, move, skip, and edit scopes
 - **Schedule import** — paste or PDF import for recurring class schedules (FIU profile)
 
 ## Table of contents
@@ -51,7 +51,7 @@ Backend: FastAPI, SQLAlchemy, Alembic, PostgreSQL. Frontend: React, TypeScript, 
 
 ## Versioning
 
-Version in [`VERSION`](VERSION) (currently **0.12.0**). Backend `/health` and OpenAPI expose the same value.
+Version in [`VERSION`](VERSION) (currently **0.13.0**). Backend `/health` and OpenAPI expose the same value.
 
 ## Project structure
 

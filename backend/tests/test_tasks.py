@@ -8,7 +8,7 @@ def task_payload(domain_id: int | None = None, **overrides):
         "rrule": None,
         "domain_id": domain_id,
         "event_id": None,
-        "objective_id": None,
+        "objective_ids": [],
     }
     payload.update(overrides)
     return payload
@@ -100,7 +100,7 @@ def test_task_objective_must_match_domain(client, seed_user, seed_domain, auth_h
 
     response = client.post(
         "/tasks",
-        json=task_payload(seed_domain.id, objective_id=objective["id"]),
+        json=task_payload(seed_domain.id, objective_ids=[objective["id"]]),
         headers=auth_headers,
     )
     assert response.status_code == 400
@@ -154,7 +154,7 @@ def test_task_linked_to_event(client, seed_user, seed_domain, auth_headers):
             "is_recurring": False,
             "rrule": None,
             "domain_id": seed_domain.id,
-            "objective_id": None,
+            "objective_ids": [],
         },
         headers=auth_headers,
     ).json()

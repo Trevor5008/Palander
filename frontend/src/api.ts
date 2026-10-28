@@ -4,6 +4,7 @@ import type {
   EventCreate,
   EventRead,
   EventUpdate,
+  RecurrenceEditScope,
   DailyWorkspaceRead,
   PlanningProgressRead,
   WeeklyReviewRead,
@@ -111,15 +112,32 @@ export async function createEvent(body: EventCreate): Promise<EventRead> {
   return request("/events", { method: "POST", body: JSON.stringify(body) });
 }
 
-export async function updateEvent(id: number, body: EventUpdate): Promise<EventRead> {
-  return request(`/events/${id}`, {
+export type EventMutationOptions = {
+  scope?: RecurrenceEditScope;
+  occurrence_start_at?: string;
+};
+
+export async function updateEvent(
+  id: number,
+  body: EventUpdate,
+  options?: EventMutationOptions,
+): Promise<EventRead> {
+  const params = new URLSearchParams();
+  if (options?.scope) params.set("scope", options.scope);
+  if (options?.occurrence_start_at) params.set("occurrence_start_at", options.occurrence_start_at);
+  const qs = params.toString();
+  return request(`/events/${id}${qs ? `?${qs}` : ""}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
 }
 
-export async function deleteEvent(id: number): Promise<void> {
-  return request(`/events/${id}`, { method: "DELETE" });
+export async function deleteEvent(id: number, options?: EventMutationOptions): Promise<void> {
+  const params = new URLSearchParams();
+  if (options?.scope) params.set("scope", options.scope);
+  if (options?.occurrence_start_at) params.set("occurrence_start_at", options.occurrence_start_at);
+  const qs = params.toString();
+  return request(`/events/${id}${qs ? `?${qs}` : ""}`, { method: "DELETE" });
 }
 
 export async function fetchTasks(start: string, end: string): Promise<TaskRead[]> {
@@ -135,15 +153,32 @@ export async function createTask(body: TaskCreate): Promise<TaskRead> {
   return request("/tasks", { method: "POST", body: JSON.stringify(body) });
 }
 
-export async function updateTask(id: number, body: TaskUpdate): Promise<TaskRead> {
-  return request(`/tasks/${id}`, {
+export type TaskMutationOptions = {
+  scope?: RecurrenceEditScope;
+  occurrence_date?: string;
+};
+
+export async function updateTask(
+  id: number,
+  body: TaskUpdate,
+  options?: TaskMutationOptions,
+): Promise<TaskRead> {
+  const params = new URLSearchParams();
+  if (options?.scope) params.set("scope", options.scope);
+  if (options?.occurrence_date) params.set("occurrence_date", options.occurrence_date);
+  const qs = params.toString();
+  return request(`/tasks/${id}${qs ? `?${qs}` : ""}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
 }
 
-export async function deleteTask(id: number): Promise<void> {
-  return request(`/tasks/${id}`, { method: "DELETE" });
+export async function deleteTask(id: number, options?: TaskMutationOptions): Promise<void> {
+  const params = new URLSearchParams();
+  if (options?.scope) params.set("scope", options.scope);
+  if (options?.occurrence_date) params.set("occurrence_date", options.occurrence_date);
+  const qs = params.toString();
+  return request(`/tasks/${id}${qs ? `?${qs}` : ""}`, { method: "DELETE" });
 }
 
 export async function fetchObjectives(params?: {

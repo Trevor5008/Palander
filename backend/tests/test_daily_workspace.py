@@ -8,7 +8,7 @@ def task_payload(domain_id: int, **overrides):
         "rrule": None,
         "domain_id": domain_id,
         "event_id": None,
-        "objective_id": None,
+        "objective_ids": [],
     }
     payload.update(overrides)
     return payload

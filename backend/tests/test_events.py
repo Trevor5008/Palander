@@ -6,7 +6,7 @@ def event_payload(domain_id: int, **overrides):
         "is_recurring": False,
         "rrule": None,
         "domain_id": domain_id,
-        "objective_id": None,
+        "objective_ids": [],
     }
     payload.update(overrides)
     return payload

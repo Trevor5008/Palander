@@ -13,7 +13,14 @@ import {
   updateTask,
 } from "../api";
 import { DOMAINS, type Domain } from "../constants/domains";
-import type { DomainRead, EventRead, ObjectiveRead, TaskRead } from "../types/api";
+import type {
+  DomainRead,
+  EventRead,
+  ObjectiveRead,
+  RecurrenceEditScope,
+  TaskOverduePolicy,
+  TaskRead,
+} from "../types/api";
 import {
   endOfMonth,
   eventFormToCreate,
@@ -77,7 +84,10 @@ export function EventModal({
   const [entryType, setEntryType] = useState<EntryType>("event");
   const [title, setTitle] = useState("");
   const [domain, setDomain] = useState<Domain>("career");
-  const [objectiveId, setObjectiveId] = useState("");
+  const [objectiveIds, setObjectiveIds] = useState<number[]>([]);
+  const [estimatedDurationMinutes, setEstimatedDurationMinutes] = useState("");
+  const [overduePolicy, setOverduePolicy] = useState<TaskOverduePolicy>("keep_overdue");
+  const [editScope, setEditScope] = useState<RecurrenceEditScope>("occurrence");
   const [startDate, setStartDate] = useState(() => formatDateForInput(defaultDate));
   const [endDate, setEndDate] = useState(() => formatDateForInput(defaultDate));
   const [plannedDate, setPlannedDate] = useState(() => formatDateForInput(defaultDate));
@@ -162,7 +172,7 @@ export function EventModal({
       setEntryType("event");
       setTitle(form.title);
       setDomain(form.domain);
-      setObjectiveId(form.objectiveId);
+      setObjectiveIds(form.objectiveIds);
       setStartDate(form.startDate);
       setEndDate(form.endDate);
       setStartTime(form.startTime);
@@ -175,6 +185,7 @@ export function EventModal({
       setRecurrenceUntil(form.recurrenceUntil);
       setTimezone(form.timezone);
       setLinkedEventId("");
+      setEditScope(editEvent.occurrence_start_at ? "occurrence" : "series");
       return;
     }
 
@@ -183,14 +194,22 @@ export function EventModal({
       setEntryType("task");
       setTitle(form.title);
       setDomain(form.domain);
-      setObjectiveId(form.objectiveId);
+      setObjectiveIds(form.objectiveIds);
       setPlannedDate(form.plannedDate);
       setDueDate(form.dueDate);
       setStartTime(form.dueTime);
       setEndTime("10:00");
       setAllDay(false);
-      setIsRecurring(false);
+      setIsRecurring(form.isRecurring);
+      setRecurrenceFreq(form.recurrenceFreq);
+      setRecurrenceInterval(form.recurrenceInterval);
+      setRecurrenceWeekdays(form.recurrenceWeekdays);
+      setRecurrenceUntil(form.recurrenceUntil);
+      setTimezone(form.timezone);
+      setEstimatedDurationMinutes(form.estimatedDurationMinutes);
+      setOverduePolicy(form.overduePolicy);
       setLinkedEventId(form.linkedEventId);
+      setEditScope(editTask.occurrence_date ? "occurrence" : "series");
       return;
     }
 
@@ -203,7 +222,11 @@ export function EventModal({
     setEndDate(day);
     setPlannedDate(day);
     setDueDate(day);
-    setObjectiveId("");
+    setObjectiveIds([]);
+    setEstimatedDurationMinutes("");
+    setOverduePolicy("keep_overdue");
+    setIsRecurring(false);
+    setEditScope("series");
     setStartTime(times.startTime);
     setEndTime(times.endTime);
     setAllDay(false);
@@ -256,7 +279,7 @@ export function EventModal({
         const form = {
           title,
           domain,
-          objectiveId,
+          objectiveIds,
           startDate,
           endDate: isRecurring ? startDate : endDate,
           startTime,
@@ -275,23 +298,44 @@ export function EventModal({
           setSaving(false);
           return;
         }
+        const eventOptions =
+          editEvent?.occurrence_start_at && editScope !== "series"
+            ? { scope: editScope, occurrence_start_at: editEvent.occurrence_start_at }
+            : undefined;
         if (editEvent) {
-          await updateEvent(editEvent.id, eventFormToUpdate(form, domainId));
+          await updateEvent(editEvent.id, eventFormToUpdate(form, domainId), eventOptions);
         } else {
           await createEvent(eventFormToCreate(form, domainId));
         }
       } else {
+        if (isRecurring && recurrenceFreq === "WEEKLY" && recurrenceWeekdays.length === 0) {
+          setError("Select at least one weekday for weekly recurrence");
+          setSaving(false);
+          return;
+        }
         const form = {
           title,
           domain,
           plannedDate,
           dueDate,
           dueTime: startTime,
-          objectiveId,
+          objectiveIds,
           linkedEventId,
+          isRecurring,
+          recurrenceFreq,
+          recurrenceInterval,
+          recurrenceWeekdays,
+          recurrenceUntil,
+          timezone,
+          estimatedDurationMinutes,
+          overduePolicy,
         };
+        const taskOptions =
+          editTask?.occurrence_date && editScope !== "series"
+            ? { scope: editScope, occurrence_date: editTask.occurrence_date }
+            : undefined;
         if (editTask) {
-          await updateTask(editTask.id, taskFormToUpdate(form, domainId));
+          await updateTask(editTask.id, taskFormToUpdate(form, domainId), taskOptions);
         } else {
           await createTask(taskFormToCreate(form, domainId));
         }
@@ -314,9 +358,17 @@ export function EventModal({
 
     try {
       if (editEvent) {
-        await deleteEvent(editEvent.id);
+        const opts =
+          editEvent.occurrence_start_at && editScope !== "series"
+            ? { scope: editScope, occurrence_start_at: editEvent.occurrence_start_at }
+            : undefined;
+        await deleteEvent(editEvent.id, opts);
       } else if (editTask) {
-        await deleteTask(editTask.id);
+        const opts =
+          editTask.occurrence_date && editScope !== "series"
+            ? { scope: editScope, occurrence_date: editTask.occurrence_date }
+            : undefined;
+        await deleteTask(editTask.id, opts);
       }
       onDeleted?.();
       onClose();
@@ -326,6 +378,15 @@ export function EventModal({
       setSaving(false);
     }
   };
+
+  const editingTaskOccurrence =
+    entryType === "task" &&
+    Boolean(editTask?.occurrence_date) &&
+    editScope === "occurrence";
+  const taskSeriesRecurring =
+    entryType === "task" && isRecurring && !editingTaskOccurrence;
+  const taskPlannedDateLabel = taskSeriesRecurring ? "Starting on" : "Planned for";
+  const showTaskDueDate = entryType === "task" && !taskSeriesRecurring;
 
   return (
     <Dialog open={showAddEventModal} onClose={onClose} className="relative z-50">
@@ -387,7 +448,11 @@ export function EventModal({
                 value={domain}
                 onChange={(e) => {
                   setDomain(e.target.value as Domain);
-                  setObjectiveId("");
+                  setObjectiveIds([]);
+    setEstimatedDurationMinutes("");
+    setOverduePolicy("keep_overdue");
+    setIsRecurring(false);
+    setEditScope("series");
                 }}
                 className="w-full rounded-md border border-gray-300 px-3 py-2"
               >
@@ -400,22 +465,29 @@ export function EventModal({
             </div>
 
             <div>
-              <label htmlFor="objective" className="mb-1 block text-gray-500">
-                Objective (optional)
-              </label>
-              <select
-                id="objective"
-                value={objectiveId}
-                onChange={(e) => setObjectiveId(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-              >
-                <option value="">None</option>
-                {objectivesForDomain.map((obj) => (
-                  <option key={obj.id} value={obj.id}>
-                    {obj.title}
-                  </option>
-                ))}
-              </select>
+              <span className="mb-1 block text-gray-500">Objectives (optional)</span>
+              <div className="max-h-28 space-y-1 overflow-y-auto rounded-md border border-gray-300 p-2">
+                {objectivesForDomain.length === 0 ? (
+                  <p className="text-xs text-gray-400">None in this domain</p>
+                ) : (
+                  objectivesForDomain.map((obj) => (
+                    <label key={obj.id} className="flex items-center gap-2 text-xs">
+                      <input
+                        type="checkbox"
+                        checked={objectiveIds.includes(obj.id)}
+                        onChange={(e) => {
+                          setObjectiveIds((current) =>
+                            e.target.checked
+                              ? [...current, obj.id]
+                              : current.filter((id) => id !== obj.id),
+                          );
+                        }}
+                      />
+                      {obj.title}
+                    </label>
+                  ))
+                )}
+              </div>
             </div>
 
             {entryType === "event" ? (
@@ -451,31 +523,39 @@ export function EventModal({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className={showTaskDueDate ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
                 <div>
                   <label htmlFor="plannedDate" className="mb-1 block text-gray-500">
-                    Planned for
+                    {taskPlannedDateLabel}
                   </label>
                   <input
                     id="plannedDate"
                     type="date"
                     value={plannedDate}
-                    onChange={(e) => setPlannedDate(e.target.value)}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setPlannedDate(next);
+                      if (taskSeriesRecurring) {
+                        setDueDate(next);
+                      }
+                    }}
                     className="w-full rounded-md border border-gray-300 px-3 py-2"
                   />
                 </div>
-                <div>
-                  <label htmlFor="dueDate" className="mb-1 block text-gray-500">
-                    Due date
-                  </label>
-                  <input
-                    id="dueDate"
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2"
-                  />
-                </div>
+                {showTaskDueDate && (
+                  <div>
+                    <label htmlFor="dueDate" className="mb-1 block text-gray-500">
+                      Due date
+                    </label>
+                    <input
+                      id="dueDate"
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -524,6 +604,21 @@ export function EventModal({
             )}
 
             {entryType === "task" && (
+              <>
+              <div>
+                <label htmlFor="duration" className="mb-1 block text-gray-500">
+                  Estimated duration (minutes)
+                </label>
+                <input
+                  id="duration"
+                  type="number"
+                  min={0}
+                  max={1440}
+                  value={estimatedDurationMinutes}
+                  onChange={(e) => setEstimatedDurationMinutes(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                />
+              </div>
               <div>
                 <label htmlFor="linkedEvent" className="mb-1 block text-gray-500">
                   Linked event (optional)
@@ -542,6 +637,94 @@ export function EventModal({
                   ))}
                 </select>
               </div>
+              <div className="space-y-2 pt-1">
+                <label className="flex cursor-pointer items-center justify-between">
+                  <span>Recurring task</span>
+                  <input
+                    type="checkbox"
+                    checked={isRecurring}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setIsRecurring(checked);
+                      if (checked) {
+                        setDueDate(plannedDate);
+                      }
+                    }}
+                  />
+                </label>
+                {isRecurring && (
+                  <div className="space-y-2 rounded-md border border-gray-200 p-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-gray-500">Frequency</label>
+                        <select
+                          value={recurrenceFreq}
+                          onChange={(e) => setRecurrenceFreq(e.target.value as RecurrenceFreq)}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        >
+                          <option value="DAILY">Daily</option>
+                          <option value="WEEKLY">Weekly</option>
+                          <option value="MONTHLY">Monthly</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-gray-500">Every</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={99}
+                          value={recurrenceInterval}
+                          onChange={(e) => setRecurrenceInterval(Number(e.target.value))}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        />
+                      </div>
+                    </div>
+                    {recurrenceFreq === "WEEKLY" && (
+                      <div className="flex flex-wrap gap-2">
+                        {WEEKDAY_CODES.map((code) => (
+                          <label key={code} className="flex items-center gap-1 text-xs">
+                            <input
+                              type="checkbox"
+                              checked={recurrenceWeekdays.includes(code)}
+                              onChange={(e) => {
+                                setRecurrenceWeekdays((current) =>
+                                  e.target.checked
+                                    ? [...current, code]
+                                    : current.filter((day) => day !== code),
+                                );
+                              }}
+                            />
+                            {WEEKDAY_LABELS[code]}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                    <div>
+                      <label className="mb-1 block text-gray-500">Repeat until</label>
+                      <input
+                        type="date"
+                        value={recurrenceUntil}
+                        min={plannedDate}
+                        onChange={(e) => setRecurrenceUntil(e.target.value)}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-gray-500">Overdue policy</label>
+                      <select
+                        value={overduePolicy}
+                        onChange={(e) => setOverduePolicy(e.target.value as TaskOverduePolicy)}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      >
+                        <option value="keep_overdue">Keep overdue</option>
+                        <option value="skip_expired">Skip expired</option>
+                        <option value="carry_forward">Carry forward</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+              </>
             )}
 
             {entryType === "event" && (
@@ -658,9 +841,38 @@ export function EventModal({
 
           <div className="mt-6 flex items-center justify-between gap-3">
             {isEditMode ? (
-              <div className="space-y-1">
-                {editEvent?.is_recurring && (
-                  <p className="text-xs text-gray-500">Edits and delete apply to the entire series.</p>
+              <div className="space-y-2">
+                {(editEvent?.occurrence_start_at || editTask?.occurrence_date) && (
+                  <fieldset className="text-xs text-gray-600">
+                    <legend className="mb-1 font-medium">Apply changes to</legend>
+                    <label className="mr-3 inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="editScope"
+                        checked={editScope === "occurrence"}
+                        onChange={() => setEditScope("occurrence")}
+                      />
+                      This occurrence
+                    </label>
+                    <label className="mr-3 inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="editScope"
+                        checked={editScope === "future"}
+                        onChange={() => setEditScope("future")}
+                      />
+                      This and future
+                    </label>
+                    <label className="inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="editScope"
+                        checked={editScope === "series"}
+                        onChange={() => setEditScope("series")}
+                      />
+                      Entire series
+                    </label>
+                  </fieldset>
                 )}
                 <button
                   type="button"

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-28
+
+### Added
+
+- Recurring **tasks**: date-keyed occurrences (complete, move, skip) with `keep_overdue`, `skip_expired`, and `carry_forward` series policies
+- Recurring **edit scopes** for events and tasks: this occurrence, this and future, or entire series (`scope` query on PATCH/DELETE)
+- **Multi-objective** links per event/task within one domain (`objective_ids`, junction tables)
+- Task **estimated duration** (minutes) in API and daily/weekly planning rollups
+- Daily objective activity includes linked **event** occurrence counts and minutes; domain totals dedupe event minutes
+
+### Changed
+
+- `objective_id` replaced by `objective_ids[]` on events and tasks (migration **009**)
+- `GET /tasks` and daily workspace expand recurring task series into occurrence rows
+- **Daily execution** pane: **Completed today** collapsed by default; **Overdue** paginated (10 per page, “Show more”); scroll container layout so Today / Overdue / Completed sections do not overlap on long lists
+- **Event modal**: recurring tasks use **Starting on** (series anchor) instead of a standalone due date; occurrence vs series edit scopes and recurrence fields aligned with events
+
 ## [0.12.0] - 2026-10-26
 
 ### Added
