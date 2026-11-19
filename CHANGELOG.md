@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Frontend test foundation (Vitest, React Testing Library) with Daily execution occurrence-scoped complete workflow test; CI runs `npm test`
+
+### Changed
+
+- Dev/test default `JWT_SECRET` and `.env.example` match Docker Compose (32+ bytes) so PyJWT HS256 key-length warnings do not fire on pytest
+
 ## [0.13.0] - 2026-10-28
 
 ### Added

@@ -115,6 +115,14 @@ cp .env.example .env
 npm run dev
 ```
 
+Frontend unit tests (Vitest + React Testing Library):
+
+```bash
+cd frontend && npm test
+```
+
+Watch mode: `npm run test:watch`.
+
 Dev server: http://localhost:5173 → API at `VITE_API_URL` (default http://localhost:8000).
 
 **Local development credentials only** — seeded user `dev` / `dev`. Do **not** use these in deployed environments; set a strong `JWT_SECRET` and proper user accounts in production.
@@ -127,7 +135,7 @@ Authorization: Bearer <access_token>
 
 ## CI/CD
 
-**CI** (`.github/workflows/ci.yml`): backend `pytest`, frontend build, Docker smoke test.
+**CI** (`.github/workflows/ci.yml`): backend `pytest`, frontend `npm test` and build, Docker smoke test.
 
 **Release** (tag `v*.*.*`): publishes `ghcr.io/trevor5008/palander-api` images.
 

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
             return "postgresql+psycopg2://" + value.removeprefix("postgresql://")
         return value
     cors_origins: str = "http://localhost:5173"
-    jwt_secret: str = "change-me-in-production"
+    jwt_secret: str = "dev-compose-secret-change-me-32chars-min"
     jwt_expire_minutes: int = 60 * 24 * 7
     schedule_parser_base_url: str | None = None
     schedule_parser_api_key: str | None = None
