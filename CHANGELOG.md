@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dev/test default `JWT_SECRET` and `.env.example` match Docker Compose (32+ bytes) so PyJWT HS256 key-length warnings do not fire on pytest
 
+### Fixed
+
+- Vitest on CI: use `pool: threads`, jsdom 24.x, and skip Tailwind in test mode to avoid fork-worker `undici` crashes on Node 20
+
 ## [0.13.0] - 2026-10-28
 
 ### Added
