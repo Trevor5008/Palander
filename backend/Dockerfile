@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/alembic.ini .
 COPY backend/alembic/ alembic/
 COPY backend/app/ app/
+COPY backend/fixtures/ fixtures/
 COPY VERSION /VERSION
 
 COPY backend/docker-entrypoint.sh /docker-entrypoint.sh

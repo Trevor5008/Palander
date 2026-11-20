@@ -104,6 +104,17 @@ docker compose up -d --build --wait && curl -f http://localhost:8000/health
 | `POST /auth/login` (`dev`/`dev`) | Access token returned |
 | `GET /daily-workspace` (authenticated) | JSON with `today` / `overdue` / `completed` |
 
+## Demo dataset (PAL-S1-003)
+
+After Compose is healthy, load the synthetic recruiter demo (same DB the API uses):
+
+```bash
+./scripts/reset_demo.sh
+# or: docker compose exec -T api python -m app.demo_seed
+```
+
+Walkthrough and screenshots: [`demo/walkthrough.md`](demo/walkthrough.md).
+
 ## Dependency and secret posture
 
 - Audit summary: [`dependency-audit.md`](dependency-audit.md)
