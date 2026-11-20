@@ -38,6 +38,8 @@ Routes: **Daily** `/`, **Planning** `/planning`, **Weekly** `/weekly`, **Monthly
 | [`schema.md`](docs/schema.md) | PostgreSQL ER diagram |
 | [`data-flow.md`](docs/data-flow.md) | API and UI data paths |
 | [`legacy-notes-export.md`](docs/legacy-notes-export.md) | Pre-0.12 note archive (if upgrading from 0.11) |
+| [`clean-checkout.md`](docs/clean-checkout.md) | Verified setup from a clean clone |
+| [`dependency-audit.md`](docs/dependency-audit.md) | npm / pip audit summary and accepted residual risk |
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -81,10 +83,13 @@ docker run --name palander-db \
 ### Docker (recommended)
 
 ```bash
-docker compose up --build
+docker compose up -d --build --wait
+curl -sf http://localhost:8000/health
 ```
 
 API: http://localhost:8000 (migrations run on startup). Then start the [frontend](#frontend).
+
+Step-by-step verification: [`docs/clean-checkout.md`](docs/clean-checkout.md).
 
 ### Backend (native)
 
@@ -110,10 +115,12 @@ cd backend && source .venv/bin/activate && pytest
 
 ```bash
 cd frontend
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
+
+Use `npm install` only when changing `package.json`; otherwise prefer `npm ci` for a lockfile-accurate install.
 
 Frontend unit tests (Vitest + React Testing Library):
 
