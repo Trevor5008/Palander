@@ -18,6 +18,25 @@ Palander is a personal **execution planner**: organize work by **Domains** and *
 - **Recurring events and tasks** — daily, weekly, or monthly patterns with custom intervals (RRULE-backed); per-occurrence complete, move, skip, and edit scopes
 - **Schedule import** — paste or PDF import for recurring class schedules (FIU profile)
 
+## Demo
+
+Palander has **no public hosted demo** — run it locally ([`docs/clean-checkout.md`](docs/clean-checkout.md)), then seed synthetic data:
+
+```bash
+./scripts/reset_demo.sh
+cd frontend && npm ci && npm run dev
+# http://localhost:5173/?date=2026-10-28  — login dev / dev
+```
+
+[![Daily execution (hero)](docs/demo/images/hero.png)](docs/demo/walkthrough.md)
+
+| View | Screenshot |
+|------|------------|
+| [Walkthrough + GIF](docs/demo/walkthrough.md) | [`walkthrough.gif`](docs/demo/images/walkthrough.gif) |
+| Planning | [`planning.png`](docs/demo/images/planning.png) |
+| Recurring task modal | [`recurrence.png`](docs/demo/images/recurrence.png) |
+| Schedule import (paste) | [`schedule-import.png`](docs/demo/images/schedule-import.png) |
+
 ## Table of contents
 
 - [Design](#design)
@@ -40,6 +59,7 @@ Routes: **Daily** `/`, **Planning** `/planning`, **Weekly** `/weekly`, **Monthly
 | [`legacy-notes-export.md`](docs/legacy-notes-export.md) | Pre-0.12 note archive (if upgrading from 0.11) |
 | [`clean-checkout.md`](docs/clean-checkout.md) | Verified setup from a clean clone |
 | [`dependency-audit.md`](docs/dependency-audit.md) | npm / pip audit summary and accepted residual risk |
+| [`demo/walkthrough.md`](docs/demo/walkthrough.md) | Seeded demo, screenshots, and capture notes |
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -61,6 +81,7 @@ Version in [`VERSION`](VERSION) (currently **0.13.0**). Backend `/health` and Op
 - `frontend/` — Vite UI: **Daily**, **Planning**, **Weekly**, and **Monthly** views
 - `docs/` — schema, data-flow, design artifacts
 - `docker-compose.yml` — PostgreSQL + API for local development
+- `scripts/reset_demo.sh` — reset Compose volumes and seed recruiter demo data
 
 ## Getting started
 
