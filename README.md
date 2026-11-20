@@ -38,6 +38,8 @@ Routes: **Daily** `/`, **Planning** `/planning`, **Weekly** `/weekly`, **Monthly
 | [`schema.md`](docs/schema.md) | PostgreSQL ER diagram |
 | [`data-flow.md`](docs/data-flow.md) | API and UI data paths |
 | [`legacy-notes-export.md`](docs/legacy-notes-export.md) | Pre-0.12 note archive (if upgrading from 0.11) |
+| [`clean-checkout.md`](docs/clean-checkout.md) | Verified setup from a clean clone |
+| [`dependency-audit.md`](docs/dependency-audit.md) | npm / pip audit summary and accepted residual risk |
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -64,11 +66,11 @@ Version in [`VERSION`](VERSION) (currently **0.13.0**). Backend `/health` and Op
 
 ### Prerequisites
 
-- Python 3.12+
-- Node.js / npm
-- PostgreSQL (local install or Docker)
+For **[Docker (recommended)](#docker-recommended)**: Docker and Node.js/npm (API + DB run in containers; no local Python venv required).
 
-**PostgreSQL via Docker (optional):**
+For **[Backend (native)](#backend-native)**: Python 3.12+, PostgreSQL (local install or the optional DB container below), and Node.js/npm for the frontend.
+
+**PostgreSQL via Docker (optional, native backend only):**
 
 ```bash
 docker run --name palander-db \
@@ -80,40 +82,56 @@ docker run --name palander-db \
 
 ### Docker (recommended)
 
+Same commands on macOS, Linux, Windows (PowerShell), or WSL.
+
 ```bash
-docker compose up --build
+docker compose up -d --build --wait
+curl -sf http://localhost:8000/health
 ```
+
+On Windows PowerShell, use `curl.exe -sf` if `curl` is aliased to `Invoke-WebRequest`.
 
 API: http://localhost:8000 (migrations run on startup). Then start the [frontend](#frontend).
 
+Step-by-step verification: [`docs/clean-checkout.md`](docs/clean-checkout.md).
+
 ### Backend (native)
 
-Run Postgres first (see [Prerequisites](#prerequisites)), then:
+Skip this section if you use [Docker](#docker-recommended) for the API. Run Postgres first (see [Prerequisites](#prerequisites)), then:
 
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate
+```
+
+Activate the venv:
+
+- macOS / Linux: `source .venv/bin/activate`
+- Windows (PowerShell): `.\.venv\Scripts\Activate.ps1`
+
+```bash
 pip install -r requirements-dev.txt
 cp .env.example .env
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Tests (venv required):
+Tests (venv required; activate as above, then):
 
 ```bash
-cd backend && source .venv/bin/activate && pytest
+cd backend && pytest
 ```
 
 ### Frontend
 
 ```bash
 cd frontend
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
+
+Use `npm install` only when changing `package.json`; otherwise prefer `npm ci` for a lockfile-accurate install.
 
 Frontend unit tests (Vitest + React Testing Library):
 
