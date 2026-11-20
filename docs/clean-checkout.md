@@ -58,7 +58,11 @@ Requires a running Postgres on `localhost:5432` with database `palander` (see [R
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate
+```
+
+Activate: macOS/Linux `source .venv/bin/activate`; Windows PowerShell `.\.venv\Scripts\Activate.ps1`.
+
+```bash
 pip install -r requirements-dev.txt
 cp .env.example .env
 alembic upgrade head
@@ -73,7 +77,7 @@ In another terminal, use the [frontend steps](#path-a--docker-compose-recommende
 From a clean clone with tools installed:
 
 ```bash
-cd backend && source .venv/bin/activate && pytest
+cd backend && pytest
 cd ../frontend && npm ci && npm test && npm run build
 docker compose up -d --build --wait && curl -f http://localhost:8000/health
 ```

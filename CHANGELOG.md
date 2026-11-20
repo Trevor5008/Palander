@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Dev/test default `JWT_SECRET` and `.env.example` match Docker Compose (32+ bytes) so PyJWT HS256 key-length warnings do not fire on pytest
-- README: `npm ci`, Compose `--wait` + health smoke, links to verification docs; frontend lockfile updates from `npm audit fix` (high findings)
+- README: `npm ci`, Compose `--wait` + health smoke, links to verification docs; frontend lockfile updates from `npm audit fix` (high findings); Docker vs native prerequisites and Windows venv activation only for native backend
 
 ### Fixed
 
