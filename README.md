@@ -37,6 +37,8 @@ cd frontend && npm ci && npm run dev
 | Recurring task modal | [`recurrence.png`](docs/demo/images/recurrence.png) |
 | Schedule import (paste) | [`schedule-import.png`](docs/demo/images/schedule-import.png) |
 
+Engineering narrative (portfolio source): [`docs/portfolio-case-study.md`](docs/portfolio-case-study.md).
+
 ## Table of contents
 
 - [Design](#design)
@@ -60,6 +62,7 @@ Routes: **Daily** `/`, **Planning** `/planning`, **Weekly** `/weekly`, **Monthly
 | [`clean-checkout.md`](docs/clean-checkout.md) | Verified setup from a clean clone |
 | [`dependency-audit.md`](docs/dependency-audit.md) | npm / pip audit summary and accepted residual risk |
 | [`demo/walkthrough.md`](docs/demo/walkthrough.md) | Seeded demo, screenshots, and capture notes |
+| [`portfolio-case-study.md`](docs/portfolio-case-study.md) | Evidence-linked engineering case study (portfolio source) |
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
