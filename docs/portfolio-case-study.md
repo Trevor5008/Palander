@@ -19,8 +19,7 @@ Concise, evidence-linked narrative for a future portfolio page. Repository versi
 
 ## Role and ownership
 
-- **Solo-authored:** design, backend, frontend, migrations, tests, CI, documentation, and demo capture by Trevor C Werner ([`LICENSE`](../LICENSE)).
-- No team or shared ownership is claimed for shipped behavior.
+- **Sole human product and engineering owner:** Trevor C Werner (copyright holder, [`LICENSE`](../LICENSE)). Design through demo capture are not described as team-owned work ([PAL-S1-005 #17](https://github.com/Trevor5008/Palander/issues/17) acceptance criteria).
 
 ## Architecture and data flow
 
@@ -78,11 +77,11 @@ Concise, evidence-linked narrative for a future portfolio page. Repository versi
 | Docker smoke | Compose health check in CI (same workflow) |
 | Demo seed | [`backend/app/demo_seed.py`](../backend/app/demo_seed.py) |
 
-### Active planning
+### Deferred release work
 
-- **First verified public release** is tracked as [PAL-S1-004 (#18)](https://github.com/Trevor5008/Palander/issues/18): choose tag strategy, align all version surfaces, run full verification on the release candidate, push `v*.*.*`, confirm GHCR publish and visibility.
+- **PAL-S1-004 ([#18](https://github.com/Trevor5008/Palander/issues/18))** is **deferred / Backlog** (not active sprint work): first verified public release—tag strategy, aligned version surfaces, full verification on the candidate, `v*.*.*` tag, GHCR publish, package visibility, and GitHub Release notes. When that work ships, consumers may need `docker login ghcr.io` with `read:packages` unless the package is public ([`README.md`](../README.md#cicd)).
 
-### Release status (today)
+### Release status as of November 23, 2026
 
 - **Pending:** No `v*.*.*` git tag has been pushed; the [Release workflow](../.github/workflows/release.yml) has not produced a verified image.
 - **Do not claim** a published `ghcr.io/trevor5008/palander-api` artifact until #18 completes. The README `docker pull` example documents the **intended** pipeline after tagging ([`README.md`](../README.md#cicd)).
@@ -93,12 +92,10 @@ Concise, evidence-linked narrative for a future portfolio page. Repository versi
 
 - PDF schedule import does not OCR scanned PDFs; reminders are not exposed in the UI ([`docs/data-flow.md`](data-flow.md) — Not wired yet).
 - Frontend unit coverage is intentionally narrow (core Daily occurrence-complete flow); broader UI regression still relies on manual demo and backend tests ([`frontend/src/components/DailyExecutionPane.test.tsx`](../frontend/src/components/DailyExecutionPane.test.tsx)).
-- GHCR images, when they exist, may require `docker login ghcr.io` with `read:packages` unless package visibility is public ([`README.md`](../README.md#cicd)).
 
 ### Future candidates (not scheduled)
 
 - Product ideas deferred from Sprint 1: Daily collapse UX, bulk overdue cleanup, dark mode, chat ([Sprint #13](https://github.com/Trevor5008/Palander/issues/13)).
-- Engineering follow-up: release integrity (#18), optional GHCR visibility and GitHub Release notes.
 
 ## Links
 
