@@ -13,9 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`docs/clean-checkout.md`](docs/clean-checkout.md) verified setup matrix; [`docs/dependency-audit.md`](docs/dependency-audit.md) npm/pip audit log
 - Demo seed (`app.demo_seed`, `scripts/reset_demo.sh`), [`docs/demo/walkthrough.md`](docs/demo/walkthrough.md), README screenshots + GIF (PAL-S1-003)
 - [`docs/portfolio-case-study.md`](docs/portfolio-case-study.md) — public engineering case-study source (PAL-S1-005)
+- [`docs/planning/sprint-2-draft.md`](docs/planning/sprint-2-draft.md) — Sprint 2 Daily Workspace draft (grooming only, not loaded to Project)
 
 ### Changed
 
+- Compose `db` publishes **`localhost:5433`** by default (`PALANDER_DB_HOST_PORT`) so native backend setup does not fight system Postgres on 5432; README drops the fragile `docker run palander-db` recipe
 - Dev/test default `JWT_SECRET` and `.env.example` match Docker Compose (32+ bytes) so PyJWT HS256 key-length warnings do not fire on pytest
 - README: `npm ci`, Compose `--wait` + health smoke, links to verification docs; frontend lockfile updates from `npm audit fix` (high findings); Docker vs native prerequisites and Windows venv activation only for native backend
 

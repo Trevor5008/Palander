@@ -63,6 +63,7 @@ Routes: **Daily** `/`, **Planning** `/planning`, **Weekly** `/weekly`, **Monthly
 | [`dependency-audit.md`](docs/dependency-audit.md) | npm / pip audit summary and accepted residual risk |
 | [`demo/walkthrough.md`](docs/demo/walkthrough.md) | Seeded demo, screenshots, and capture notes |
 | [`portfolio-case-study.md`](docs/portfolio-case-study.md) | Evidence-linked engineering case study (portfolio source) |
+| [`planning/sprint-2-draft.md`](docs/planning/sprint-2-draft.md) | Sprint 2 Daily Workspace draft (not committed to GitHub issues) |
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -92,17 +93,19 @@ Version in [`VERSION`](VERSION) (currently **0.13.0**). Backend `/health` and Op
 
 For **[Docker (recommended)](#docker-recommended)**: Docker and Node.js/npm (API + DB run in containers; no local Python venv required).
 
-For **[Backend (native)](#backend-native)**: Python 3.12+, PostgreSQL (local install or the optional DB container below), and Node.js/npm for the frontend.
+For **[Backend (native)](#backend-native)**: Python 3.12+, a PostgreSQL 16 database reachable from the host, and Node.js/npm for the frontend. **Do not** start a second Postgres if you already run [Docker Compose](#docker-recommended) for the API unless you intend to use only the database service for native `uvicorn` (see below).
 
-**PostgreSQL via Docker (optional, native backend only):**
+**PostgreSQL for the native backend (pick one):**
 
-```bash
-docker run --name palander-db \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=palander \
-  -p 5432:5432 \
-  -d postgres:16
-```
+| Option | When to use | Steps |
+|--------|-------------|--------|
+| **Compose `db` only** (recommended) | Native `uvicorn` + containerized Postgres | `docker compose up -d db` then set [`backend/.env`](backend/.env) to `localhost` and port **5433** (default host mapping; see [`docker-compose.yml`](docker-compose.yml)). |
+| **Local Postgres** | Arch/other distro already listening on **5432** | Create DB `palander` (e.g. `createdb palander` or `psql`), use port **5432** in `DATABASE_URL`. |
+| **Map Compose to 5432** | No local Postgres on 5432 | `PALANDER_DB_HOST_PORT=5432 docker compose up -d db` and use **5432** in `DATABASE_URL`. |
+
+If a previous attempt left a broken **`palander-db`** container (`Created` / name conflict), remove it: `docker rm -f palander-db`.
+
+**Port 5432 already in use?** Many Linux installs run system Postgres on `127.0.0.1:5432`. Either use that database (local Postgres row above) or keep the default **5433** host port from Compose—do not run `docker run -p 5432:5432` alongside it.
 
 ### Docker (recommended)
 
@@ -121,7 +124,7 @@ Step-by-step verification: [`docs/clean-checkout.md`](docs/clean-checkout.md).
 
 ### Backend (native)
 
-Skip this section if you use [Docker](#docker-recommended) for the API. Run Postgres first (see [Prerequisites](#prerequisites)), then:
+Skip this section if you use [Docker](#docker-recommended) for the API. Start Postgres (see [Prerequisites](#prerequisites)—Compose `db` on **5433** or local **5432**), copy [`.env.example`](backend/.env.example) so `DATABASE_URL` matches your port, then:
 
 ```bash
 cd backend

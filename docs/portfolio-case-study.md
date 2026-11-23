@@ -55,7 +55,7 @@ Concise, evidence-linked narrative for a future portfolio page. Repository versi
 - **Notes retired (0.12)** — traded embedded Markdown notes for a smaller execution surface and clearer product boundary ([`CHANGELOG.md`](../CHANGELOG.md) §0.12.0).
 - **Explicit recurrence scopes** — occurrence vs future vs series edits add API and UI complexity but avoid ambiguous “edit this instance” behavior ([`docs/data-flow.md`](data-flow.md) — Recurrence).
 - **Schedule import** — product supports paste/PDF import with an FIU-oriented profile in README; **demo fixtures are generic** (no real school account data in repo) ([`README.md`](../README.md#core-capabilities), [`backend/fixtures/demo/`](../backend/fixtures/demo/)).
-- **Sprint 1 non-goals** (not promises): Daily pane collapse tweaks, bulk overdue cleanup, dark mode, chat, and similar candidates stayed outside PAL-S1 unless explicitly traded in ([Sprint #13](https://github.com/Trevor5008/Palander/issues/13) — Planning rules).
+- **Sprint 1 boundary:** execution UX and product expansions stayed out of PAL-S1 unless explicitly traded in ([Sprint #13](https://github.com/Trevor5008/Palander/issues/13) — Planning rules). Some of that work is now drafted for Sprint 2 (see [Limitations and deferred work](#limitations-and-deferred-work)); dark mode, chat, and hygiene themes remain unscheduled candidates.
 
 ## Visual and walkthrough evidence
 
@@ -93,9 +93,15 @@ Concise, evidence-linked narrative for a future portfolio page. Repository versi
 - PDF schedule import does not OCR scanned PDFs; reminders are not exposed in the UI ([`docs/data-flow.md`](data-flow.md) — Not wired yet).
 - Frontend unit coverage is intentionally narrow (core Daily occurrence-complete flow); broader UI regression still relies on manual demo and backend tests ([`frontend/src/components/DailyExecutionPane.test.tsx`](../frontend/src/components/DailyExecutionPane.test.tsx)).
 
-### Future candidates (not scheduled)
+### Draft planning — not committed
 
-- Product ideas deferred from Sprint 1: Daily collapse UX, bulk overdue cleanup, dark mode, chat ([Sprint #13](https://github.com/Trevor5008/Palander/issues/13)).
+- **Daily Workspace Usability (Sprint 2 draft):** progressive disclosure on Daily execution and Overdue, occurrence-safe **bulk overdue cleanup**, and clearer **recurring delete-scope** language in the UI. Ready to groom with provisional dates; **no GitHub issues or Project cards loaded yet** ([`docs/planning/sprint-2-draft.md`](planning/sprint-2-draft.md), [GitHub Project #10](https://github.com/users/Trevor5008/projects/10)).
+
+### Future candidates — not scheduled
+
+- **Theme support** (e.g. dark mode).
+- **Chat workspace foundation**.
+- **Historical recurring-task hygiene** — past-starting series and overdue/progress distortion (explicitly outside the Sprint 2 draft scope).
 
 ## Links
 
