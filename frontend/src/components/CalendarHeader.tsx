@@ -72,7 +72,7 @@ export function CalendarHeader({
           <button
             type="button"
             onClick={onImportSchedule}
-            className="rounded border border-border px-3 py-1.5 text-sm font-medium text-text hover:bg-bg"
+            className="btn-chrome rounded border border-border px-3 py-1.5 text-sm text-text hover:bg-bg"
           >
             Import schedule
           </button>

@@ -31,7 +31,7 @@ export function PlanningView() {
             key={id}
             type="button"
             onClick={() => setTab(id)}
-            className={`flex-1 rounded-md px-3 py-2 font-medium transition-colors ${
+            className={`btn-chrome flex-1 rounded-md px-3 py-2 text-sm transition-colors ${
               tab === id ? "bg-surface text-text shadow-sm" : "text-text-muted hover:text-text"
             }`}
           >

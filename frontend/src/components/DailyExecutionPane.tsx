@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { updateTask, type TaskMutationOptions } from "../api";
+import { getDomainClasses } from "../constants/domainColors";
 import type { DailyWorkspaceRead, TaskRead } from "../types/api";
 
 const OVERDUE_PAGE_SIZE = 10;
@@ -36,7 +37,10 @@ function TaskRow({
   const [busy, setBusy] = useState(false);
   const [moveDate, setMoveDate] = useState(task.planned_for);
 
-  const domainLabel = domainsById.get(task.domain_id) ?? "Domain";
+  const domainKey = domainsById.get(task.domain_id) ?? "other";
+  const domainChipClass = getDomainClasses(domainKey).chip;
+  const domainLabel =
+    domainKey === "other" ? "Other" : domainKey.charAt(0).toUpperCase() + domainKey.slice(1);
   const objectiveLabels = (task.objective_ids ?? [])
     .map((id) => objectivesById.get(id))
     .filter(Boolean);
@@ -55,16 +59,23 @@ function TaskRow({
 
   return (
     <li className={`rounded-md border border-border bg-surface px-3 py-2 text-sm ${completedStyle}`}>
-      <div className="font-medium text-text">{task.name}</div>
-      <div className="mt-1 flex flex-wrap gap-1 text-xs text-text-muted">
-        <span className="rounded bg-surface px-1.5 py-0.5">{domainLabel}</span>
+      <div className="font-sans font-medium text-text">{task.name}</div>
+      <div className="mt-1 flex flex-wrap gap-1">
+        <span className={`inline-block px-1.5 py-0.5 capitalize ${domainChipClass}`}>
+          {domainLabel}
+        </span>
         {objectiveLabels.map((label) => (
-          <span key={label} className="rounded bg-surface px-1.5 py-0.5">
+          <span
+            key={label}
+            className="font-sans rounded-sm border border-border bg-bg px-1.5 py-0.5 text-[11px] text-text-muted"
+          >
             {label}
           </span>
         ))}
         {task.estimated_duration_minutes != null && task.estimated_duration_minutes > 0 && (
-          <span className="rounded bg-surface px-1.5 py-0.5">{task.estimated_duration_minutes}m est.</span>
+          <span className="font-sans rounded-sm border border-border bg-bg px-1.5 py-0.5 text-[11px] text-text-muted">
+            {task.estimated_duration_minutes}m est.
+          </span>
         )}
       </div>
       {actions === "active" && (
@@ -73,7 +84,7 @@ function TaskRow({
             type="button"
             disabled={busy}
             onClick={() => patch({ status: "completed" })}
-            className="rounded bg-today px-2 py-1 text-bg hover:brightness-110 disabled:opacity-50"
+            className="btn-chrome rounded bg-today px-2 py-1 text-sm text-bg hover:brightness-110 disabled:opacity-50"
           >
             Complete
           </button>
@@ -81,7 +92,7 @@ function TaskRow({
             type="button"
             disabled={busy}
             onClick={() => patch({ status: "cancelled" })}
-            className="rounded border border-border px-2 py-1 hover:bg-surface disabled:opacity-50"
+            className="btn-chrome rounded border border-border px-2 py-1 text-sm hover:bg-surface disabled:opacity-50"
           >
             Cancel
           </button>
@@ -293,7 +304,7 @@ export function DailyExecutionPane({
             {overdueRemaining > 0 && (
               <button
                 type="button"
-                className="mt-2 text-sm text-text-muted underline hover:text-text"
+                className="btn-chrome mt-2 text-sm text-text-muted hover:text-text"
                 onClick={() =>
                   setOverdueVisibleCount((n) =>
                     Math.min(n + OVERDUE_PAGE_SIZE, overdueTotal),

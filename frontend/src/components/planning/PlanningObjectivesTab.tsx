@@ -165,7 +165,7 @@ export function PlanningObjectivesTab() {
           const rows = byDomain.get(domain.id) ?? [];
           return (
             <div key={domain.id} className="rounded-lg border border-border bg-surface p-4">
-              <h3 className="mb-3 text-lg font-medium capitalize text-text">
+              <h3 className="font-display mb-3 text-lg capitalize text-text">
                 {domain.name}
               </h3>
               {rows.length === 0 ? (

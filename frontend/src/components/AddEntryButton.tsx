@@ -8,7 +8,7 @@ export function AddEntryButton({ onClick, className = "" }: AddEntryButtonProps)
     <button
       type="button"
       onClick={onClick}
-      className={`rounded border border-border px-3 py-1.5 text-sm font-medium text-text hover:bg-bg ${className}`}
+      className={`btn-chrome rounded border border-border px-3 py-1.5 text-sm text-text hover:bg-bg ${className}`}
     >
       Add +
     </button>
