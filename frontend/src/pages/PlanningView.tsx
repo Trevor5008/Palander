@@ -13,13 +13,13 @@ export function PlanningView() {
   return (
     <section className="mx-auto max-w-3xl space-y-6">
       <header>
-        <h2 className="text-2xl font-semibold text-gray-900">Planning</h2>
-        <p className="mt-1 text-sm text-gray-600">
+        <h2 className="text-2xl font-semibold text-text">Planning</h2>
+        <p className="mt-1 text-sm text-text-muted">
           Objectives, weekly domain review, and progress history for your execution model.
         </p>
       </header>
 
-      <nav className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 text-sm">
+      <nav className="flex gap-1 rounded-lg border border-border bg-bg p-1 text-sm">
         {(
           [
             ["objectives", "Objectives"],
@@ -32,7 +32,7 @@ export function PlanningView() {
             type="button"
             onClick={() => setTab(id)}
             className={`flex-1 rounded-md px-3 py-2 font-medium transition-colors ${
-              tab === id ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+              tab === id ? "bg-surface text-text shadow-sm" : "text-text-muted hover:text-text"
             }`}
           >
             {label}

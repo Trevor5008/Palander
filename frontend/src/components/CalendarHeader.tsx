@@ -41,7 +41,7 @@ export function CalendarHeader({
             type="button"
             aria-label="Previous month"
             onClick={onPrevMonth}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+            className="rounded p-1.5 text-text-muted hover:bg-surface"
           >
             <ChevronLeftIcon className="size-5" />
           </button>
@@ -49,30 +49,30 @@ export function CalendarHeader({
             type="button"
             aria-label="Next month"
             onClick={onNextMonth}
-            className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+            className="rounded p-1.5 text-text-muted hover:bg-surface"
           >
             <ChevronRightIcon className="size-5" />
           </button>
           <div>
-            <h2 className="text-2xl font-semibold">Monthly</h2>
-            <p className="text-sm text-gray-500">{formatMonthYear(viewDate)}</p>
+            <h2 className="font-display text-3xl text-text">Monthly</h2>
+            <p className="font-display text-base text-text-muted">{formatMonthYear(viewDate)}</p>
           </div>
           <button
             type="button"
             onClick={onToday}
-            className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+            className="rounded border border-border px-3 py-1 text-sm text-text hover:bg-bg"
           >
             today
           </button>
         </div>
-        <span className="text-sm text-gray-500">API: {apiStatus}</span>
+        <span className="text-sm text-text-muted">API: {apiStatus}</span>
       </div>
       <div className="mb-3 flex shrink-0 items-center justify-end gap-2">
         {onImportSchedule && (
           <button
             type="button"
             onClick={onImportSchedule}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded border border-border px-3 py-1.5 text-sm font-medium text-text hover:bg-bg"
           >
             Import schedule
           </button>

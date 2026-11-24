@@ -84,22 +84,22 @@ export function PlanningObjectivesTab() {
     <div className="space-y-6">
       <form
         onSubmit={handleCreate}
-        className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-surface p-4"
       >
         <div className="min-w-[12rem] flex-1">
-          <label htmlFor="obj-title" className="mb-1 block text-xs text-gray-500">
+          <label htmlFor="obj-title" className="mb-1 block text-xs text-text-muted">
             New objective
           </label>
           <input
             id="obj-title"
             value={draftTitle}
             onChange={(e) => setDraftTitle(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm"
             placeholder="Outcome or mission"
           />
         </div>
         <div>
-          <label htmlFor="obj-target" className="mb-1 block text-xs text-gray-500">
+          <label htmlFor="obj-target" className="mb-1 block text-xs text-text-muted">
             Target date
           </label>
           <input
@@ -107,11 +107,11 @@ export function PlanningObjectivesTab() {
             type="date"
             value={draftTargetDate}
             onChange={(e) => setDraftTargetDate(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="rounded-md border border-border px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="obj-domain" className="mb-1 block text-xs text-gray-500">
+          <label htmlFor="obj-domain" className="mb-1 block text-xs text-text-muted">
             Domain
           </label>
           <select
@@ -120,7 +120,7 @@ export function PlanningObjectivesTab() {
             onChange={(e) =>
               setDraftDomainId(e.target.value ? Number(e.target.value) : "")
             }
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="rounded-md border border-border px-3 py-2 text-sm"
           >
             <option value="">Select…</option>
             {domains.map((d) => (
@@ -133,7 +133,7 @@ export function PlanningObjectivesTab() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          className="rounded-md bg-today px-4 py-2 text-sm font-medium text-bg hover:brightness-110 disabled:opacity-50"
         >
           Add
         </button>
@@ -144,7 +144,7 @@ export function PlanningObjectivesTab() {
         )}
       </form>
 
-      <label className="flex items-center gap-2 text-sm text-gray-600">
+      <label className="flex items-center gap-2 text-sm text-text-muted">
         <input
           type="checkbox"
           checked={showCancelled}
@@ -153,7 +153,7 @@ export function PlanningObjectivesTab() {
         Show cancelled
       </label>
 
-      {loading && <p className="text-sm text-gray-500">Loading objectives…</p>}
+      {loading && <p className="text-sm text-text-muted">Loading objectives…</p>}
       {error && (
         <p className="text-sm text-red-600" role="alert">
           {error}
@@ -164,29 +164,29 @@ export function PlanningObjectivesTab() {
         {domains.map((domain) => {
           const rows = byDomain.get(domain.id) ?? [];
           return (
-            <div key={domain.id} className="rounded-lg border border-gray-200 bg-white p-4">
-              <h3 className="mb-3 text-lg font-medium capitalize text-gray-900">
+            <div key={domain.id} className="rounded-lg border border-border bg-surface p-4">
+              <h3 className="mb-3 text-lg font-medium capitalize text-text">
                 {domain.name}
               </h3>
               {rows.length === 0 ? (
-                <p className="text-sm text-gray-400">No objectives in this domain</p>
+                <p className="text-sm text-text-muted">No objectives in this domain</p>
               ) : (
                 <ul className="space-y-3">
                   {rows.map((objective) => (
                     <li
                       key={objective.id}
-                      className="flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+                      className="flex flex-wrap items-center gap-2 border-b border-border pb-3 last:border-0 last:pb-0"
                     >
                       <input
                         defaultValue={objective.title}
                         onBlur={(e) => changeTitle(objective, e.target.value)}
-                        className="min-w-[8rem] flex-1 rounded border border-transparent px-2 py-1 text-sm hover:border-gray-200 focus:border-gray-300 focus:outline-none"
+                        className="min-w-[8rem] flex-1 rounded border border-transparent px-2 py-1 text-sm hover:border-border focus:border-border focus:outline-none"
                       />
                       <input
                         type="date"
                         defaultValue={objective.target_date?.slice(0, 10) ?? ""}
                         onBlur={(e) => changeTargetDate(objective, e.target.value)}
-                        className="rounded border border-gray-300 px-2 py-1 text-xs"
+                        className="rounded border border-border px-2 py-1 text-xs"
                         aria-label="Target date"
                       />
                       <select
@@ -194,7 +194,7 @@ export function PlanningObjectivesTab() {
                         onChange={(e) =>
                           changeStatus(objective, e.target.value as ObjectiveStatus)
                         }
-                        className="rounded-md border border-gray-300 px-2 py-1 text-xs capitalize"
+                        className="rounded-md border border-border px-2 py-1 text-xs capitalize"
                       >
                         {STATUSES.map((s) => (
                           <option key={s} value={s}>

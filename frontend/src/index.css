@@ -1,2 +1,90 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/gochi-hand";
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+/* Semantic palette — dark default on :root */
+:root,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --pal-bg: #12141a;
+  --pal-surface: #181b23;
+  --pal-border: #252a36;
+  --pal-text: #e6e8ee;
+  --pal-text-muted: #8b90a0;
+  --pal-today: #2dd4bf;
+  --pal-nav-active-bg: rgb(45 212 191 / 0.12);
+  --pal-nav-active-text: #2dd4bf;
+  --pal-danger: #f87171;
+  --pal-danger-muted: rgb(248 113 113 / 0.15);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --pal-bg: #eceef2;
+  --pal-surface: #ffffff;
+  --pal-border: #d8dce6;
+  --pal-text: #1a1d24;
+  --pal-text-muted: #5c6370;
+  --pal-today: #0d9488;
+  --pal-nav-active-bg: rgb(13 148 136 / 0.12);
+  --pal-nav-active-text: #0d9488;
+  --pal-danger: #dc2626;
+  --pal-danger-muted: rgb(220 38 38 / 0.1);
+}
+
+@theme {
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-display: "Gochi Hand", cursive;
+
+  --color-bg: var(--pal-bg);
+  --color-surface: var(--pal-surface);
+  --color-border: var(--pal-border);
+  --color-text: var(--pal-text);
+  --color-text-muted: var(--pal-text-muted);
+  --color-today: var(--pal-today);
+  --color-nav-active-bg: var(--pal-nav-active-bg);
+  --color-nav-active-text: var(--pal-nav-active-text);
+  --color-danger: var(--pal-danger);
+  --color-danger-muted: var(--pal-danger-muted);
+
+  --radius-cell: 8px;
+
+  --color-domain-career-accent: #5b9cf5;
+  --color-domain-career-fill: rgb(91 156 245 / 0.15);
+  --color-domain-career-text: #cfe0fc;
+
+  --color-domain-fitness-accent: #4cc38a;
+  --color-domain-fitness-fill: rgb(76 195 138 / 0.15);
+  --color-domain-fitness-text: #c4efda;
+
+  --color-domain-finances-accent: #a78bfa;
+  --color-domain-finances-fill: rgb(167 139 250 / 0.16);
+  --color-domain-finances-text: #e3dafe;
+
+  --color-domain-school-accent: #f0b54a;
+  --color-domain-school-fill: rgb(240 181 74 / 0.15);
+  --color-domain-school-text: #fbe6bd;
+
+  --color-domain-other-accent: #8b90a0;
+  --color-domain-other-fill: rgb(139 144 160 / 0.15);
+  --color-domain-other-text: #d5d8e0;
+}
+
+html[data-theme="light"] {
+  --color-domain-career-text: #1e3a5f;
+  --color-domain-fitness-text: #14532d;
+  --color-domain-finances-text: #4c1d95;
+  --color-domain-school-text: #78350f;
+  --color-domain-other-text: #374151;
+}
+
+body {
+  @apply min-h-screen bg-bg font-sans text-text antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}

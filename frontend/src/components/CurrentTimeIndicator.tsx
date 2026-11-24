@@ -22,8 +22,8 @@ export function CurrentTimeIndicator({
         className="pointer-events-none absolute inset-x-0 z-20 flex items-center px-0.5"
         style={{ top }}
       >
-        <div className="size-2 shrink-0 rounded-full bg-red-500" aria-hidden />
-        <div className="h-0.5 flex-1 bg-red-500" />
+        <div className="size-2 shrink-0 rounded-full bg-danger-muted0" aria-hidden />
+        <div className="h-0.5 flex-1 bg-danger-muted0" />
       </div>
     );
   }
@@ -39,7 +39,7 @@ export function CurrentTimeIndicator({
           aria-hidden
         />
       </div>
-      <div className="h-0.5 flex-1 bg-red-500" />
+      <div className="h-0.5 flex-1 bg-danger-muted0" />
     </div>
   );
 }

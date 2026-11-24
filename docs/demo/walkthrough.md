@@ -2,7 +2,7 @@
 
 Synthetic data only — no personal schedules or school-account content. **Anchor date:** `2026-10-28`.
 
-There is **no public hosted demo**; run Palander locally ([`docs/clean-checkout.md`](../clean-checkout.md)).
+There is **no public hosted demo**; run Palander locally ([`docs/clean-checkout.md`](../clean-checkout.md)). The UI defaults to **dark**; use the header theme control for light or system before capture.
 
 ## 1. Reset and seed
 

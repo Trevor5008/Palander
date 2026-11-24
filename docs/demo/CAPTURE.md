@@ -10,6 +10,7 @@
 | API | Docker Compose (`localhost:8000`) |
 | UI | Vite dev server (`localhost:5173`) |
 | Login | `dev` / `dev` (local seed only) |
+| Theme | Default **dark**; record GIF with dark-first UI (optionally show header toggle → light) |
 
 **No public hosted demo** — screenshots and GIF reflect a local developer environment only.
 

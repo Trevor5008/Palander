@@ -1,7 +1,7 @@
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { useLayoutEffect, useRef, useState } from "react";
 import { CurrentTimeIndicator } from "./CurrentTimeIndicator";
-import { getDomainClassesById } from "../constants/domainColors";
+import { domainDotClassById, getDomainClassesById } from "../constants/domainColors";
 import {
   HOUR_ROW_HEIGHT_CLASS,
   HOUR_SLOTS,
@@ -74,13 +74,13 @@ export function DayTimeline({
   return (
     <>
       {showDayName && (
-        <div className="border-b border-gray-200 py-2 text-center text-md text-gray-900">
+        <div className="font-display border-b border-border py-2 text-center text-base text-text">
           {formatDayName(selectedDate)}
         </div>
       )}
 
       {dayTasks.length > 0 && (
-        <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-2">
+        <div className="flex flex-wrap gap-2 border-b border-border px-4 py-2">
           {dayTasks.map((task) => {
             const colors = getDomainClassesById(task.domain_id, domains);
             const obj = objectiveLabels(task.objective_ids ?? []);
@@ -89,7 +89,7 @@ export function DayTimeline({
                 key={`${task.id}-${task.occurrence_date ?? task.planned_for}`}
                 type="button"
                 onClick={() => onEditTask(task)}
-                className={`rounded px-2 py-1 text-xs ${colors.chip}`}
+                className={`rounded-sm px-2 py-1 text-xs ${colors.chip}`}
               >
                 {task.name}
                 {obj ? ` · ${obj}` : ""}
@@ -120,6 +120,10 @@ export function DayTimeline({
             const colors = getDomainClassesById(event.domain_id, domains);
             const key = eventOccurrenceKey(event);
             const obj = objectiveLabels(event.objective_ids ?? []);
+            const timeLabel = new Date(event.start_at).toLocaleTimeString(undefined, {
+              hour: "numeric",
+              minute: "2-digit",
+            });
             return (
               <div
                 key={key}
@@ -132,12 +136,17 @@ export function DayTimeline({
                     onEditEvent(event);
                   }
                 }}
-                className={`absolute left-16 right-2 z-10 overflow-hidden rounded border px-2 py-1 text-left text-xs ${colors.block}`}
+                className={`absolute left-16 right-2 z-10 overflow-hidden rounded-sm px-2 py-1 text-left text-xs ${colors.block}`}
                 style={{ top, height }}
               >
                 <div className="flex items-start justify-between gap-1">
                   <div className="min-w-0">
-                    <span className="line-clamp-2 font-medium">{event.title}</span>
+                    <span className="line-clamp-2 font-medium">
+                      <span
+                        className={`mr-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full align-middle ${domainDotClassById(event.domain_id, domains)}`}
+                      />
+                      <span className="tabular-nums">{timeLabel}</span> {event.title}
+                    </span>
                     {obj && <div className="truncate opacity-80">{obj}</div>}
                   </div>
                   <button
@@ -160,14 +169,14 @@ export function DayTimeline({
             <div key={hour} data-hour={hour} className={`relative flex ${HOUR_ROW_HEIGHT_CLASS}`}>
               <div className="relative w-16 shrink-0">
                 <span
-                  className={`absolute right-2 text-xs text-gray-400 ${
+                  className={`absolute right-2 text-xs text-text-muted ${
                     hour === 0 ? "top-0" : "-top-2"
                   }`}
                 >
                   {label}
                 </span>
               </div>
-              <div className="flex-1 border-t border-gray-200" />
+              <div className="flex-1 border-t border-border" />
             </div>
           ))}
         </div>

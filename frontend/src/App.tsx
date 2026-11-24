@@ -22,7 +22,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     const useViewportHeight = isCalendar || isDailyWorkspace;
 
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-900">
+        <div className="min-h-screen bg-bg text-text">
             <Header widthClass={widthClass} />
             <main
                 className={`mx-auto w-full ${widthClass} ${useViewportHeight

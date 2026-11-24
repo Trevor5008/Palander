@@ -51,18 +51,20 @@ function TaskRow({
     }
   }
 
+  const completedStyle = actions === "completed" ? "opacity-45 line-through" : "";
+
   return (
-    <li className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
-      <div className="font-medium text-gray-900">{task.name}</div>
-      <div className="mt-1 flex flex-wrap gap-1 text-xs text-gray-600">
-        <span className="rounded bg-white px-1.5 py-0.5">{domainLabel}</span>
+    <li className={`rounded-md border border-border bg-surface px-3 py-2 text-sm ${completedStyle}`}>
+      <div className="font-medium text-text">{task.name}</div>
+      <div className="mt-1 flex flex-wrap gap-1 text-xs text-text-muted">
+        <span className="rounded bg-surface px-1.5 py-0.5">{domainLabel}</span>
         {objectiveLabels.map((label) => (
-          <span key={label} className="rounded bg-white px-1.5 py-0.5">
+          <span key={label} className="rounded bg-surface px-1.5 py-0.5">
             {label}
           </span>
         ))}
         {task.estimated_duration_minutes != null && task.estimated_duration_minutes > 0 && (
-          <span className="rounded bg-white px-1.5 py-0.5">{task.estimated_duration_minutes}m est.</span>
+          <span className="rounded bg-surface px-1.5 py-0.5">{task.estimated_duration_minutes}m est.</span>
         )}
       </div>
       {actions === "active" && (
@@ -71,7 +73,7 @@ function TaskRow({
             type="button"
             disabled={busy}
             onClick={() => patch({ status: "completed" })}
-            className="rounded bg-green-700 px-2 py-1 text-white hover:bg-green-600 disabled:opacity-50"
+            className="rounded bg-today px-2 py-1 text-bg hover:brightness-110 disabled:opacity-50"
           >
             Complete
           </button>
@@ -79,7 +81,7 @@ function TaskRow({
             type="button"
             disabled={busy}
             onClick={() => patch({ status: "cancelled" })}
-            className="rounded border border-gray-300 px-2 py-1 hover:bg-white disabled:opacity-50"
+            className="rounded border border-border px-2 py-1 hover:bg-surface disabled:opacity-50"
           >
             Cancel
           </button>
@@ -89,13 +91,13 @@ function TaskRow({
               type="date"
               value={moveDate}
               onChange={(e) => setMoveDate(e.target.value)}
-              className="rounded border border-gray-300 px-1 py-0.5"
+              className="rounded border border-border px-1 py-0.5"
             />
             <button
               type="button"
               disabled={busy || moveDate === task.planned_for}
               onClick={() => patch({ planned_for: moveDate })}
-              className="rounded border border-gray-300 px-2 py-1 hover:bg-white disabled:opacity-50"
+              className="rounded border border-border px-2 py-1 hover:bg-surface disabled:opacity-50"
             >
               Save
             </button>
@@ -108,7 +110,7 @@ function TaskRow({
             type="button"
             disabled={busy}
             onClick={() => patch({ status: "active" })}
-            className="rounded border border-gray-300 px-2 py-1 text-xs hover:bg-white disabled:opacity-50"
+            className="rounded border border-border px-2 py-1 text-xs hover:bg-surface disabled:opacity-50"
           >
             Undo
           </button>
@@ -131,11 +133,11 @@ function Section({
 }) {
   return (
     <section className="shrink-0">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
         {title}
       </h3>
       {count === 0 ? (
-        <p className="text-sm text-gray-400">{empty}</p>
+        <p className="text-sm text-text-muted">{empty}</p>
       ) : (
         <ul className="space-y-2">{children}</ul>
       )}
@@ -159,14 +161,14 @@ function CollapsibleCompletedSection({
       <button
         type="button"
         onClick={onToggle}
-        className="mb-2 flex w-full items-center justify-between text-left text-xs font-semibold uppercase tracking-wide text-gray-500 hover:text-gray-700"
+        className="mb-2 flex w-full items-center justify-between text-left text-xs font-semibold uppercase tracking-wide text-text-muted hover:text-text"
         aria-expanded={open}
       >
         <span>Completed today ({count})</span>
         <span className="normal-case tracking-normal">{open ? "Hide" : "Show"}</span>
       </button>
       {count === 0 ? (
-        <p className="text-sm text-gray-400">Nothing completed on this day</p>
+        <p className="text-sm text-text-muted">Nothing completed on this day</p>
       ) : open ? (
         <ul className="max-h-48 space-y-2 overflow-y-auto">{children}</ul>
       ) : null}
@@ -191,7 +193,7 @@ export function DailyExecutionPane({
   }, [workspace?.date]);
 
   if (loading && !workspace) {
-    return <p className="p-4 text-sm text-gray-500">Loading execution workspace…</p>;
+    return <p className="p-4 text-sm text-text-muted">Loading execution workspace…</p>;
   }
   if (error) {
     return (
@@ -212,15 +214,15 @@ export function DailyExecutionPane({
     <div className="h-full min-h-0 overflow-y-auto">
       <div className="space-y-4 p-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-md border border-gray-200 p-3">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="rounded-md border border-border p-3">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
             Domain coverage
           </h3>
-          <ul className="space-y-1 text-xs text-gray-700">
+          <ul className="space-y-1 text-xs text-text">
             {workspace.domain_coverage.map((row) => (
               <li key={row.domain_id} className="flex justify-between gap-2">
                 <span>{row.domain_name}</span>
-                <span className="text-gray-500">
+                <span className="text-text-muted">
                   {row.scheduled_event_minutes}m events · {row.planned_task_count} tasks
                   {row.planned_task_minutes > 0 ? ` · ${row.planned_task_minutes}m est.` : ""}
                 </span>
@@ -228,24 +230,24 @@ export function DailyExecutionPane({
             ))}
           </ul>
         </div>
-        <div className="rounded-md border border-gray-200 p-3">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="rounded-md border border-border p-3">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
             Objective activity
           </h3>
           {workspace.objective_activity.length === 0 ? (
-            <p className="text-xs text-gray-400">No objective-linked work today</p>
+            <p className="text-xs text-text-muted">No objective-linked work today</p>
           ) : (
-            <ul className="space-y-1 text-xs text-gray-700">
+            <ul className="space-y-1 text-xs text-text">
               {workspace.objective_activity.map((row) => (
                 <li key={row.objective_id} className="flex flex-col gap-0.5">
                   <div className="flex justify-between gap-2">
                     <span className="truncate">{row.objective_title}</span>
-                    <span className="shrink-0 text-gray-500">
+                    <span className="shrink-0 text-text-muted">
                       {row.completed_task_count}/{row.planned_task_count} tasks
                     </span>
                   </div>
                   {row.scheduled_event_count > 0 && (
-                    <span className="text-gray-500">
+                    <span className="text-text-muted">
                       {row.scheduled_event_count} events · {row.scheduled_event_minutes}m scheduled
                     </span>
                   )}
@@ -270,12 +272,12 @@ export function DailyExecutionPane({
       </Section>
 
       <section className="shrink-0">
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
           Overdue
           {overdueTotal > 0 ? ` (${overdueTotal})` : ""}
         </h3>
         {overdueTotal === 0 ? (
-          <p className="text-sm text-gray-400">No overdue tasks</p>
+          <p className="text-sm text-text-muted">No overdue tasks</p>
         ) : (
           <>
             <ul className="space-y-2">
@@ -293,7 +295,7 @@ export function DailyExecutionPane({
             {overdueRemaining > 0 && (
               <button
                 type="button"
-                className="mt-2 text-sm text-gray-600 underline hover:text-gray-900"
+                className="mt-2 text-sm text-text-muted underline hover:text-text"
                 onClick={() =>
                   setOverdueVisibleCount((n) =>
                     Math.min(n + OVERDUE_PAGE_SIZE, overdueTotal),

@@ -24,13 +24,13 @@ export function DateNavBar({
   center,
 }: DateNavBarProps) {
   return (
-    <div className="grid grid-cols-3 items-center border-b border-gray-200 px-4 py-3">
+    <div className="grid grid-cols-3 items-center border-b border-border px-4 py-3">
       <div className="flex items-center gap-1">
         <button
           type="button"
           aria-label={prevLabel}
           onClick={onPrev}
-          className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+          className="rounded p-1.5 text-text-muted hover:bg-surface"
         >
           <ChevronLeftIcon className="size-5" />
         </button>
@@ -38,20 +38,20 @@ export function DateNavBar({
           type="button"
           aria-label={nextLabel}
           onClick={onNext}
-          className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+          className="rounded p-1.5 text-text-muted hover:bg-surface"
         >
           <ChevronRightIcon className="size-5" />
         </button>
         <button
           type="button"
           onClick={onToday}
-          className="ml-1 rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+          className="ml-1 rounded border border-border px-3 py-1 text-sm text-text hover:bg-bg"
         >
           today
         </button>
       </div>
 
-      {center ?? <h2 className="text-center text-lg font-semibold">{label}</h2>}
+      {center ?? <h2 className="font-display text-center text-base text-text">{label}</h2>}
 
       <div className="flex justify-end">
         <AddEntryButton onClick={onAdd} />

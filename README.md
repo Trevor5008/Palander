@@ -37,6 +37,8 @@ cd frontend && npm ci && npm run dev
 | Recurring task modal | [`recurrence.png`](docs/demo/images/recurrence.png) |
 | Schedule import (paste) | [`schedule-import.png`](docs/demo/images/schedule-import.png) |
 
+Default UI theme is **dark**; use the header control for light or system. Re-capture demo media after theme changes ([`docs/demo/CAPTURE.md`](docs/demo/CAPTURE.md)).
+
 Engineering narrative (portfolio source): [`docs/portfolio-case-study.md`](docs/portfolio-case-study.md).
 
 ## Table of contents

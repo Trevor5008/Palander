@@ -58,7 +58,7 @@ export function DailyView() {
   }
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface">
       <DateNavBar
         label={formatDate(selectedDate)}
         onPrev={() => setSelectedDate(addDays(selectedDate, -1))}
@@ -88,9 +88,9 @@ export function DailyView() {
           />
         </div>
 
-        <div className="flex min-h-0 flex-col overflow-hidden border-t border-gray-200 lg:border-t-0 lg:border-l">
-          <div className="shrink-0 border-b border-gray-200 px-4 py-2">
-            <h2 className="text-sm font-semibold text-gray-800">Daily execution</h2>
+        <div className="flex min-h-0 flex-col overflow-hidden border-t border-border lg:border-t-0 lg:border-l">
+          <div className="shrink-0 border-b border-border px-4 py-2">
+            <h2 className="text-sm font-semibold text-text">Daily execution</h2>
           </div>
           <div className="min-h-0 flex-1">
           <DailyExecutionPane

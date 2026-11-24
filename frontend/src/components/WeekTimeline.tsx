@@ -78,7 +78,7 @@ export function WeekTimeline({
   return (
     <>
       {/* Day column headers */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-border">
         <div className="w-16 shrink-0" />
         <div className="grid flex-1 grid-cols-7">
           {/* Render the day headers */}
@@ -87,13 +87,13 @@ export function WeekTimeline({
             return (
               <div
                 key={day.toISOString()}
-                className={`border-l border-gray-200 py-2 text-center first:border-l-0 ${
-                  isToday ? "bg-blue-50" : ""
+                className={`border-l border-border py-2 text-center first:border-l-0 ${
+                  isToday ? "bg-nav-active-bg" : ""
                 }`}
               >
-                <div className="text-xs font-medium text-gray-500">{WEEKDAY_LABELS[index]}</div>
+                <div className="text-xs font-medium text-text-muted">{WEEKDAY_LABELS[index]}</div>
                 <div
-                  className={`text-sm ${isToday ? "font-semibold text-blue-700" : "text-gray-900"}`}
+                  className={`text-sm ${isToday ? "font-semibold text-today" : "text-text"}`}
                 >
                   {formatShortMonthDay(day)}
                 </div>
@@ -105,8 +105,8 @@ export function WeekTimeline({
 
       {/* All-day events per column */}
       {hasAllDayEvents && (
-        <div className="flex border-b border-gray-200">
-          <div className="flex w-16 shrink-0 items-start justify-end px-1 pt-2 text-[10px] text-gray-400">
+        <div className="flex border-b border-border">
+          <div className="flex w-16 shrink-0 items-start justify-end px-1 pt-2 text-[10px] text-text-muted">
             all-day
           </div>
           <div className="grid flex-1 grid-cols-7">
@@ -117,7 +117,7 @@ export function WeekTimeline({
               return (
                 <div
                   key={day.toISOString()}
-                  className="min-h-8 space-y-0.5 border-l border-gray-200 p-1 first:border-l-0"
+                  className="min-h-8 space-y-0.5 border-l border-border p-1 first:border-l-0"
                 >
                   {/* Render the all-day event chips */}
                   {allDay.map((event) => {
@@ -152,7 +152,7 @@ export function WeekTimeline({
             {HOUR_SLOTS.map(({ hour, label }) => (
               <div key={hour} data-hour={hour} className={`relative ${HOUR_ROW_HEIGHT_CLASS}`}>
                 <span
-                  className={`absolute right-2 text-xs text-gray-400 ${
+                  className={`absolute right-2 text-xs text-text-muted ${
                     hour === 0 ? "top-0" : "-top-2"
                   }`}
                 >
@@ -170,7 +170,7 @@ export function WeekTimeline({
                 data-hour={hour}
                 className={`relative ${HOUR_ROW_HEIGHT_CLASS}`}
               >
-                <div className="absolute inset-x-0 top-0 border-t border-gray-200" />
+                <div className="absolute inset-x-0 top-0 border-t border-border" />
               </div>
             ))}
 
@@ -188,7 +188,7 @@ export function WeekTimeline({
                 return (
                   <div
                     key={day.toISOString()}
-                    className="relative border-l border-blue-200 first:border-l-0"
+                    className="relative border-l border-border first:border-l-0"
                   >
                     {/* Render the current time indicator on current day*/}
                     {isToday && (

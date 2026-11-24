@@ -30,7 +30,7 @@ export function CalendarGrid({
 }: CalendarGridProps) {
   // Render the Calendar Grid component
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-[auto_repeat(6,minmax(0,1fr))] overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-[auto_repeat(6,minmax(0,1fr))] overflow-hidden rounded-lg border border-border bg-surface">
       {/* Render the Calendar Weekday Labels */}
       {WEEKDAY_LABELS.map((day) => (
         <CalendarWeekdayLabel key={day} label={day} />

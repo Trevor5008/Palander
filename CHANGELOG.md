@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Dark-first design tokens, domain-tinted entry pills, Gochi Hand + Inter fonts, theme toggle (dark/light/system) ([#24](https://github.com/Trevor5008/Palander/issues/24))
 - Frontend test foundation (Vitest, React Testing Library) with Daily execution occurrence-scoped complete workflow test; CI runs `npm test`
 - [`docs/clean-checkout.md`](docs/clean-checkout.md) verified setup matrix; [`docs/dependency-audit.md`](docs/dependency-audit.md) npm/pip audit log
 - Demo seed (`app.demo_seed`, `scripts/reset_demo.sh`), [`docs/demo/walkthrough.md`](docs/demo/walkthrough.md), README screenshots + GIF (PAL-S1-003)

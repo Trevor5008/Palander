@@ -1,31 +1,29 @@
 import type { MouseEventHandler } from "react";
-import { getDomainClassesById } from "../../constants/domainColors";
+import { EntryPill } from "../ui/EntryPill";
 import type { DomainRead } from "../../types/api";
 
-// Calendar Entry Chip component props
 type CalendarEntryChipProps = {
   label: string;
   domainId: number | null | undefined;
   domains: DomainRead[];
+  completed?: boolean;
   onClick: MouseEventHandler<HTMLButtonElement>;
 };
 
-// Calendar Entry Chip component
 export function CalendarEntryChip({
   label,
   domainId,
   domains,
+  completed = false,
   onClick,
 }: CalendarEntryChipProps) {
-  const colors = getDomainClassesById(domainId, domains);
-
   return (
-    <button
-      type="button"
+    <EntryPill
+      label={label}
+      domainId={domainId}
+      domains={domains}
+      completed={completed}
       onClick={onClick}
-      className={`block w-full truncate rounded px-1 text-left text-[10px] ${colors.chip}`}
-    >
-      {label}
-    </button>
+    />
   );
 }
