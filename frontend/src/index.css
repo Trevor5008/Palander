@@ -83,8 +83,39 @@ body {
   @apply min-h-screen bg-bg font-sans text-text antialiased;
 }
 
-.font-display {
+/* Display type — Gochi Hand (page/section chrome, not modal body copy) */
+@utility font-display {
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+@utility type-section {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--color-text-muted);
+}
+
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+
+  /* Modal / form titles use Inter — Headless UI DialogTitle renders as h2 */
+  [role="dialog"] h2,
+  form h2 {
+    font-family: var(--font-sans);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 600;
+  }
 }

@@ -90,7 +90,7 @@ export function DailyView() {
 
         <div className="flex min-h-0 flex-col overflow-hidden border-t border-border lg:border-t-0 lg:border-l">
           <div className="shrink-0 border-b border-border px-4 py-2">
-            <h2 className="text-sm font-semibold text-text">Daily execution</h2>
+            <h2 className="text-base text-text">Daily execution</h2>
           </div>
           <div className="min-h-0 flex-1">
           <DailyExecutionPane

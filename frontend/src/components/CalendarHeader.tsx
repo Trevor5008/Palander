@@ -60,9 +60,9 @@ export function CalendarHeader({
           <button
             type="button"
             onClick={onToday}
-            className="rounded border border-border px-3 py-1 text-sm text-text hover:bg-bg"
+            className="font-display rounded border border-border px-3 py-1 text-sm text-today hover:bg-bg"
           >
-            today
+            Today
           </button>
         </div>
         <span className="text-sm text-text-muted">API: {apiStatus}</span>

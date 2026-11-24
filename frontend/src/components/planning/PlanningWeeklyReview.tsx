@@ -67,7 +67,7 @@ export function PlanningWeeklyReview({ weekStart, onWeekChange }: PlanningWeekly
       {data && (
         <>
           <section className="rounded-lg border border-border bg-surface p-4">
-            <h3 className="mb-2 text-sm font-semibold text-text">Domain allocation</h3>
+            <h3 className="font-display mb-2 text-sm text-text">Domain allocation</h3>
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="text-xs text-text-muted">
@@ -93,7 +93,7 @@ export function PlanningWeeklyReview({ weekStart, onWeekChange }: PlanningWeekly
           </section>
 
           <section className="rounded-lg border border-border bg-surface p-4">
-            <h3 className="mb-2 text-sm font-semibold text-text">Objective warnings</h3>
+            <h3 className="font-display mb-2 text-sm text-text">Objective warnings</h3>
             {data.objective_warnings.length === 0 ? (
               <p className="text-sm text-text-muted">No warnings</p>
             ) : (
@@ -109,7 +109,7 @@ export function PlanningWeeklyReview({ weekStart, onWeekChange }: PlanningWeekly
 
           <section className="rounded-lg border border-border bg-surface p-4">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-text">Carry forward</h3>
+              <h3 className="font-display text-sm text-text">Carry forward</h3>
               {data.carry_forward.length > 0 && (
                 <div className="flex items-center gap-2 text-xs">
                   <label>

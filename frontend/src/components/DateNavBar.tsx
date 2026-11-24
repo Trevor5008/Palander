@@ -45,9 +45,9 @@ export function DateNavBar({
         <button
           type="button"
           onClick={onToday}
-          className="ml-1 rounded border border-border px-3 py-1 text-sm text-text hover:bg-bg"
+          className="font-display ml-1 rounded border border-border px-3 py-1 text-sm text-today hover:bg-bg"
         >
-          today
+          Today
         </button>
       </div>
 

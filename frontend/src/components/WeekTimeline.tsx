@@ -91,9 +91,9 @@ export function WeekTimeline({
                   isToday ? "bg-nav-active-bg" : ""
                 }`}
               >
-                <div className="text-xs font-medium text-text-muted">{WEEKDAY_LABELS[index]}</div>
+                <div className="font-display text-base text-text-muted">{WEEKDAY_LABELS[index]}</div>
                 <div
-                  className={`text-sm ${isToday ? "font-semibold text-today" : "text-text"}`}
+                  className={`font-display text-base ${isToday ? "text-today" : "text-text"}`}
                 >
                   {formatShortMonthDay(day)}
                 </div>

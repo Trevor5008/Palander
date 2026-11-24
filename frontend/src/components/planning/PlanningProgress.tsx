@@ -16,7 +16,7 @@ export function PlanningProgress() {
   return (
     <div className="space-y-6">
       <section className="rounded-lg border border-border bg-surface p-4">
-        <h3 className="mb-2 text-sm font-semibold text-text">Recently completed objectives</h3>
+        <h3 className="font-display mb-2 text-sm text-text">Recently completed objectives</h3>
         {data.recently_completed_objectives.length === 0 ? (
           <p className="text-sm text-text-muted">None in the lookback window</p>
         ) : (
@@ -31,7 +31,7 @@ export function PlanningProgress() {
       </section>
 
       <section className="rounded-lg border border-border bg-surface p-4">
-        <h3 className="mb-2 text-sm font-semibold text-text">Objective activity by week</h3>
+        <h3 className="font-display mb-2 text-sm text-text">Objective activity by week</h3>
         {data.objective_weekly_activity.length === 0 ? (
           <p className="text-sm text-text-muted">No activity recorded</p>
         ) : (
@@ -61,7 +61,7 @@ export function PlanningProgress() {
       </section>
 
       <section className="rounded-lg border border-border bg-surface p-4">
-        <h3 className="mb-2 text-sm font-semibold text-text">Domain completions by week</h3>
+        <h3 className="font-display mb-2 text-sm text-text">Domain completions by week</h3>
         {data.domain_weekly_completions.length === 0 ? (
           <p className="text-sm text-text-muted">No completions</p>
         ) : (

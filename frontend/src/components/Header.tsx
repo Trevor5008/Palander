@@ -48,7 +48,7 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
       <div
         className={`mx-auto grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 ${widthClass}`}
       >
-        <h1 className="font-display text-2xl text-text">Palander</h1>
+        <h1 className="text-2xl text-text">Palander</h1>
         <time
           dateTime={now.toISOString()}
           className="text-lg tabular-nums tracking-wide text-text"

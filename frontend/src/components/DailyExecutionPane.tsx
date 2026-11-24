@@ -133,9 +133,7 @@ function Section({
 }) {
   return (
     <section className="shrink-0">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-        {title}
-      </h3>
+      <h3 className="type-section mb-2">{title}</h3>
       {count === 0 ? (
         <p className="text-sm text-text-muted">{empty}</p>
       ) : (
@@ -161,7 +159,7 @@ function CollapsibleCompletedSection({
       <button
         type="button"
         onClick={onToggle}
-        className="mb-2 flex w-full items-center justify-between text-left text-xs font-semibold uppercase tracking-wide text-text-muted hover:text-text"
+        className="type-section mb-2 flex w-full items-center justify-between text-left hover:text-text"
         aria-expanded={open}
       >
         <span>Completed today ({count})</span>
@@ -215,7 +213,7 @@ export function DailyExecutionPane({
       <div className="space-y-4 p-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-md border border-border p-3">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+          <h3 className="type-section mb-2">
             Domain coverage
           </h3>
           <ul className="space-y-1 text-xs text-text">
@@ -231,7 +229,7 @@ export function DailyExecutionPane({
           </ul>
         </div>
         <div className="rounded-md border border-border p-3">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+          <h3 className="type-section mb-2">
             Objective activity
           </h3>
           {workspace.objective_activity.length === 0 ? (
@@ -272,7 +270,7 @@ export function DailyExecutionPane({
       </Section>
 
       <section className="shrink-0">
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+        <h3 className="type-section mb-2">
           Overdue
           {overdueTotal > 0 ? ` (${overdueTotal})` : ""}
         </h3>

@@ -13,7 +13,7 @@ export function PlanningView() {
   return (
     <section className="mx-auto max-w-3xl space-y-6">
       <header>
-        <h2 className="text-2xl font-semibold text-text">Planning</h2>
+        <h2 className="text-3xl text-text">Planning</h2>
         <p className="mt-1 text-sm text-text-muted">
           Objectives, weekly domain review, and progress history for your execution model.
         </p>
