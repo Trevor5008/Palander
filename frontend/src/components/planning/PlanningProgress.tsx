@@ -1,3 +1,4 @@
+import { formatDomainLabel } from "../../constants/domains";
 import { usePlanningProgress } from "../../hooks/usePlanningProgress";
 
 export function PlanningProgress() {
@@ -68,7 +69,8 @@ export function PlanningProgress() {
           <ul className="space-y-1 text-sm">
             {data.domain_weekly_completions.map((row) => (
               <li key={`${row.domain_id}-${row.week_start}`}>
-                {row.week_start} — {row.domain_name}: {row.completed_task_count} completed
+                {row.week_start} — {formatDomainLabel(row.domain_name)}: {row.completed_task_count}{" "}
+                completed
               </li>
             ))}
           </ul>

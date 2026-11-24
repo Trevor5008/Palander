@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createObjective, deleteObjective, updateObjective } from "../../api";
+import { formatDomainLabel } from "../../constants/domains";
 import { useDomains } from "../../hooks/useDomains";
 import { useObjectives } from "../../hooks/useObjectives";
 import type { ObjectiveRead, ObjectiveStatus } from "../../types/api";
@@ -125,7 +126,7 @@ export function PlanningObjectivesTab() {
             <option value="">Select…</option>
             {domains.map((d) => (
               <option key={d.id} value={d.id}>
-                {d.name}
+                {formatDomainLabel(d.name)}
               </option>
             ))}
           </select>
@@ -165,8 +166,8 @@ export function PlanningObjectivesTab() {
           const rows = byDomain.get(domain.id) ?? [];
           return (
             <div key={domain.id} className="rounded-lg border border-border bg-surface p-4">
-              <h3 className="font-display mb-3 text-lg capitalize text-text">
-                {domain.name}
+              <h3 className="font-display mb-3 text-lg text-text">
+                {formatDomainLabel(domain.name)}
               </h3>
               {rows.length === 0 ? (
                 <p className="text-sm text-text-muted">No objectives in this domain</p>

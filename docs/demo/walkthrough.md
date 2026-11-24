@@ -27,6 +27,12 @@ Log in: **dev** / **dev**
 
 Open: [http://localhost:5173/?date=2026-10-28](http://localhost:5173/?date=2026-10-28)
 
+Refresh README screenshots and GIF after UI changes:
+
+```bash
+cd frontend && npm run capture:demo
+```
+
 ## 3. Daily execution
 
 - Timeline shows **Deep work block** and recurring **Team sync**.

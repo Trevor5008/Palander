@@ -106,7 +106,7 @@ export function WeekTimeline({
       {/* All-day events per column */}
       {hasAllDayEvents && (
         <div className="flex border-b border-border">
-          <div className="flex w-16 shrink-0 items-start justify-end px-1 pt-2 text-[10px] text-text-muted">
+          <div className="type-section flex w-16 shrink-0 items-start justify-end px-1 pt-2">
             all-day
           </div>
           <div className="grid flex-1 grid-cols-7">
@@ -127,7 +127,7 @@ export function WeekTimeline({
                         key={eventOccurrenceKey(event)}
                         type="button"
                         onClick={() => onEditEvent(event)}
-                        className={`block w-full truncate rounded px-1 py-0.5 text-left text-[10px] ${colors.chip}`}
+                        className={`block w-full text-left ${colors.chip}`}
                       >
                         {event.title}
                       </button>
@@ -152,7 +152,7 @@ export function WeekTimeline({
             {HOUR_SLOTS.map(({ hour, label }) => (
               <div key={hour} data-hour={hour} className={`relative ${HOUR_ROW_HEIGHT_CLASS}`}>
                 <span
-                  className={`absolute right-2 text-xs text-text-muted ${
+                  className={`type-timeline-hour absolute right-2 ${
                     hour === 0 ? "top-0" : "-top-2"
                   }`}
                 >
@@ -211,7 +211,7 @@ export function WeekTimeline({
                           key={`${eventOccurrenceKey(event)}-${day.toISOString()}`}
                           type="button"
                           onClick={() => onEditEvent(event)}
-                          className={`absolute left-0.5 right-0.5 z-10 overflow-hidden rounded border px-1 py-0.5 text-left text-[10px] ${colors.block}`}
+                          className={`absolute left-0.5 right-0.5 z-10 overflow-hidden text-left ${colors.block}`}
                           style={{ top, height }}
                         >
                           <span className="line-clamp-3 font-medium">{event.title}</span>
@@ -234,7 +234,7 @@ export function WeekTimeline({
                           key={task.id}
                           type="button"
                           onClick={() => onEditTask(task)}
-                          className={`absolute left-0.5 right-0.5 z-10 truncate rounded px-1 py-0.5 text-left text-[10px] ${colors.chip}`}
+                          className={`absolute left-0.5 right-0.5 z-10 text-left ${colors.chip}`}
                           style={{ top, height: rowHeight * 0.35 }}
                         >
                           {task.name}

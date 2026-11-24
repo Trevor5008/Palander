@@ -12,7 +12,7 @@ import {
   updateEvent,
   updateTask,
 } from "../api";
-import { DOMAINS, type Domain } from "../constants/domains";
+import { DOMAINS, formatDomainLabel, type Domain } from "../constants/domains";
 import type {
   DomainRead,
   EventRead,
@@ -458,7 +458,7 @@ export function EventModal({
               >
                 {DOMAINS.map((option) => (
                   <option key={option} value={option}>
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                    {formatDomainLabel(option)}
                   </option>
                 ))}
               </select>

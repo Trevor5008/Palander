@@ -54,7 +54,7 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
         <h1 className="text-2xl text-text">Palander</h1>
         <time
           dateTime={now.toISOString()}
-          className="font-sans text-lg tabular-nums tracking-wide text-text"
+          className="font-display text-lg tabular-nums tracking-wide text-text"
           aria-live="off"
         >
           {clockLabel}

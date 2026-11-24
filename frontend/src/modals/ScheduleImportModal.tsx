@@ -2,7 +2,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { InformationCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { importSchedule, parseSchedule, parseSchedulePdf } from "../api";
-import { DOMAINS } from "../constants/domains";
+import { DOMAINS, formatDomainLabel } from "../constants/domains";
 import type {
   DomainRead,
   FormatIssueRead,
@@ -555,7 +555,7 @@ export function ScheduleImportModal({
                           if (!domain) return null;
                           return (
                             <option key={domain.id} value={domain.id}>
-                              {name}
+                              {formatDomainLabel(name)}
                             </option>
                           );
                         })}

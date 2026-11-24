@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { updateTask, type TaskMutationOptions } from "../api";
 import { getDomainClasses } from "../constants/domainColors";
+import { formatDomainLabel } from "../constants/domains";
 import type { DailyWorkspaceRead, TaskRead } from "../types/api";
 
 const OVERDUE_PAGE_SIZE = 10;
@@ -39,8 +40,7 @@ function TaskRow({
 
   const domainKey = domainsById.get(task.domain_id) ?? "other";
   const domainChipClass = getDomainClasses(domainKey).chip;
-  const domainLabel =
-    domainKey === "other" ? "Other" : domainKey.charAt(0).toUpperCase() + domainKey.slice(1);
+  const domainLabel = formatDomainLabel(domainKey);
   const objectiveLabels = (task.objective_ids ?? [])
     .map((id) => objectivesById.get(id))
     .filter(Boolean);
@@ -58,10 +58,10 @@ function TaskRow({
   const completedStyle = actions === "completed" ? "opacity-45 line-through" : "";
 
   return (
-    <li className={`rounded-md border border-border bg-surface px-3 py-2 text-sm ${completedStyle}`}>
+    <li className={`shadow-tile rounded-md border border-border bg-surface px-3 py-2 text-sm ${completedStyle}`}>
       <div className="font-sans font-medium text-text">{task.name}</div>
       <div className="mt-1 flex flex-wrap gap-1">
-        <span className={`inline-block px-1.5 py-0.5 capitalize ${domainChipClass}`}>
+        <span className={`inline-block px-1.5 py-0.5 ${domainChipClass}`}>
           {domainLabel}
         </span>
         {objectiveLabels.map((label) => (
@@ -230,7 +230,7 @@ export function DailyExecutionPane({
           <ul className="space-y-1 text-xs text-text">
             {workspace.domain_coverage.map((row) => (
               <li key={row.domain_id} className="flex justify-between gap-2">
-                <span>{row.domain_name}</span>
+                <span>{formatDomainLabel(row.domain_name)}</span>
                 <span className="text-text-muted">
                   {row.scheduled_event_minutes}m events · {row.planned_task_count} tasks
                   {row.planned_task_minutes > 0 ? ` · ${row.planned_task_minutes}m est.` : ""}

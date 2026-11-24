@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { carryForwardTasks } from "../../api";
+import { formatDomainLabel } from "../../constants/domains";
 import { usePlanningWeeklyReview } from "../../hooks/usePlanningWeeklyReview";
 import { addWeeks, formatDateForInput, formatWeekRange, startOfWeek } from "../../utils/date";
 
@@ -81,7 +82,7 @@ export function PlanningWeeklyReview({ weekStart, onWeekChange }: PlanningWeekly
               <tbody>
                 {data.domain_allocation.map((row) => (
                   <tr key={row.domain_id} className="border-t border-border">
-                    <td className="py-1 capitalize">{row.domain_name}</td>
+                    <td className="py-1">{formatDomainLabel(row.domain_name)}</td>
                     <td>{row.scheduled_event_minutes}</td>
                     <td>{row.tasks_planned}</td>
                     <td>{row.tasks_completed}</td>

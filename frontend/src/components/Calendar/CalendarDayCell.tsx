@@ -61,7 +61,7 @@ export function CalendarDayCell({
             }
           : undefined
       }
-      className={`flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-border p-1.5 ${cell.isCurrentMonth ? "bg-surface" : "bg-bg"} ${cell.isToday ? "border-today ring-1 ring-today" : ""} ${isInteractive ? "cursor-pointer hover:brightness-105" : ""}`}
+      className={`shadow-tile flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-border p-1.5 ${cell.isCurrentMonth ? "bg-surface" : "bg-bg"} ${cell.isToday ? "border-today ring-1 ring-today" : ""} ${isInteractive ? "cursor-pointer hover:brightness-105" : ""}`}
     >
       {cell.day !== null && (
         <span

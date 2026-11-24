@@ -19,7 +19,7 @@ export function TimedEventLabel({
   const dot = domainDotClassById(domainId, domains);
   return (
     <span
-      className={`inline-flex min-w-0 max-w-full items-center gap-1.5 text-xs ${completed ? "opacity-45 line-through" : ""}`}
+      className={`inline-flex min-w-0 max-w-full items-center gap-1.5 font-sans text-[11px] leading-tight ${completed ? "opacity-45 line-through" : ""}`}
     >
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} aria-hidden />
       <span className="shrink-0 font-medium tabular-nums">{time}</span>

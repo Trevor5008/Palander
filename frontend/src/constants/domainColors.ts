@@ -4,7 +4,7 @@ export type DomainColorClasses = {
 };
 
 const PILL_BASE =
-  "font-sans truncate rounded-sm border-l-[3px] text-[11px] leading-tight transition-[filter] hover:brightness-110";
+  "shadow-tile font-sans truncate rounded-sm border-l-[3px] text-[11px] leading-tight transition-[filter,box-shadow] hover:brightness-110";
 
 const DOMAIN_COLORS: Record<string, DomainColorClasses> = {
   career: {

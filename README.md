@@ -25,8 +25,8 @@ Palander has **no public hosted demo** — run it locally ([`docs/clean-checkout
 ```bash
 ./scripts/reset_demo.sh
 cd frontend && npm ci && npm run dev
-# http://localhost:5173/?date=2026-10-28  — login dev / dev
 ```
+
 
 [![Daily execution (hero)](docs/demo/images/hero.png)](docs/demo/walkthrough.md)
 

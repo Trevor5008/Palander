@@ -89,7 +89,7 @@ export function DayTimeline({
                 key={`${task.id}-${task.occurrence_date ?? task.planned_for}`}
                 type="button"
                 onClick={() => onEditTask(task)}
-                className={`rounded-sm px-2 py-1 text-xs ${colors.chip}`}
+                className={colors.chip}
               >
                 {task.name}
                 {obj ? ` · ${obj}` : ""}
@@ -136,18 +136,18 @@ export function DayTimeline({
                     onEditEvent(event);
                   }
                 }}
-                className={`absolute left-16 right-2 z-10 overflow-hidden rounded-sm px-2 py-1 text-left text-xs ${colors.block}`}
+                className={`absolute left-16 right-2 z-10 overflow-hidden text-left ${colors.block}`}
                 style={{ top, height }}
               >
                 <div className="flex items-start justify-between gap-1">
                   <div className="min-w-0">
-                    <span className="line-clamp-2 font-medium">
+                    <span className="line-clamp-2 font-sans font-medium">
                       <span
                         className={`mr-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full align-middle ${domainDotClassById(event.domain_id, domains)}`}
                       />
                       <span className="tabular-nums">{timeLabel}</span> {event.title}
                     </span>
-                    {obj && <div className="truncate opacity-80">{obj}</div>}
+                    {obj && <div className="truncate font-sans opacity-80">{obj}</div>}
                   </div>
                   <button
                     type="button"
@@ -169,7 +169,7 @@ export function DayTimeline({
             <div key={hour} data-hour={hour} className={`relative flex ${HOUR_ROW_HEIGHT_CLASS}`}>
               <div className="relative w-16 shrink-0">
                 <span
-                  className={`absolute right-2 text-xs text-text-muted ${
+                  className={`type-timeline-hour absolute right-2 ${
                     hour === 0 ? "top-0" : "-top-2"
                   }`}
                 >
