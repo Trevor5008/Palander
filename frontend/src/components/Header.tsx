@@ -1,9 +1,12 @@
-import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { Bars3Icon, MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { LAYOUT_WIDTH_DEFAULT } from "../constants/layout";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useCurrentTime } from "../hooks/useCurrentTime";
+
+const AVATAR_PLACEHOLDER_SRC = "/placeholders/avatar.svg";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
@@ -85,15 +88,37 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
             )}
           </button>
           {user && (
-            <div className="flex items-center gap-3 border-l border-border pl-4">
-              <span className="text-text-muted">{user.username}</span>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="text-text-muted hover:text-today"
-              >
-                Log out
-              </button>
+            <div className="flex items-center gap-2 border-l border-border pl-4">
+              <img
+                src={AVATAR_PLACEHOLDER_SRC}
+                alt=""
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-full border border-border object-cover"
+              />
+              <Menu as="div" className="relative">
+                <MenuButton
+                  type="button"
+                  className="rounded-md border border-border p-1.5 text-text-muted hover:border-today hover:text-today"
+                  aria-label="Account menu"
+                >
+                  <Bars3Icon className="h-5 w-5" aria-hidden />
+                </MenuButton>
+                <MenuItems
+                  anchor="bottom end"
+                  className="z-50 mt-1 min-w-[10rem] origin-top-right rounded-md border border-border bg-surface py-1 shadow-lg focus:outline-none"
+                >
+                  <MenuItem>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full px-3 py-2 text-left font-sans text-sm text-text hover:bg-bg data-[focus]:bg-bg"
+                    >
+                      Log out
+                    </button>
+                  </MenuItem>
+                </MenuItems>
+              </Menu>
             </div>
           )}
         </div>
