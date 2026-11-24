@@ -7,9 +7,9 @@ import { useCurrentTime } from "../hooks/useCurrentTime";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    "rounded-md px-2.5 py-1 transition-colors",
+    "font-display rounded-md px-2.5 py-1 text-sm transition-colors",
     isActive
-      ? "bg-nav-active-bg font-medium text-nav-active-text"
+      ? "bg-nav-active-bg text-nav-active-text"
       : "text-text-muted hover:bg-surface hover:text-today",
   ].join(" ");
 }
@@ -51,7 +51,7 @@ export function Header({ widthClass = LAYOUT_WIDTH_DEFAULT }: HeaderProps) {
         <h1 className="text-2xl text-text">Palander</h1>
         <time
           dateTime={now.toISOString()}
-          className="text-lg tabular-nums tracking-wide text-text"
+          className="font-sans text-lg tabular-nums tracking-wide text-text"
           aria-live="off"
         >
           {clockLabel}
