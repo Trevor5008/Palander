@@ -3,29 +3,34 @@ export type DomainColorClasses = {
   block: string;
 };
 
+const PILL_BASE =
+  "shadow-tile font-sans truncate rounded-sm border-l-[3px] text-[11px] leading-tight transition-[filter,box-shadow] hover:brightness-110";
+
 const DOMAIN_COLORS: Record<string, DomainColorClasses> = {
   career: {
-    chip: "bg-blue-100 text-blue-900 hover:bg-blue-200",
-    block: "border-blue-300 bg-blue-100 text-blue-900 hover:bg-blue-200",
+    chip: `${PILL_BASE} border-l-domain-career-accent bg-domain-career-fill text-domain-career-text`,
+    block: `${PILL_BASE} border border-border border-l-domain-career-accent bg-domain-career-fill text-domain-career-text`,
   },
   fitness: {
-    chip: "bg-green-100 text-green-900 hover:bg-green-200",
-    block: "border-green-300 bg-green-100 text-green-900 hover:bg-green-200",
+    chip: `${PILL_BASE} border-l-domain-fitness-accent bg-domain-fitness-fill text-domain-fitness-text`,
+    block: `${PILL_BASE} border border-border border-l-domain-fitness-accent bg-domain-fitness-fill text-domain-fitness-text`,
   },
   finances: {
-    chip: "bg-purple-100 text-purple-900 hover:bg-purple-200",
-    block: "border-purple-300 bg-purple-100 text-purple-900 hover:bg-purple-200",
+    chip: `${PILL_BASE} border-l-domain-finances-accent bg-domain-finances-fill text-domain-finances-text`,
+    block: `${PILL_BASE} border border-border border-l-domain-finances-accent bg-domain-finances-fill text-domain-finances-text`,
   },
   school: {
-    chip: "bg-amber-100 text-amber-900 hover:bg-amber-200",
-    block: "border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-200",
+    chip: `${PILL_BASE} border-l-domain-school-accent bg-domain-school-fill text-domain-school-text`,
+    block: `${PILL_BASE} border border-border border-l-domain-school-accent bg-domain-school-fill text-domain-school-text`,
   },
 };
 
 const FALLBACK: DomainColorClasses = {
-  chip: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-  block: "border-gray-300 bg-gray-100 text-gray-900 hover:bg-gray-200",
+  chip: `${PILL_BASE} border-l-domain-other-accent bg-domain-other-fill text-domain-other-text`,
+  block: `${PILL_BASE} border border-border border-l-domain-other-accent bg-domain-other-fill text-domain-other-text`,
 };
+
+export const COMPLETED_ENTRY_CLASSES = "opacity-45 line-through";
 
 export function getDomainClasses(domainName: string): DomainColorClasses {
   return DOMAIN_COLORS[domainName.toLowerCase()] ?? FALLBACK;
@@ -38,4 +43,24 @@ export function getDomainClassesById(
   if (domainId == null) return FALLBACK;
   const domain = domains.find((d) => d.id === domainId);
   return domain ? getDomainClasses(domain.name) : FALLBACK;
+}
+
+const DOT_BY_KEY: Record<string, string> = {
+  career: "bg-domain-career-accent",
+  fitness: "bg-domain-fitness-accent",
+  finances: "bg-domain-finances-accent",
+  school: "bg-domain-school-accent",
+};
+
+export function domainDotClass(domainName: string): string {
+  return DOT_BY_KEY[domainName.toLowerCase()] ?? "bg-domain-other-accent";
+}
+
+export function domainDotClassById(
+  domainId: number | null | undefined,
+  domains: { id: number; name: string }[],
+): string {
+  if (domainId == null) return "bg-domain-other-accent";
+  const domain = domains.find((d) => d.id === domainId);
+  return domain ? domainDotClass(domain.name) : "bg-domain-other-accent";
 }

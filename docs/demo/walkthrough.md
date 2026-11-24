@@ -2,7 +2,7 @@
 
 Synthetic data only — no personal schedules or school-account content. **Anchor date:** `2026-10-28`.
 
-There is **no public hosted demo**; run Palander locally ([`docs/clean-checkout.md`](../clean-checkout.md)).
+There is **no public hosted demo**; run Palander locally ([`docs/clean-checkout.md`](../clean-checkout.md)). The UI defaults to **dark**; use the header theme control for light or system before capture.
 
 ## 1. Reset and seed
 
@@ -26,6 +26,12 @@ cd frontend && npm ci && cp -n .env.example .env && npm run dev
 Log in: **dev** / **dev**
 
 Open: [http://localhost:5173/?date=2026-10-28](http://localhost:5173/?date=2026-10-28)
+
+Refresh README screenshots and GIF after UI changes:
+
+```bash
+cd frontend && npm run capture:demo
+```
 
 ## 3. Daily execution
 

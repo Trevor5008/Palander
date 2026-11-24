@@ -25,6 +25,26 @@ export function CalendarDayCell({
   onCreateForDay,
 }: CalendarDayCellProps) {
   const isInteractive = cell.day !== null && onCreateForDay;
+  const MAX_VISIBLE = 4;
+  type Row = { kind: "event" | "task"; key: string; label: string; domainId: number | null | undefined; onEdit: () => void };
+  const rows: Row[] = [
+    ...events.map((event) => ({
+      kind: "event" as const,
+      key: `e-${eventOccurrenceKey(event)}`,
+      label: event.title,
+      domainId: event.domain_id,
+      onEdit: () => onEditEvent(event),
+    })),
+    ...tasks.map((task) => ({
+      kind: "task" as const,
+      key: `t-${task.id}`,
+      label: task.name,
+      domainId: task.domain_id,
+      onEdit: () => onEditTask(task),
+    })),
+  ];
+  const visible = rows.slice(0, MAX_VISIBLE);
+  const overflow = rows.length - visible.length;
 
   return (
     <div
@@ -41,41 +61,31 @@ export function CalendarDayCell({
             }
           : undefined
       }
-      className={`flex min-h-0 flex-col overflow-hidden border border-gray-200 p-1.5 ${cell.isCurrentMonth ? "bg-white" : "bg-gray-50"} ${cell.isToday ? "ring-2 ring-inset ring-blue-400" : ""} ${isInteractive ? "cursor-pointer hover:bg-gray-50/80" : ""}`}
+      className={`shadow-tile flex min-h-0 flex-col overflow-hidden rounded-[8px] border border-border p-1.5 ${cell.isCurrentMonth ? "bg-surface" : "bg-bg"} ${cell.isToday ? "border-today ring-1 ring-today" : ""} ${isInteractive ? "cursor-pointer hover:brightness-105" : ""}`}
     >
-      {/* Render the day number */}
       {cell.day !== null && (
         <span
-          className={`mb-1 block shrink-0 text-xs ${cell.isToday ? "font-semibold text-blue-600" : "text-gray-400"}`}
+          className={`font-display mb-1 block shrink-0 text-[17px] leading-none ${cell.isToday ? "text-today" : "text-text-muted"}`}
         >
           {cell.day}
         </span>
       )}
       <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto">
-        {events.map((event) => (
+        {visible.map((row) => (
           <CalendarEntryChip
-            key={`e-${eventOccurrenceKey(event)}`}
-            label={event.title}
-            domainId={event.domain_id}
+            key={row.key}
+            label={row.label}
+            domainId={row.domainId}
             domains={domains}
             onClick={(e) => {
               e.stopPropagation();
-              onEditEvent(event);
+              row.onEdit();
             }}
           />
         ))}
-        {tasks.map((task) => (
-          <CalendarEntryChip
-            key={`t-${task.id}`}
-            label={task.name}
-            domainId={task.domain_id}
-            domains={domains}
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditTask(task);
-            }}
-          />
-        ))}
+        {overflow > 0 && (
+          <p className="px-0.5 text-[10px] text-text-muted">+{overflow} more</p>
+        )}
       </div>
     </div>
   );

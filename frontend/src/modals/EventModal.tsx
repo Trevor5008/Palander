@@ -12,7 +12,7 @@ import {
   updateEvent,
   updateTask,
 } from "../api";
-import { DOMAINS, type Domain } from "../constants/domains";
+import { DOMAINS, formatDomainLabel, type Domain } from "../constants/domains";
 import type {
   DomainRead,
   EventRead,
@@ -393,7 +393,7 @@ export function EventModal({
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-5 shadow-xl">
+        <DialogPanel className="w-full max-w-md rounded-lg border border-border bg-surface p-5 shadow-xl">
           <div className="mb-4 flex items-start justify-between gap-4">
             <DialogTitle className="sr-only">
               {isEditMode ? "Edit entry" : "Add entry"}
@@ -403,13 +403,13 @@ export function EventModal({
               placeholder="Add title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg font-medium placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+              className="w-full rounded-md border border-border px-3 py-2 text-lg font-medium placeholder:text-text-muted focus:border-today focus:outline-none focus:ring-1 focus:ring-today/50"
             />
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="shrink-0 rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              className="shrink-0 rounded p-1 text-text-muted hover:bg-surface hover:text-text"
             >
               <XMarkIcon className="size-5" />
             </button>
@@ -440,7 +440,7 @@ export function EventModal({
 
           <div className="space-y-3 text-sm">
             <div>
-              <label htmlFor="domain" className="mb-1 block text-gray-500">
+              <label htmlFor="domain" className="mb-1 block text-text-muted">
                 Domain
               </label>
               <select
@@ -454,21 +454,21 @@ export function EventModal({
     setIsRecurring(false);
     setEditScope("series");
                 }}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-border px-3 py-2"
               >
                 {DOMAINS.map((option) => (
                   <option key={option} value={option}>
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                    {formatDomainLabel(option)}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <span className="mb-1 block text-gray-500">Objectives (optional)</span>
-              <div className="max-h-28 space-y-1 overflow-y-auto rounded-md border border-gray-300 p-2">
+              <span className="mb-1 block text-text-muted">Objectives (optional)</span>
+              <div className="max-h-28 space-y-1 overflow-y-auto rounded-md border border-border p-2">
                 {objectivesForDomain.length === 0 ? (
-                  <p className="text-xs text-gray-400">None in this domain</p>
+                  <p className="text-xs text-text-muted">None in this domain</p>
                 ) : (
                   objectivesForDomain.map((obj) => (
                     <label key={obj.id} className="flex items-center gap-2 text-xs">
@@ -493,7 +493,7 @@ export function EventModal({
             {entryType === "event" ? (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="startDate" className="mb-1 block text-gray-500">
+                  <label htmlFor="startDate" className="mb-1 block text-text-muted">
                     Start date
                   </label>
                   <input
@@ -505,11 +505,11 @@ export function EventModal({
                       setStartDate(next);
                       setEndDate((current) => (current < next ? next : current));
                     }}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="w-full rounded-md border border-border px-3 py-2"
                   />
                 </div>
                 <div>
-                  <label htmlFor="endDate" className="mb-1 block text-gray-500">
+                  <label htmlFor="endDate" className="mb-1 block text-text-muted">
                     End date
                   </label>
                   <input
@@ -518,14 +518,14 @@ export function EventModal({
                     value={endDate}
                     min={startDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="w-full rounded-md border border-border px-3 py-2"
                   />
                 </div>
               </div>
             ) : (
               <div className={showTaskDueDate ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
                 <div>
-                  <label htmlFor="plannedDate" className="mb-1 block text-gray-500">
+                  <label htmlFor="plannedDate" className="mb-1 block text-text-muted">
                     {taskPlannedDateLabel}
                   </label>
                   <input
@@ -539,12 +539,12 @@ export function EventModal({
                         setDueDate(next);
                       }
                     }}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="w-full rounded-md border border-border px-3 py-2"
                   />
                 </div>
                 {showTaskDueDate && (
                   <div>
-                    <label htmlFor="dueDate" className="mb-1 block text-gray-500">
+                    <label htmlFor="dueDate" className="mb-1 block text-text-muted">
                       Due date
                     </label>
                     <input
@@ -552,7 +552,7 @@ export function EventModal({
                       type="date"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      className="w-full rounded-md border border-border px-3 py-2"
                     />
                   </div>
                 )}
@@ -562,7 +562,7 @@ export function EventModal({
             {entryType === "event" ? (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="startTime" className="mb-1 block text-gray-500">
+                  <label htmlFor="startTime" className="mb-1 block text-text-muted">
                     Start time
                   </label>
                   <input
@@ -571,11 +571,11 @@ export function EventModal({
                     value={startTime}
                     disabled={allDay}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:bg-gray-50"
+                    className="w-full rounded-md border border-border px-3 py-2 disabled:bg-bg"
                   />
                 </div>
                 <div>
-                  <label htmlFor="endTime" className="mb-1 block text-gray-500">
+                  <label htmlFor="endTime" className="mb-1 block text-text-muted">
                     End time
                   </label>
                   <input
@@ -584,13 +584,13 @@ export function EventModal({
                     value={endTime}
                     disabled={allDay}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:bg-gray-50"
+                    className="w-full rounded-md border border-border px-3 py-2 disabled:bg-bg"
                   />
                 </div>
               </div>
             ) : (
               <div>
-                <label htmlFor="taskTime" className="mb-1 block text-gray-500">
+                <label htmlFor="taskTime" className="mb-1 block text-text-muted">
                   Due time
                 </label>
                 <input
@@ -598,7 +598,7 @@ export function EventModal({
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-border px-3 py-2"
                 />
               </div>
             )}
@@ -606,7 +606,7 @@ export function EventModal({
             {entryType === "task" && (
               <>
               <div>
-                <label htmlFor="duration" className="mb-1 block text-gray-500">
+                <label htmlFor="duration" className="mb-1 block text-text-muted">
                   Estimated duration (minutes)
                 </label>
                 <input
@@ -616,18 +616,18 @@ export function EventModal({
                   max={1440}
                   value={estimatedDurationMinutes}
                   onChange={(e) => setEstimatedDurationMinutes(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-border px-3 py-2"
                 />
               </div>
               <div>
-                <label htmlFor="linkedEvent" className="mb-1 block text-gray-500">
+                <label htmlFor="linkedEvent" className="mb-1 block text-text-muted">
                   Linked event (optional)
                 </label>
                 <select
                   id="linkedEvent"
                   value={linkedEventId}
                   onChange={(e) => setLinkedEventId(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-border px-3 py-2"
                 >
                   <option value="">None</option>
                   {linkedEvents.map((event) => (
@@ -653,14 +653,14 @@ export function EventModal({
                   />
                 </label>
                 {isRecurring && (
-                  <div className="space-y-2 rounded-md border border-gray-200 p-3">
+                  <div className="space-y-2 rounded-md border border-border p-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-1 block text-gray-500">Frequency</label>
+                        <label className="mb-1 block text-text-muted">Frequency</label>
                         <select
                           value={recurrenceFreq}
                           onChange={(e) => setRecurrenceFreq(e.target.value as RecurrenceFreq)}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                          className="w-full rounded-md border border-border px-3 py-2"
                         >
                           <option value="DAILY">Daily</option>
                           <option value="WEEKLY">Weekly</option>
@@ -668,14 +668,14 @@ export function EventModal({
                         </select>
                       </div>
                       <div>
-                        <label className="mb-1 block text-gray-500">Every</label>
+                        <label className="mb-1 block text-text-muted">Every</label>
                         <input
                           type="number"
                           min={1}
                           max={99}
                           value={recurrenceInterval}
                           onChange={(e) => setRecurrenceInterval(Number(e.target.value))}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                          className="w-full rounded-md border border-border px-3 py-2"
                         />
                       </div>
                     </div>
@@ -700,21 +700,21 @@ export function EventModal({
                       </div>
                     )}
                     <div>
-                      <label className="mb-1 block text-gray-500">Repeat until</label>
+                      <label className="mb-1 block text-text-muted">Repeat until</label>
                       <input
                         type="date"
                         value={recurrenceUntil}
                         min={plannedDate}
                         onChange={(e) => setRecurrenceUntil(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="w-full rounded-md border border-border px-3 py-2"
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-gray-500">Overdue policy</label>
+                      <label className="mb-1 block text-text-muted">Overdue policy</label>
                       <select
                         value={overduePolicy}
                         onChange={(e) => setOverduePolicy(e.target.value as TaskOverduePolicy)}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="w-full rounded-md border border-border px-3 py-2"
                       >
                         <option value="keep_overdue">Keep overdue</option>
                         <option value="skip_expired">Skip expired</option>
@@ -746,17 +746,17 @@ export function EventModal({
                   />
                 </label>
                 {isRecurring && (
-                  <div className="space-y-2 rounded-md border border-gray-200 p-3">
+                  <div className="space-y-2 rounded-md border border-border p-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label htmlFor="recurrenceFreq" className="mb-1 block text-gray-500">
+                        <label htmlFor="recurrenceFreq" className="mb-1 block text-text-muted">
                           Frequency
                         </label>
                         <select
                           id="recurrenceFreq"
                           value={recurrenceFreq}
                           onChange={(e) => setRecurrenceFreq(e.target.value as RecurrenceFreq)}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                          className="w-full rounded-md border border-border px-3 py-2"
                         >
                           <option value="DAILY">Daily</option>
                           <option value="WEEKLY">Weekly</option>
@@ -764,7 +764,7 @@ export function EventModal({
                         </select>
                       </div>
                       <div>
-                        <label htmlFor="recurrenceInterval" className="mb-1 block text-gray-500">
+                        <label htmlFor="recurrenceInterval" className="mb-1 block text-text-muted">
                           Every
                         </label>
                         <input
@@ -774,13 +774,13 @@ export function EventModal({
                           max={99}
                           value={recurrenceInterval}
                           onChange={(e) => setRecurrenceInterval(Number(e.target.value))}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2"
+                          className="w-full rounded-md border border-border px-3 py-2"
                         />
                       </div>
                     </div>
                     {recurrenceFreq === "WEEKLY" && (
                     <div>
-                      <span className="mb-1 block text-gray-500">Repeat on</span>
+                      <span className="mb-1 block text-text-muted">Repeat on</span>
                       <div className="flex flex-wrap gap-2">
                         {WEEKDAY_CODES.map((code) => (
                           <label key={code} className="flex items-center gap-1 text-xs">
@@ -803,7 +803,7 @@ export function EventModal({
                     </div>
                     )}
                     <div>
-                      <label htmlFor="recurrenceUntil" className="mb-1 block text-gray-500">
+                      <label htmlFor="recurrenceUntil" className="mb-1 block text-text-muted">
                         Repeat until
                       </label>
                       <input
@@ -812,11 +812,11 @@ export function EventModal({
                         value={recurrenceUntil}
                         min={startDate}
                         onChange={(e) => setRecurrenceUntil(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="w-full rounded-md border border-border px-3 py-2"
                       />
                     </div>
                     <div>
-                      <label htmlFor="timezone" className="mb-1 block text-gray-500">
+                      <label htmlFor="timezone" className="mb-1 block text-text-muted">
                         Timezone
                       </label>
                       <input
@@ -824,7 +824,7 @@ export function EventModal({
                         type="text"
                         value={timezone}
                         onChange={(e) => setTimezone(e.target.value)}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="w-full rounded-md border border-border px-3 py-2"
                       />
                     </div>
                   </div>
@@ -843,7 +843,7 @@ export function EventModal({
             {isEditMode ? (
               <div className="space-y-2">
                 {(editEvent?.occurrence_start_at || editTask?.occurrence_date) && (
-                  <fieldset className="text-xs text-gray-600">
+                  <fieldset className="text-xs text-text-muted">
                     <legend className="mb-1 font-medium">Apply changes to</legend>
                     <label className="mr-3 inline-flex items-center gap-1">
                       <input
@@ -878,7 +878,7 @@ export function EventModal({
                   type="button"
                   onClick={handleDelete}
                   disabled={saving}
-                  className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                  className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-danger hover:bg-danger-muted disabled:opacity-50"
                 >
                   Delete
                 </button>
@@ -890,7 +890,7 @@ export function EventModal({
               type="button"
               onClick={() => handleSave(entryType)}
               disabled={saving}
-              className="rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+              className="rounded-md bg-today px-4 py-2 text-sm font-medium text-bg hover:brightness-110 disabled:opacity-50"
             >
               {saving ? "Saving…" : `Save ${entryType === "event" ? "Event" : "Task"}`}
             </button>

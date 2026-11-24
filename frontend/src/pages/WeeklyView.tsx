@@ -28,7 +28,7 @@ export function WeeklyView() {
   } = useEventTaskModal(viewDate);
 
   return (
-    <section className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <section className="overflow-hidden rounded-lg border border-border bg-surface">
       <DateNavBar
         label={formatWeekRange(weekStart, weekEnd)}
         onPrev={() => setViewDate(addWeeks(viewDate, -1))}

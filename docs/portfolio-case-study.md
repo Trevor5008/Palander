@@ -93,13 +93,16 @@ Concise, evidence-linked narrative for a future portfolio page. Repository versi
 - PDF schedule import does not OCR scanned PDFs; reminders are not exposed in the UI ([`docs/data-flow.md`](data-flow.md) — Not wired yet).
 - Frontend unit coverage is intentionally narrow (core Daily occurrence-complete flow); broader UI regression still relies on manual demo and backend tests ([`frontend/src/components/DailyExecutionPane.test.tsx`](../frontend/src/components/DailyExecutionPane.test.tsx)).
 
+### Current behavior (theme)
+
+- **Dark-first UI** with design tokens in [`frontend/src/index.css`](../frontend/src/index.css), domain-tinted entry pills, and header theme toggle (dark / light / system) ([`frontend/src/context/ThemeContext.tsx`](../frontend/src/context/ThemeContext.tsx), [#24](https://github.com/Trevor5008/Palander/issues/24)).
+
 ### Draft planning — not committed
 
 - **Daily Workspace Usability (Sprint 2 draft):** progressive disclosure on Daily execution and Overdue, occurrence-safe **bulk overdue cleanup**, and clearer **recurring delete-scope** language in the UI. Ready to groom with provisional dates; **no GitHub issues or Project cards loaded yet** ([`docs/planning/sprint-2-draft.md`](planning/sprint-2-draft.md), [GitHub Project #10](https://github.com/users/Trevor5008/projects/10)).
 
 ### Future candidates — not scheduled
 
-- **Theme support** (e.g. dark mode).
 - **Chat workspace foundation**.
 - **Historical recurring-task hygiene** — past-starting series and overdue/progress distortion (explicitly outside the Sprint 2 draft scope).
 

@@ -2,7 +2,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { InformationCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { importSchedule, parseSchedule, parseSchedulePdf } from "../api";
-import { DOMAINS } from "../constants/domains";
+import { DOMAINS, formatDomainLabel } from "../constants/domains";
 import type {
   DomainRead,
   FormatIssueRead,
@@ -247,7 +247,7 @@ export function ScheduleImportModal({
     <Dialog open={open} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-lg border border-gray-200 bg-white p-5 shadow-xl">
+        <DialogPanel className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-lg border border-border bg-surface p-5 shadow-xl">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex items-center gap-2">
               <DialogTitle className="text-lg font-semibold">Import schedule</DialogTitle>
@@ -260,7 +260,7 @@ export function ScheduleImportModal({
                   setHelpOpen(true);
                 }}
                 aria-label="Schedule paste format help"
-                className="rounded p-1 text-gray-500 hover:bg-gray-100"
+                className="rounded p-1 text-text-muted hover:bg-surface"
               >
                 <InformationCircleIcon className="size-5" />
               </button>
@@ -269,7 +269,7 @@ export function ScheduleImportModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="rounded p-1 text-gray-500 hover:bg-gray-100"
+              className="rounded p-1 text-text-muted hover:bg-surface"
             >
               <XMarkIcon className="size-5" />
             </button>
@@ -278,7 +278,7 @@ export function ScheduleImportModal({
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto text-sm">
             {formatIssues.length > 0 && (
               <div
-                className="rounded-md border border-red-300 bg-red-50 p-3 text-red-900"
+                className="rounded-md border border-red-300 bg-danger-muted p-3 text-red-900"
                 role="alert"
               >
                 <p className="mb-1 font-medium">Invalid schedule format</p>
@@ -299,14 +299,14 @@ export function ScheduleImportModal({
                 </button>
               </div>
             )}
-            <div className="flex gap-2 border-b border-gray-200 pb-2">
+            <div className="flex gap-2 border-b border-border pb-2">
               <button
                 type="button"
                 onClick={() => setImportMode("paste")}
                 className={`rounded-md px-3 py-1.5 text-sm ${
                   importMode === "paste"
-                    ? "bg-gray-800 text-white"
-                    : "bg-gray-100 text-gray-700"
+                    ? "bg-today text-bg"
+                    : "bg-surface text-text"
                 }`}
               >
                 Paste text
@@ -316,8 +316,8 @@ export function ScheduleImportModal({
                 onClick={() => setImportMode("pdf")}
                 className={`rounded-md px-3 py-1.5 text-sm ${
                   importMode === "pdf"
-                    ? "bg-gray-800 text-white"
-                    : "bg-gray-100 text-gray-700"
+                    ? "bg-today text-bg"
+                    : "bg-surface text-text"
                 }`}
               >
                 Upload PDF
@@ -330,8 +330,8 @@ export function ScheduleImportModal({
                 placeholder="e.g. Chemistry Lab M W 0900 1145 or Mon Wed 09:00 10:30"
                 className={`h-32 w-full rounded-md border px-3 py-2 ${
                   formatIssues.length > 0
-                    ? "border-red-400 bg-red-50/30 focus:border-red-500"
-                    : "border-gray-300"
+                    ? "border-red-400 bg-danger-muted/30 focus:border-red-500"
+                    : "border-border"
                 }`}
                 aria-invalid={formatIssues.length > 0}
               />
@@ -341,14 +341,14 @@ export function ScheduleImportModal({
                 accept="application/pdf"
                 onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
                 className={`w-full rounded-md border px-3 py-2 text-sm ${
-                  formatIssues.length > 0 ? "border-red-400 bg-red-50/30" : "border-gray-300"
+                  formatIssues.length > 0 ? "border-red-400 bg-danger-muted/30" : "border-border"
                 }`}
               />
             )}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label
-                  className={`mb-1 block ${termFieldsDisabled ? "text-gray-400" : "text-gray-500"}`}
+                  className={`mb-1 block ${termFieldsDisabled ? "text-text-muted" : "text-text-muted"}`}
                 >
                   Default year
                 </label>
@@ -357,16 +357,16 @@ export function ScheduleImportModal({
                   value={defaultYear}
                   disabled={termFieldsDisabled}
                   onChange={(e) => setDefaultYear(Number(e.target.value))}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+                  className="w-full rounded-md border border-border px-3 py-2 disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-muted"
                 />
               </div>
               {importMode === "paste" && (
                 <div>
-                  <label className="mb-1 block text-gray-500">Format</label>
+                  <label className="mb-1 block text-text-muted">Format</label>
                   <select
                     value={formatHint}
                     onChange={(e) => setFormatHint(e.target.value as ScheduleFormatHint)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="w-full rounded-md border border-border px-3 py-2"
                   >
                     <option value="auto">Auto</option>
                     <option value="plain">Plain lines</option>
@@ -376,7 +376,7 @@ export function ScheduleImportModal({
               )}
               <div>
                 <label
-                  className={`mb-1 block ${termFieldsDisabled ? "text-gray-400" : "text-gray-500"}`}
+                  className={`mb-1 block ${termFieldsDisabled ? "text-text-muted" : "text-text-muted"}`}
                 >
                   Term starts
                 </label>
@@ -385,12 +385,12 @@ export function ScheduleImportModal({
                   value={termStart}
                   disabled={termFieldsDisabled}
                   onChange={(e) => setTermStart(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+                  className="w-full rounded-md border border-border px-3 py-2 disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-muted"
                 />
               </div>
               <div>
                 <label
-                  className={`mb-1 block ${termFieldsDisabled ? "text-gray-400" : "text-gray-500"}`}
+                  className={`mb-1 block ${termFieldsDisabled ? "text-text-muted" : "text-text-muted"}`}
                 >
                   Repeat until
                 </label>
@@ -399,27 +399,27 @@ export function ScheduleImportModal({
                   value={termEnd}
                   disabled={termFieldsDisabled}
                   onChange={(e) => setTermEnd(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+                  className="w-full rounded-md border border-border px-3 py-2 disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-muted"
                 />
                 {termFieldsDisabled ? (
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-text-muted">
                     Start and end dates come from each course in the PDF.
                   </p>
                 ) : (
                   candidates.length > 0 && (
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-text-muted">
                       All series use this end date on import.
                     </p>
                   )
                 )}
               </div>
               <div className="col-span-2">
-                <label className="mb-1 block text-gray-500">Timezone</label>
+                <label className="mb-1 block text-text-muted">Timezone</label>
                 <input
                   type="text"
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-border px-3 py-2"
                 />
               </div>
             </div>
@@ -427,7 +427,7 @@ export function ScheduleImportModal({
               type="button"
               disabled={busy}
               onClick={importMode === "pdf" ? handleParsePdf : handleParse}
-              className="rounded-md bg-gray-800 px-4 py-2 text-white disabled:opacity-50"
+              className="rounded-md bg-today px-4 py-2 text-bg disabled:opacity-50"
             >
               {busy ? "Working…" : "Extract candidates"}
             </button>
@@ -438,7 +438,7 @@ export function ScheduleImportModal({
                   const start = new Date(candidate.start_at);
                   const end = new Date(candidate.end_at);
                   return (
-                    <div key={candidate.client_key} className="rounded-md border border-gray-200 p-3">
+                    <div key={candidate.client_key} className="rounded-md border border-border p-3">
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                         <label className="flex items-center gap-2">
                           <input
@@ -452,7 +452,7 @@ export function ScheduleImportModal({
                           />
                           Include
                         </label>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-text-muted">
                           Confidence {(candidate.confidence * 100).toFixed(0)}%
                         </span>
                         {candidate.duplicate_of_event_id && (
@@ -466,7 +466,7 @@ export function ScheduleImportModal({
                         onChange={(e) =>
                           updateCandidate(candidate.client_key, { title: e.target.value })
                         }
-                        className="mb-2 w-full rounded-md border border-gray-300 px-2 py-1"
+                        className="mb-2 w-full rounded-md border border-border px-2 py-1"
                       />
                       <div className="mb-2 flex flex-wrap gap-2">
                         {WEEKDAY_CODES.map((code) => (
@@ -488,7 +488,7 @@ export function ScheduleImportModal({
                       </div>
                       <div className="mb-2 grid grid-cols-2 gap-2">
                         <div>
-                          <label className="text-xs text-gray-500">Start time</label>
+                          <label className="text-xs text-text-muted">Start time</label>
                           <input
                             type="time"
                             value={formatTimeForInput(start)}
@@ -500,11 +500,11 @@ export function ScheduleImportModal({
                                 start_at: toApiDateTime(next),
                               });
                             }}
-                            className="w-full rounded-md border border-gray-300 px-2 py-1"
+                            className="w-full rounded-md border border-border px-2 py-1"
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-gray-500">End time</label>
+                          <label className="text-xs text-text-muted">End time</label>
                           <input
                             type="time"
                             value={formatTimeForInput(end)}
@@ -516,11 +516,11 @@ export function ScheduleImportModal({
                                 end_at: toApiDateTime(next),
                               });
                             }}
-                            className="w-full rounded-md border border-gray-300 px-2 py-1"
+                            className="w-full rounded-md border border-border px-2 py-1"
                           />
                         </div>
                       </div>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-text-muted">
                         {recurrenceSummary(
                           candidate.weekdays,
                           candidate.source_filename
@@ -528,12 +528,12 @@ export function ScheduleImportModal({
                             : termEnd,
                         )}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-text-muted">
                         First occurrence {formatDateForInput(start)}
                       </p>
-                      <p className="text-xs text-gray-500">{candidate.source_snippet}</p>
+                      <p className="text-xs text-text-muted">{candidate.source_snippet}</p>
                       {(candidate.source_filename || candidate.source_page) && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-text-muted">
                           Source: {candidate.source_filename ?? "PDF"}
                           {candidate.source_page ? `, page ${candidate.source_page}` : ""}
                         </p>
@@ -548,14 +548,14 @@ export function ScheduleImportModal({
                             domain_id: Number(e.target.value),
                           })
                         }
-                        className="mt-2 w-full rounded-md border border-gray-300 px-2 py-1"
+                        className="mt-2 w-full rounded-md border border-border px-2 py-1"
                       >
                         {DOMAINS.map((name) => {
                           const domain = domains.find((item) => item.name === name);
                           if (!domain) return null;
                           return (
                             <option key={domain.id} value={domain.id}>
-                              {name}
+                              {formatDomainLabel(name)}
                             </option>
                           );
                         })}
@@ -567,7 +567,7 @@ export function ScheduleImportModal({
                   type="button"
                   disabled={busy}
                   onClick={handleImport}
-                  className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+                  className="rounded-md bg-today px-4 py-2 text-bg disabled:opacity-50"
                 >
                   Import selected
                 </button>
@@ -575,7 +575,7 @@ export function ScheduleImportModal({
             )}
 
             {result && (
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-text">
                 Imported {result.imported}, skipped {result.skipped}, duplicates{" "}
                 {result.duplicate}, unresolved {result.unresolved}
               </p>

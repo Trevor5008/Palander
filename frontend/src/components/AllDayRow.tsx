@@ -19,8 +19,8 @@ export function AllDayRow({
   if (events.length === 0) return null;
 
   return (
-    <div className="border-b border-gray-200 px-4 py-2">
-      <div className="mb-1 text-xs font-medium text-gray-500">All day</div>
+    <div className="border-b border-border px-4 py-2">
+      <div className="type-section mb-1">All day</div>
       <div className="flex flex-wrap gap-2">
         {events.map((event) => {
           const colors = getDomainClassesById(event.domain_id, domains);
@@ -32,7 +32,7 @@ export function AllDayRow({
           return (
             <div
               key={key}
-              className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${colors.chip}`}
+              className={`inline-flex items-center gap-1 ${colors.chip}`}
             >
               <button
                 type="button"
